@@ -412,7 +412,6 @@ export default function ChartTile({
                 },
               ]}
               margin={{ top: 20, right: 30, bottom: 10, left: -90 }}
-              tooltip={{ trigger: 'none' }}
               disableAxisListener={true}
               sx={{
                 width: '100%',
