@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "title": "Federal Reserve signals potential rate cuts amid cooling inflation data",
+    "category": "economic",
+    "date": "2024-11-17"
+  },
+  {
+    "id": 2,
+    "title": "Tech sector rebounds as AI chip demand reaches record highs",
+    "category": "market related",
+    "date": "2024-11-16"
+  },
+  {
+    "id": 3,
+    "title": "Oil prices surge following OPEC+ production cut announcement",
+    "category": "breaking",
+    "date": "2024-11-15"
+  },
+  {
+    "id": 4,
+    "title": "Major cryptocurrency exchange launches institutional trading platform",
+    "category": "new market",
+    "date": "2024-11-14"
+  },
+  {
+    "id": 5,
+    "title": "Manufacturing sector shows unexpected growth in latest PMI data",
+    "category": "economic",
+    "date": "2024-11-13"
+  },
+  {
+    "id": 6,
+    "title": "European markets rally on improved GDP forecasts",
+    "category": "market related",
+    "date": "2024-11-12"
+  },
+  {
+    "id": 7,
+    "title": "Breaking: Major semiconductor merger approved by regulators",
+    "category": "breaking",
+    "date": "2024-11-11"
+  },
+  {
+    "id": 8,
+    "title": "Treasury yields decline as bond market anticipates policy shift",
+    "category": "market related",
+    "date": "2024-11-10"
+  },
+  {
+    "id": 9,
+    "title": "Emerging markets ETF sees largest inflows in five years",
+    "category": "new market",
+    "date": "2024-11-09"
+  },
+  {
+    "id": 10,
+    "title": "Consumer confidence index reaches three-year high",
+    "category": "economic",
+    "date": "2024-11-08"
+  },
+  {
+    "id": 11,
+    "title": "Breaking: Global shipping costs drop 30% amid capacity expansion",
+    "category": "breaking",
+    "date": "2024-11-07"
+  },
+  {
+    "id": 12,
+    "title": "New carbon credit marketplace launches with Fortune 500 backing",
+    "category": "new market",
+    "date": "2024-11-06"
+  },
+  {
+    "id": 13,
+    "title": "Dollar strengthens as jobless claims fall below expectations",
+    "category": "economic",
+    "date": "2024-11-05"
+  },
+  {
+    "id": 14,
+    "title": "Electric vehicle stocks surge on breakthrough battery technology",
+    "category": "market related",
+    "date": "2024-11-04"
+  },
+  {
+    "id": 15,
+    "title": "Breaking: Central bank announces surprise liquidity measures",
+    "category": "breaking",
+    "date": "2024-11-03"
+  },
+  {
+    "id": 16,
+    "title": "Real estate investment trusts gain momentum in urban markets",
+    "category": "new market",
+    "date": "2024-11-02"
+  },
+  {
+    "id": 17,
+    "title": "Retail sales data exceeds forecasts for third consecutive month",
+    "category": "economic",
+    "date": "2024-11-01"
+  },
+  {
+    "id": 18,
+    "title": "Pharmaceutical sector rallies on positive clinical trial results",
+    "category": "market related",
+    "date": "2024-10-31"
+  },
+  {
+    "id": 19,
+    "title": "Breaking: Trade agreement reached between major economic powers",
+    "category": "breaking",
+    "date": "2024-10-30"
+  },
+  {
+    "id": 20,
+    "title": "Green energy funds attract record institutional investment",
+    "category": "new market",
+    "date": "2024-10-29"
+  },
+  {
+    "id": 21,
+    "title": "GDP growth revised upward in latest government estimates",
+    "category": "economic",
+    "date": "2024-10-28"
+  },
+  {
+    "id": 22,
+    "title": "Technology giants announce major cloud infrastructure expansion",
+    "category": "market related",
+    "date": "2024-10-27"
+  },
+  {
+    "id": 23,
+    "title": "Breaking: Commodity prices stabilize after volatile trading session",
+    "category": "breaking",
+    "date": "2024-10-26"
+  },
+  {
+    "id": 24,
+    "title": "Decentralized finance platforms see surge in institutional adoption",
+    "category": "new market",
+    "date": "2024-10-25"
+  },
+  {
+    "id": 25,
+    "title": "Housing market shows signs of stabilization in key regions",
+    "category": "economic",
+    "date": "2024-10-24"
+  },
+  {
+    "id": 26,
+    "title": "Banking sector reports stronger than expected quarterly earnings",
+    "category": "market related",
+    "date": "2024-10-23"
+  },
+  {
+    "id": 27,
+    "title": "Breaking: Major cybersecurity breach impacts financial institutions",
+    "category": "breaking",
+    "date": "2024-10-22"
+  },
+  {
+    "id": 28,
+    "title": "Space technology companies attract billion-dollar investments",
+    "category": "new market",
+    "date": "2024-10-21"
+  },
+  {
+    "id": 29,
+    "title": "Inflation metrics continue downward trend across major economies",
+    "category": "economic",
+    "date": "2024-10-20"
+  },
+  {
+    "id": 30,
+    "title": "Semiconductor industry consolidation reshapes global supply chains",
+    "category": "market related",
+    "date": "2024-10-19"
+  }
+]
