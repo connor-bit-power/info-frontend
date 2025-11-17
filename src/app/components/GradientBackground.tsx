@@ -1,15 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Transition } from 'framer-motion';
 import React from 'react';
 
 interface GradientBackgroundProps extends React.ComponentProps<'div'> {
   isDarkMode?: boolean;
-  transition?: {
-    duration?: number;
-    ease?: string;
-    repeat?: number;
-  };
+  transition?: Transition;
 }
 
 export default function GradientBackground({
