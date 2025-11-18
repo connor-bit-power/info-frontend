@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Tile from './Tile';
 import headlinesData from './Headlines.json';
+import { InfoCircleIcon } from '../../components/icons/InfoCircleIcon';
 
 interface NewsTileProps {
   id: string;
@@ -102,18 +103,18 @@ export default function NewsTile({
       >
         {/* Tile content */}
         <div className="h-full">
-          <h1 
-            className="text-white font-semibold"
-            style={{ 
-              fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-              fontSize: '28px',
-              position: 'absolute',
-              top: '15px',
-              left: '30px',
-            }}
-          >
-            Latest News
-          </h1>
+          <div className="flex justify-between items-center" style={{ position: 'absolute', top: '15px', left: '30px', right: '30px' }}>
+            <h1 
+              className="text-white font-semibold"
+              style={{ 
+                fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                fontSize: '28px',
+              }}
+            >
+              Latest News
+            </h1>
+            <InfoCircleIcon size="md" className="text-white opacity-85" />
+          </div>
           
           {/* Headlines list - Scrollable */}
           <div 

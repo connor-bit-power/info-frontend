@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 
 interface PillButtonProps {
-  label: string;
+  label: string | ReactNode;
   isSelected: boolean;
   onClick?: () => void;
   onClose?: (e: React.MouseEvent) => void;

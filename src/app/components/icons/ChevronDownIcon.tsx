@@ -1,0 +1,45 @@
+import React from 'react';
+
+interface ChevronDownIconProps {
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
+  width?: number;
+  height?: number;
+}
+
+export const ChevronDownIcon: React.FC<ChevronDownIconProps> = ({ 
+  className = '', 
+  size = 'md',
+  width, 
+  height 
+}) => {
+  const getSizeValues = () => {
+    if (width && height) return { width, height };
+    
+    switch (size) {
+      case 'sm': return { width: 12, height: 7 };
+      case 'lg': return { width: 20, height: 12 };
+      default: return { width: 16, height: 9 };
+    }
+  };
+  
+  const { width: finalWidth, height: finalHeight } = getSizeValues();
+  return (
+    <svg 
+      className={className}
+      width={finalWidth} 
+      height={finalHeight} 
+      viewBox="0 0 15.6357 9.36035" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g>
+        <rect height="9.36035" opacity="0" width="15.6357" x="0" y="0"/>
+        <path 
+          d="M7.6377 9.36035C7.85742 9.36035 8.07715 9.27246 8.22656 9.10547L15.0293 2.13574C15.1787 1.98633 15.2666 1.79297 15.2666 1.57324C15.2666 1.11621 14.9238 0.764648 14.4668 0.764648C14.2471 0.764648 14.0449 0.852539 13.8955 0.993164L7.16309 7.875L8.10352 7.875L1.37109 0.993164C1.23047 0.852539 1.02832 0.764648 0.799805 0.764648C0.342773 0.764648 0 1.11621 0 1.57324C0 1.79297 0.0878906 1.98633 0.237305 2.14453L7.04004 9.10547C7.20703 9.27246 7.40918 9.36035 7.6377 9.36035Z" 
+          fill="white" 
+          fillOpacity="0.85"
+        />
+      </g>
+    </svg>
+  );
+};

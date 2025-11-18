@@ -44,3 +44,22 @@ html {
 input::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
+
+/* React Day Picker styles */
+.rdp {
+  --rdp-cell-size: 36px;
+  --rdp-accent-color: white;
+  --rdp-background-color: rgba(255, 255, 255, 0.1);
+  font-family: 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.rdp-day_selected,
+.rdp-day_selected:focus-visible,
+.rdp-day_selected:hover {
+  background-color: white;
+  color: black;
+}

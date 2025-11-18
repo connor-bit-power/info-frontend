@@ -36,15 +36,12 @@ export default function Tile({
 }: TileProps) {
   return (
     <motion.div
-      className="absolute"
       style={{
-        left: x,
-        top: y,
-        width: width,
-        height: height,
+        position: 'relative',
+        width: '100%',
+        height: '100%',
         backgroundColor: backgroundColor,
         borderRadius: borderRadius,
-        cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
       }}
       onMouseDown={onMouseDown}

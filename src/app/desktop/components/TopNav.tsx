@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import PillButton from '../../components/PillButton';
 
 interface TopNavProps {
@@ -8,7 +8,11 @@ interface TopNavProps {
   setIsDarkMode?: (isDark: boolean) => void;
 }
 
-export default function TopNav({ isDarkMode, setIsDarkMode }: TopNavProps = {}) {
+export interface TopNavRef {
+  focusSearch: () => void;
+}
+
+const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode }: TopNavProps = {}, ref) => {
   const [selectedPill, setSelectedPill] = useState<string>('one');
   const [searchValue, setSearchValue] = useState<string>('');
   const [pills, setPills] = useState<string[]>(['one', 'two', 'three', 'four', 'five']);
@@ -16,6 +20,14 @@ export default function TopNav({ isDarkMode, setIsDarkMode }: TopNavProps = {}) 
   const [dragOverItem, setDragOverItem] = useState<string | null>(null);
   const [isNewTabAnimating, setIsNewTabAnimating] = useState(false);
   const [closingPill, setClosingPill] = useState<string | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Expose focusSearch method to parent component
+  useImperativeHandle(ref, () => ({
+    focusSearch: () => {
+      searchInputRef.current?.focus();
+    }
+  }));
 
   const handleNewTab = () => {
     const newTabNumber = pills.length + 1;
@@ -87,7 +99,11 @@ export default function TopNav({ isDarkMode, setIsDarkMode }: TopNavProps = {}) 
     <nav 
       className="w-full pt-10 pb-6"
       style={{
-        background: 'transparent',
+        background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
         paddingLeft: '52px',
         paddingRight: '32px',
       }}
@@ -95,15 +111,13 @@ export default function TopNav({ isDarkMode, setIsDarkMode }: TopNavProps = {}) 
       <div className="flex flex-col gap-6">
         {/* Search Input */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-start" style={{ width: '32px', height: '32px', fontSize: '24px', color: '#FFFFFF' }}>
-            ›
-          </div>
           <input
+            ref={searchInputRef}
             type="text"
-            placeholder="Search for a market or topic"
+            placeholder=" / to search for a market or topic"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="bg-transparent border-none outline-none flex-1"
+            className="bg-transparent border-none outline-none flex-1 search-input"
             style={{
               color: '#FFFFFF',
               fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
@@ -161,6 +175,14 @@ export default function TopNav({ isDarkMode, setIsDarkMode }: TopNavProps = {}) 
         
         {/* CSS Animations */}
         <style jsx>{`
+          .search-input::placeholder {
+            opacity: 0.5;
+          }
+          
+          .search-input:focus::placeholder {
+            opacity: 0;
+          }
+          
           @keyframes slideInFromRight {
             from {
               opacity: 0;
@@ -206,5 +228,9 @@ export default function TopNav({ isDarkMode, setIsDarkMode }: TopNavProps = {}) 
       </div>
     </nav>
   );
-}
+});
+
+TopNav.displayName = 'TopNav';
+
+export default TopNav;
 

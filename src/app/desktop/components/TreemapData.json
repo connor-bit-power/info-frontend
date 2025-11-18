@@ -1,0 +1,198 @@
+{
+  "name": "Market Sectors",
+  "children": [
+    {
+      "name": "Technology",
+      "value": 8.5,
+      "change": 8.5,
+      "volume": 245000000
+    },
+    {
+      "name": "Healthcare",
+      "value": 5.2,
+      "change": 5.2,
+      "volume": 187000000
+    },
+    {
+      "name": "Financials",
+      "value": 3.8,
+      "change": 3.8,
+      "volume": 312000000
+    },
+    {
+      "name": "Consumer Discretionary",
+      "value": 4.1,
+      "change": 4.1,
+      "volume": 156000000
+    },
+    {
+      "name": "Industrials",
+      "value": 2.3,
+      "change": 2.3,
+      "volume": 98000000
+    },
+    {
+      "name": "Energy",
+      "value": -2.1,
+      "change": -2.1,
+      "volume": 278000000
+    },
+    {
+      "name": "Materials",
+      "value": 1.5,
+      "change": 1.5,
+      "volume": 134000000
+    },
+    {
+      "name": "Real Estate",
+      "value": -1.8,
+      "change": -1.8,
+      "volume": 89000000
+    },
+    {
+      "name": "Utilities",
+      "value": 0.9,
+      "change": 0.9,
+      "volume": 67000000
+    },
+    {
+      "name": "Consumer Staples",
+      "value": 1.2,
+      "change": 1.2,
+      "volume": 145000000
+    },
+    {
+      "name": "Communication Services",
+      "value": 6.7,
+      "change": 6.7,
+      "volume": 203000000
+    },
+    {
+      "name": "Telecommunications",
+      "value": -3.4,
+      "change": -3.4,
+      "volume": 121000000
+    },
+    {
+      "name": "Software",
+      "value": 7.8,
+      "change": 7.8,
+      "volume": 189000000
+    },
+    {
+      "name": "Semiconductors",
+      "value": 9.2,
+      "change": 9.2,
+      "volume": 267000000
+    },
+    {
+      "name": "Biotechnology",
+      "value": 4.6,
+      "change": 4.6,
+      "volume": 143000000
+    },
+    {
+      "name": "Banking",
+      "value": 2.9,
+      "change": 2.9,
+      "volume": 298000000
+    },
+    {
+      "name": "Aerospace",
+      "value": 3.4,
+      "change": 3.4,
+      "volume": 156000000
+    },
+    {
+      "name": "Pharmaceuticals",
+      "value": 5.8,
+      "change": 5.8,
+      "volume": 223000000
+    },
+    {
+      "name": "Retail",
+      "value": 2.1,
+      "change": 2.1,
+      "volume": 167000000
+    },
+    {
+      "name": "Media",
+      "value": 3.9,
+      "change": 3.9,
+      "volume": 134000000
+    },
+    {
+      "name": "Entertainment",
+      "value": 4.5,
+      "change": 4.5,
+      "volume": 198000000
+    },
+    {
+      "name": "Oil & Gas",
+      "value": -2.8,
+      "change": -2.8,
+      "volume": 312000000
+    },
+    {
+      "name": "Renewable Energy",
+      "value": 6.3,
+      "change": 6.3,
+      "volume": 145000000
+    },
+    {
+      "name": "Mining",
+      "value": 1.9,
+      "change": 1.9,
+      "volume": 167000000
+    },
+    {
+      "name": "Transportation",
+      "value": 2.7,
+      "change": 2.7,
+      "volume": 189000000
+    },
+    {
+      "name": "E-commerce",
+      "value": 5.9,
+      "change": 5.9,
+      "volume": 234000000
+    },
+    {
+      "name": "Cloud Computing",
+      "value": 8.1,
+      "change": 8.1,
+      "volume": 278000000
+    },
+    {
+      "name": "Cybersecurity",
+      "value": 7.3,
+      "change": 7.3,
+      "volume": 167000000
+    },
+    {
+      "name": "Fintech",
+      "value": 6.4,
+      "change": 6.4,
+      "volume": 198000000
+    },
+    {
+      "name": "Electric Vehicles",
+      "value": 5.1,
+      "change": 5.1,
+      "volume": 245000000
+    },
+    {
+      "name": "Gaming",
+      "value": 4.8,
+      "change": 4.8,
+      "volume": 187000000
+    },
+    {
+      "name": "Streaming Services",
+      "value": 3.6,
+      "change": 3.6,
+      "volume": 156000000
+    }
+  ]
+}
+
