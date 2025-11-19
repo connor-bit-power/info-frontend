@@ -8,9 +8,10 @@ interface CalendarItemProps {
   isDarkMode?: boolean;
   isFirst?: boolean;
   isLast?: boolean;
+  onClick?: () => void;
 }
 
-export default function CalendarItem({ event, isDarkMode = true, isFirst = false, isLast = false }: CalendarItemProps) {
+export default function CalendarItem({ event, isDarkMode = true, isFirst = false, isLast = false, onClick }: CalendarItemProps) {
   // Format volume or liquidity
   const formatAmount = (amount?: number | null) => {
     if (!amount) return '$0';
@@ -70,8 +71,50 @@ export default function CalendarItem({ event, isDarkMode = true, isFirst = false
       return { type: 'none', odds: null, winner: null };
     }
 
+    // Check if this is a GMP (Group Market Prediction) event with multiple markets
+    const isGMP = event.markets.length > 1;
+    
+    // For GMP events with multiple yes/no markets, find the most likely option
+    if (isGMP && !isSportsEvent()) {
+      let bestMarket = null;
+      let bestYesPrice = 0;
+      
+      // Iterate through all markets to find the one with the highest "Yes" probability
+      for (const market of event.markets) {
+        try {
+          const outcomes = market.outcomes ? JSON.parse(market.outcomes) : [];
+          const prices = market.outcomePrices ? JSON.parse(market.outcomePrices) : [];
+          
+          // Check if it's a yes/no market
+          const yesIndex = outcomes.findIndex((o: string) => o && o.toLowerCase() === 'yes');
+          
+          if (yesIndex !== -1 && prices[yesIndex]) {
+            const yesPrice = parseFloat(prices[yesIndex]);
+            if (yesPrice > bestYesPrice) {
+              bestYesPrice = yesPrice;
+              bestMarket = market;
+            }
+          }
+        } catch (e) {
+          // Skip markets with parsing errors
+          continue;
+        }
+      }
+      
+      // If we found a likely market, display it
+      if (bestMarket && bestYesPrice > 0.1) { // Only show if at least 10% probability
+        const optionName = bestMarket.groupItemTitle || bestMarket.question || 'Unknown';
+        const odds = Math.round(bestYesPrice * 100);
+        return { type: 'multi', odds, winner: optionName };
+      }
+    }
+
     // For sports events, try to find the moneyline market
     const market = isSportsEvent() ? findMoneylineMarket() : event.markets[0];
+    
+    if (!market) {
+      return { type: 'none', odds: null, winner: null };
+    }
     
     // Parse outcomes to determine if yes/no or multi-outcome
     let outcomes: string[] = [];
@@ -202,6 +245,7 @@ export default function CalendarItem({ event, isDarkMode = true, isFirst = false
   return (
     <>
       <div
+        onClick={onClick}
         style={{
           display: 'flex',
           alignItems: 'flex-start',
@@ -209,6 +253,16 @@ export default function CalendarItem({ event, isDarkMode = true, isFirst = false
           paddingTop: isFirst ? '28px' : '21px',
           paddingBottom: '21px',
           position: 'relative',
+          cursor: onClick ? 'pointer' : 'default',
+          transition: 'opacity 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          if (onClick) {
+            e.currentTarget.style.opacity = '0.8';
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.opacity = '1';
         }}
       >
         {/* Underline - 95% width, centered (hidden on last item) */}

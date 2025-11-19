@@ -13,6 +13,12 @@ import { useActiveEvents, useEvents } from '../../../lib/hooks/useEvents';
 import type { Event, Market, Tag } from '../../../types/polymarket';
 import { CATEGORIES } from '../../../components/CategoryFilter';
 
+interface DynamicChartTile {
+  id: string;
+  eventSlug: string;
+  eventTitle: string;
+}
+
 export default function DesktopHome() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const topNavRef = useRef<TopNavRef>(null);
@@ -25,6 +31,7 @@ export default function DesktopHome() {
     return today;
   });
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [dynamicChartTiles, setDynamicChartTiles] = useState<DynamicChartTile[]>([]);
 
   // Fetch active events for the calendar event list
   const { events: generalEvents } = useActiveEvents({
@@ -231,6 +238,33 @@ export default function DesktopHome() {
 
   const handleEventClick = (eventSlug: string) => {
     setSelectedMarketSlug(eventSlug);
+  };
+
+  const handleCalendarItemClick = (event: Event) => {
+    console.log('📊 Calendar item clicked:', event.title, event.slug);
+    
+    // Check if event has a slug
+    if (!event.slug) {
+      console.warn('📊 Event has no slug, cannot create chart tile');
+      return;
+    }
+    
+    // Check if this chart tile already exists
+    const exists = dynamicChartTiles.some(tile => tile.eventSlug === event.slug);
+    
+    if (!exists) {
+      // Add new chart tile
+      const newTile: DynamicChartTile = {
+        id: `dynamic-chart-${Date.now()}`,
+        eventSlug: event.slug,
+        eventTitle: event.title || 'Market Chart',
+      };
+      
+      setDynamicChartTiles(prev => [...prev, newTile]);
+      console.log('📊 Added new chart tile:', newTile);
+    } else {
+      console.log('📊 Chart tile already exists for:', event.slug);
+    }
   };
 
   const handleDateSelect = (date: Date) => {
@@ -635,6 +669,7 @@ export default function DesktopHome() {
                                   isDarkMode={isDarkMode}
                                   isFirst={index === 0}
                                   isLast={index === array.length - 1}
+                                  onClick={() => handleCalendarItemClick(event)}
                                 />
                               ))}
                             </>
@@ -673,6 +708,44 @@ export default function DesktopHome() {
                   </div>
                 </div>
               </div>
+
+              {/* Dynamic Chart Tiles - Fill rows with up to 3 tiles each */}
+              {(() => {
+                // Calculate how many tiles fit per row (same as first row: tall, chart, calendar)
+                const tilesPerRow = 3;
+                const rows: DynamicChartTile[][] = [];
+                
+                // Group tiles into rows
+                for (let i = 0; i < dynamicChartTiles.length; i += tilesPerRow) {
+                  rows.push(dynamicChartTiles.slice(i, i + tilesPerRow));
+                }
+                
+                return rows.map((rowTiles, rowIndex) => (
+                  <div key={`chart-row-${rowIndex}`} style={{ display: 'flex', gap: `${GAP}px` }}>
+                    {rowTiles.map((tile, tileIndex) => (
+                      <div 
+                        key={tile.id} 
+                        style={{ 
+                          position: 'relative', 
+                          width: chartTileWidth, 
+                          height: chartTileHeight, 
+                          flexShrink: 0 
+                        }}
+                      >
+                        <ChartTile
+                          id={tile.id}
+                          x={0}
+                          y={0}
+                          width={chartTileWidth}
+                          height={chartTileHeight}
+                          isDarkMode={isDarkMode}
+                          marketId={tile.eventSlug}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ));
+              })()}
             </div>
           )}
         </div>
