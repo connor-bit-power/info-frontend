@@ -218,22 +218,9 @@ export default function Chart({
     }
   }, [hoverPosition, data]);
 
-  // Handle loading state
+  // Handle loading state - return null to show nothing while loading
   if (loading) {
-    return (
-      <div
-        style={{
-          height: `${height}px`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f5f5f5',
-          borderRadius: '8px',
-        }}
-      >
-        <p style={{ color: '#666' }}>Loading chart data...</p>
-      </div>
-    );
+    return null;
   }
 
   // Handle error state

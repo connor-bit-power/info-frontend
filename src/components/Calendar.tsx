@@ -337,9 +337,12 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
 
 
   const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
+    // Normalize the date to midnight to ensure consistent matching
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+    setSelectedDate(normalizedDate);
     if (onDateSelect) {
-      onDateSelect(date);
+      onDateSelect(normalizedDate);
     }
   };
 
@@ -762,6 +765,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   // Week View (not currently used but kept for completeness)
   return null;
 }
+
 
 
 

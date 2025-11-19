@@ -234,7 +234,28 @@ export default function DesktopHome() {
   };
 
   const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
+    console.log('📆 ========== DATE SELECT CALLED ==========');
+    console.log('📆 Incoming date:', date);
+    console.log('📆 Incoming date timestamp:', date.getTime());
+    
+    // Normalize the date to midnight to ensure consistent matching
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+    const key = formatDateKey(normalizedDate);
+    
+    console.log('📆 Normalized date:', normalizedDate);
+    console.log('📆 Normalized timestamp:', normalizedDate.getTime());
+    console.log('📆 Date key:', key);
+    console.log('📆 Events available for this date:', eventsByDate.get(key)?.length || 0);
+    console.log('📆 Current selectedDate before update:', selectedDate);
+    console.log('📆 Current selectedDate timestamp:', selectedDate?.getTime());
+    
+    // Force a new Date object to ensure React detects the change
+    const newDate = new Date(normalizedDate.getTime());
+    console.log('📆 Setting new selected date:', newDate);
+    console.log('📆 New date timestamp:', newDate.getTime());
+    setSelectedDate(newDate);
+    console.log('📆 ==========================================');
   };
 
   const formatDateKey = (date: Date) => {
@@ -304,10 +325,54 @@ export default function DesktopHome() {
     return dateMap;
   }, [events, getEventDisplayDate]);
 
-  const getEventsForDate = (date: Date): Event[] => {
+  const getEventsForDate = useCallback((date: Date): Event[] => {
     const key = formatDateKey(date);
-    return eventsByDate.get(key) || [];
-  };
+    const events = eventsByDate.get(key) || [];
+    console.log('🗓️ Getting events for', key, '- Found:', events.length);
+    return events;
+  }, [eventsByDate]);
+
+  // Memoize events for the selected date
+  const selectedDateEvents = useMemo(() => {
+    if (!selectedDate) {
+      console.log('📋 No selected date');
+      return [];
+    }
+    const key = formatDateKey(selectedDate);
+    const events = eventsByDate.get(key) || [];
+    
+    // Deduplicate events by ID (in case the same event appears multiple times)
+    const seenIds = new Set<string>();
+    const uniqueEvents = events.filter(event => {
+      if (seenIds.has(event.id)) {
+        console.warn('⚠️ Duplicate event detected:', event.id, event.title);
+        return false;
+      }
+      seenIds.add(event.id);
+      return true;
+    });
+    
+    console.log('📋 ========== SELECTED DATE EVENTS ==========');
+    console.log('📋 Selected date:', selectedDate);
+    console.log('📋 Date key:', key);
+    console.log('📋 Raw events count:', events.length);
+    console.log('📋 Unique events count:', uniqueEvents.length);
+    console.log('📋 Event IDs:', uniqueEvents.map(e => e.id));
+    console.log('📋 First 3 event titles:', uniqueEvents.slice(0, 3).map(e => e.title));
+    console.log('📋 eventsByDate map size:', eventsByDate.size);
+    console.log('📋 ==========================================');
+    return uniqueEvents;
+  }, [selectedDate, eventsByDate]);
+
+  // Debug: Log when selectedDate changes
+  useEffect(() => {
+    if (selectedDate) {
+      const key = formatDateKey(selectedDate);
+      console.log('🔄 Selected date changed to:', key);
+      console.log('🔄 Events for this date:', selectedDateEvents.length);
+      console.log('🔄 Total dates in map:', eventsByDate.size);
+    }
+  }, [selectedDate, selectedDateEvents, eventsByDate]);
 
   const formatSelectedDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
@@ -339,11 +404,16 @@ export default function DesktopHome() {
   
   useEffect(() => {
     const updateDimensions = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setContainerHeight(rect.height);
-        setContainerWidth(rect.width);
-      }
+      // Use window dimensions instead of container ref since we're now scrolling
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      
+      // Account for TopNav height (approximately 180px based on padding)
+      const topNavHeight = 180;
+      const availableHeight = viewportHeight - topNavHeight;
+      
+      setContainerHeight(availableHeight);
+      setContainerWidth(viewportWidth);
     };
 
     updateDimensions();
@@ -432,18 +502,18 @@ export default function DesktopHome() {
   return (
     <div className="h-screen w-screen overflow-hidden fixed top-0 left-0">
       <GradientBackground isDarkMode={isDarkMode} />
-      <div className="relative z-10 h-full flex flex-col">
-        {/* Theme Toggler - Top Right */}
-        <div className="absolute top-8 right-8 z-20">
-          <ThemeToggler isDarkMode={isDarkMode} onToggle={handleToggle} />
-        </div>
-        
+      {/* Theme Toggler - Top Right */}
+      <div className="absolute top-8 right-8 z-20">
+        <ThemeToggler isDarkMode={isDarkMode} onToggle={handleToggle} />
+      </div>
+      
+      <div className="relative z-10 h-full overflow-y-auto">
         <TopNav ref={topNavRef} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
         
         {/* Main content area with tiles */}
         <div 
-          className="flex-1 pb-8 pt-2 overflow-y-auto" 
-          style={{ minHeight: 0, paddingLeft: '32px', paddingRight: '32px' }}
+          className="pb-8 pt-2" 
+          style={{ paddingLeft: '32px', paddingRight: '32px' }}
           ref={containerRef}
         >
           {containerHeight > 0 && containerWidth > 0 && tallTileWidth > 0 && (
@@ -556,11 +626,11 @@ export default function DesktopHome() {
                     >
                       {selectedDate ? (
                         <>
-                          {getEventsForDate(selectedDate).length > 0 ? (
+                          {selectedDateEvents.length > 0 ? (
                             <>
-                              {getEventsForDate(selectedDate).map((event, index, array) => (
+                              {selectedDateEvents.map((event, index, array) => (
                                 <CalendarItem
-                                  key={event.id}
+                                  key={`${formatDateKey(selectedDate!)}-${event.id}`}
                                   event={event}
                                   isDarkMode={isDarkMode}
                                   isFirst={index === 0}

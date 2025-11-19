@@ -11,30 +11,30 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: 'all', label: 'All', icon: '📊' },
+  { id: 'all', label: 'All', tagIds: [] },
   
   // Sports - Main category and sub-categories
-  { id: 'sports', label: 'Sports', icon: '🏆', tagIds: [1, 450, 100351, 745, 3420, 899, 100350, 279, 28, 64] },
-  { id: 'nfl', label: 'NFL', icon: '🏈', tagIds: [450] },
-  { id: 'cfb', label: 'College Football', icon: '🏟️', tagIds: [100351] },
-  { id: 'nba', label: 'NBA', icon: '🏀', tagIds: [745, 28] },
-  { id: 'mlb', label: 'MLB', icon: '⚾', tagIds: [3420] },
-  { id: 'nhl', label: 'NHL', icon: '🏒', tagIds: [899] },
-  { id: 'soccer', label: 'Soccer', icon: '⚽', tagIds: [100350, 82] },
-  { id: 'mma', label: 'UFC', icon: '🥊', tagIds: [279] },
-  { id: 'esports', label: 'Esports', icon: '🎮', tagIds: [64] },
+  { id: 'sports', label: 'Sports', tagIds: [1, 450, 100351, 745, 3420, 899, 100350, 279, 28, 64] },
+  { id: 'nfl', label: 'NFL', tagIds: [450] },
+  { id: 'cfb', label: 'College Football', tagIds: [100351] },
+  { id: 'nba', label: 'NBA', tagIds: [745, 28] },
+  { id: 'mlb', label: 'MLB', tagIds: [3420] },
+  { id: 'nhl', label: 'NHL', tagIds: [899] },
+  { id: 'soccer', label: 'Soccer', tagIds: [100350, 82] },
+  { id: 'mma', label: 'UFC', tagIds: [279] },
+  { id: 'esports', label: 'Esports', tagIds: [64] },
   
   // Main categories
-  { id: 'politics', label: 'Politics', icon: '🏛️', tagIds: [2, 400] },
-  { id: 'crypto', label: 'Crypto', icon: '₿', tagIds: [21] },
-  { id: 'business', label: 'Business', icon: '💼', tagIds: [107] },
-  { id: 'finance', label: 'Finance', icon: '💰', tagIds: [120, 600] },
-  { id: 'earnings', label: 'Earnings', icon: '📈', tagIds: [1013] },
-  { id: 'economy', label: 'Economy', icon: '💹', tagIds: [100328] },
-  { id: 'culture', label: 'Culture', icon: '🎨', tagIds: [596] },
-  { id: 'entertainment', label: 'Entertainment', icon: '🎬', tagIds: [100, 1000] },
-  { id: 'science', label: 'Science', icon: '🔬', tagIds: [74] },
-  { id: 'news', label: 'News', icon: '📰', tagIds: [198] },
+  { id: 'politics', label: 'Politics', tagIds: [2, 400] },
+  { id: 'crypto', label: 'Crypto', tagIds: [21] },
+  { id: 'business', label: 'Business', tagIds: [107] },
+  { id: 'finance', label: 'Finance', tagIds: [120, 600] },
+  { id: 'earnings', label: 'Earnings', tagIds: [1013] },
+  { id: 'economy', label: 'Economy', tagIds: [100328] },
+  { id: 'culture', label: 'Culture', tagIds: [596] },
+  { id: 'entertainment', label: 'Entertainment', tagIds: [100, 1000] },
+  { id: 'science', label: 'Science', tagIds: [74] },
+  { id: 'news', label: 'News', tagIds: [198] },
 ];
 
 interface CategoryFilterProps {
@@ -81,7 +81,6 @@ export default function CategoryFilter({
         <PillButton
           label={
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {selectedCategoryObj.icon && <span>{selectedCategoryObj.icon}</span>}
               <span>{selectedCategoryObj.label}</span>
               <span style={{ 
                 fontSize: '10px', 
@@ -103,11 +102,12 @@ export default function CategoryFilter({
             position: 'absolute',
             top: 'calc(100% + 8px)',
             left: 0,
-            backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
             borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(0, 0, 0, 0.1)',
             zIndex: 1000,
             minWidth: '180px',
             maxHeight: '400px',
@@ -128,7 +128,7 @@ export default function CategoryFilter({
                 backgroundColor: selectedCategory === category.id 
                   ? 'rgba(46, 92, 255, 0.2)' 
                   : 'transparent',
-                color: isDarkMode ? '#FFFFFF' : '#000000',
+                color: '#000000',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -140,9 +140,7 @@ export default function CategoryFilter({
               }}
               onMouseEnter={(e) => {
                 if (selectedCategory !== category.id) {
-                  e.currentTarget.style.backgroundColor = isDarkMode 
-                    ? 'rgba(255, 255, 255, 0.05)' 
-                    : 'rgba(0, 0, 0, 0.05)';
+                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -151,7 +149,6 @@ export default function CategoryFilter({
                 }
               }}
             >
-              {category.icon && <span style={{ fontSize: '16px' }}>{category.icon}</span>}
               <span>{category.label}</span>
               {selectedCategory === category.id && (
                 <span style={{ marginLeft: 'auto', fontSize: '12px' }}>✓</span>
