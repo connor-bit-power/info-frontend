@@ -1,22 +1,321 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import TopNav, { TopNavRef } from '../components/TopNav';
 import GradientBackground from '../../components/GradientBackground';
 import ThemeToggler from '../../components/ThemeToggler';
 import NewsTile from '../components/NewsTile';
 import ChartTile from '../components/ChartTile';
 import CalendarTile from '../components/CalendarTile';
-import TreemapTile from '../components/TreemapTile';
+import Calendar from '../../../components/Calendar';
+import CalendarItem from '../components/CalendarItem';
+import { useActiveEvents, useEvents } from '../../../lib/hooks/useEvents';
+import type { Event, Market, Tag } from '../../../types/polymarket';
+import { CATEGORIES } from '../../../components/CategoryFilter';
 
 export default function DesktopHome() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const topNavRef = useRef<TopNavRef>(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedMarketSlug, setSelectedMarketSlug] = useState<string>('trump-agrees-to-sell-f-35-to-saudi-arabia-by-november-30');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // Fetch active events for the calendar event list
+  const { events: generalEvents } = useActiveEvents({
+    limit: 500,
+  });
+
+  // Fetch major sports leagues events
+  // Tag IDs from gamma-api.polymarket.com/sports metadata
+  const { events: nflEvents } = useEvents({
+    tag_id: 450, // NFL
+    closed: false,
+    limit: 300,
+  });
+
+  const { events: nbaEvents } = useEvents({
+    tag_id: 745, // NBA
+    closed: false,
+    limit: 500,
+  });
+
+  const { events: mlbEvents } = useEvents({
+    tag_id: 3420, // MLB
+    closed: false,
+    limit: 300,
+  });
+
+  const { events: nhlEvents } = useEvents({
+    tag_id: 899, // NHL
+    closed: false,
+    limit: 300,
+  });
+
+  const { events: soccerEvents } = useEvents({
+    tag_id: 100350, // Soccer (general)
+    closed: false,
+    limit: 500,
+  });
+
+  const { events: mmaEvents } = useEvents({
+    tag_id: 279, // UFC
+    closed: false,
+    limit: 200,
+  });
+
+  const { events: cfbEvents } = useEvents({
+    tag_id: 100351, // College Football
+    closed: false,
+    limit: 300,
+  });
+
+  // Fetch non-sports category events
+  const { events: politicsEvents } = useEvents({
+    tag_id: 2, // Politics
+    closed: false,
+    limit: 500,
+  });
+
+  const { events: cryptoEvents } = useEvents({
+    tag_id: 21, // Crypto
+    closed: false,
+    limit: 300,
+  });
+
+  const { events: businessEvents } = useEvents({
+    tag_id: 107, // Business
+    closed: false,
+    limit: 300,
+  });
+
+  const { events: earningsEvents } = useEvents({
+    tag_id: 1013, // Earnings
+    closed: false,
+    limit: 300,
+  });
+
+  const { events: cultureEvents } = useEvents({
+    tag_id: 596, // Culture
+    closed: false,
+    limit: 300,
+  });
+
+  const { events: scienceEvents } = useEvents({
+    tag_id: 74, // Science
+    closed: false,
+    limit: 200,
+  });
+
+  const { events: newsEvents } = useEvents({
+    tag_id: 198, // News
+    closed: false,
+    limit: 300,
+  });
+
+  // Combine all events
+  const allEvents = useMemo(() => {
+    return [
+      ...(generalEvents || []),
+      ...(nflEvents || []),
+      ...(cfbEvents || []),
+      ...(nbaEvents || []),
+      ...(mlbEvents || []),
+      ...(nhlEvents || []),
+      ...(soccerEvents || []),
+      ...(mmaEvents || []),
+      ...(politicsEvents || []),
+      ...(cryptoEvents || []),
+      ...(businessEvents || []),
+      ...(earningsEvents || []),
+      ...(cultureEvents || []),
+      ...(scienceEvents || []),
+      ...(newsEvents || []),
+    ];
+  }, [generalEvents, nflEvents, cfbEvents, nbaEvents, mlbEvents, nhlEvents, soccerEvents, mmaEvents, politicsEvents, cryptoEvents, businessEvents, earningsEvents, cultureEvents, scienceEvents, newsEvents]);
+
+  // Filter events based on selected category
+  const events = useMemo(() => {
+    if (selectedCategory === 'all') return allEvents;
+
+    let filtered: Event[] = [];
+    
+    switch (selectedCategory) {
+      case 'nfl':
+        filtered = [...(nflEvents || [])];
+        break;
+      case 'cfb':
+        filtered = [...(cfbEvents || [])];
+        break;
+      case 'nba':
+        filtered = [...(nbaEvents || [])];
+        break;
+      case 'mlb':
+        filtered = [...(mlbEvents || [])];
+        break;
+      case 'nhl':
+        filtered = [...(nhlEvents || [])];
+        break;
+      case 'soccer':
+        filtered = [...(soccerEvents || [])];
+        break;
+      case 'mma':
+        filtered = [...(mmaEvents || [])];
+        break;
+      case 'esports':
+        filtered = [...(generalEvents || [])].filter(event => 
+          (event.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '64')
+        );
+        break;
+      case 'sports':
+        filtered = [
+          ...(nflEvents || []),
+          ...(cfbEvents || []),
+          ...(nbaEvents || []),
+          ...(mlbEvents || []),
+          ...(nhlEvents || []),
+          ...(soccerEvents || []),
+          ...(mmaEvents || []),
+        ];
+        break;
+      case 'politics':
+        filtered = [...(politicsEvents || [])];
+        break;
+      case 'crypto':
+        filtered = [...(cryptoEvents || [])];
+        break;
+      case 'business':
+        filtered = [...(businessEvents || [])];
+        break;
+      case 'earnings':
+        filtered = [...(earningsEvents || [])];
+        break;
+      case 'culture':
+        filtered = [...(cultureEvents || [])];
+        break;
+      case 'science':
+        filtered = [...(scienceEvents || [])];
+        break;
+      case 'news':
+        filtered = [...(newsEvents || [])];
+        break;
+      case 'finance':
+      case 'economy':
+      case 'entertainment':
+        const categoryDef = CATEGORIES.find(c => c.id === selectedCategory);
+        if (categoryDef && categoryDef.tagIds && categoryDef.tagIds.length > 0) {
+          filtered = allEvents.filter(event => {
+            const eventTags = (event.tags as Tag[] | undefined) || [];
+            return eventTags.some(tag => categoryDef.tagIds?.includes(parseInt(tag.id)));
+          });
+        }
+        break;
+      default:
+        filtered = (generalEvents || []).filter(event => {
+          return !event.markets?.some(m => m.gameStartTime);
+        });
+        break;
+    }
+
+    return filtered;
+  }, [allEvents, selectedCategory, generalEvents, nflEvents, cfbEvents, nbaEvents, mlbEvents, nhlEvents, soccerEvents, mmaEvents, politicsEvents, cryptoEvents, businessEvents, earningsEvents, cultureEvents, scienceEvents, newsEvents]);
 
   const handleToggle = () => {
     setIsDarkMode(!isDarkMode);
+  };
+
+  const handleEventClick = (eventSlug: string) => {
+    setSelectedMarketSlug(eventSlug);
+  };
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+  };
+
+  const formatDateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper function to check if event is a sports game
+  const isSportsEvent = useCallback((event: Event): boolean => {
+    if (!event.markets || event.markets.length === 0) return false;
+    // Sports events have gameStartTime (team IDs are often not present)
+    return event.markets.some(
+      (market: Market) => market.gameStartTime
+    );
+  }, []);
+
+  // Helper function to get the display date for an event
+  const getEventDisplayDate = useCallback((event: Event): Date | null => {
+    // For sports events, use gameStartTime from any market that has it
+    if (event.markets) {
+      const marketWithGameTime = event.markets.find(m => m.gameStartTime);
+      if (marketWithGameTime?.gameStartTime) {
+        return new Date(marketWithGameTime.gameStartTime);
+      }
+    }
+    // For non-sports events, use endDate (settle date)
+    if (event.endDate) {
+      return new Date(event.endDate);
+    }
+    return null;
+  }, []);
+
+  // Group events by their display date (gameStartTime for sports, endDate for others)
+  const eventsByDate = useMemo((): Map<string, Event[]> => {
+    const dateMap = new Map<string, Event[]>();
+    
+    if (!events || events.length === 0) return dateMap;
+
+    // Patterns to exclude (crypto up/down markets and other recurring short-term events)
+    const excludePatterns = [
+      /up or down/i,
+      /\d+m-\d+/i,
+    ];
+
+    events.forEach((event) => {
+      const eventTitle = event.title || '';
+      const eventSlug = event.slug || '';
+      const shouldExclude = excludePatterns.some(
+        pattern => pattern.test(eventTitle) || pattern.test(eventSlug)
+      );
+      if (shouldExclude) return;
+
+      const displayDate = getEventDisplayDate(event);
+      if (!displayDate) return;
+
+      displayDate.setHours(0, 0, 0, 0);
+      const dateKey = formatDateKey(displayDate);
+      
+      if (!dateMap.has(dateKey)) {
+        dateMap.set(dateKey, []);
+      }
+      dateMap.get(dateKey)!.push(event);
+    });
+
+    return dateMap;
+  }, [events, getEventDisplayDate]);
+
+  const getEventsForDate = (date: Date): Event[] => {
+    const key = formatDateKey(date);
+    return eventsByDate.get(key) || [];
+  };
+
+  const formatSelectedDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
   // Listen for "/" key to focus search bar
@@ -57,7 +356,7 @@ export default function DesktopHome() {
   const CONTAINER_PADDING = 32; // padding on left and right
   
   // Calculate dimensions based on available space
-  // First row has 3 tiles, second row has 1 tile
+  // First row has 3 tiles, second row has 1 tile (Calendar instead of Treemap)
   const calculateTileDimensions = () => {
     if (containerHeight === 0 || containerWidth === 0) {
       return {
@@ -67,8 +366,8 @@ export default function DesktopHome() {
         chartTileHeight: 0,
         calendarTileWidth: 0,
         calendarTileHeight: 0,
-        treemapTileWidth: 0,
-        treemapTileHeight: 0,
+        fullCalendarTileWidth: 0,
+        fullCalendarTileHeight: 0,
       };
     }
 
@@ -87,8 +386,9 @@ export default function DesktopHome() {
     let chartTileWidth = Math.floor(tallTileWidth * chartMultiplier);
     let calendarTileHeight = chartTileHeight;
     let calendarTileWidth = chartTileWidth;
-    let treemapTileHeight = chartTileHeight;
-    let treemapTileWidth = chartTileWidth;
+    let fullCalendarTileHeight = chartTileHeight;
+    // Make the full calendar wider - double the chart width
+    let fullCalendarTileWidth = chartTileWidth * 2;
 
     // Check if first row fits in available width
     const firstRowWidth = tallTileWidth + chartTileWidth + calendarTileWidth + (GAP * 2);
@@ -102,8 +402,8 @@ export default function DesktopHome() {
       chartTileHeight = Math.floor(chartTileHeight * scaleFactor);
       calendarTileWidth = Math.floor(calendarTileWidth * scaleFactor);
       calendarTileHeight = Math.floor(calendarTileHeight * scaleFactor);
-      treemapTileWidth = Math.floor(treemapTileWidth * scaleFactor);
-      treemapTileHeight = Math.floor(treemapTileHeight * scaleFactor);
+      fullCalendarTileWidth = Math.floor(fullCalendarTileWidth * scaleFactor);
+      fullCalendarTileHeight = Math.floor(fullCalendarTileHeight * scaleFactor);
     }
 
     return {
@@ -113,8 +413,8 @@ export default function DesktopHome() {
       chartTileHeight,
       calendarTileWidth,
       calendarTileHeight,
-      treemapTileWidth,
-      treemapTileHeight,
+      fullCalendarTileWidth,
+      fullCalendarTileHeight,
     };
   };
 
@@ -125,8 +425,8 @@ export default function DesktopHome() {
     chartTileHeight,
     calendarTileWidth,
     calendarTileHeight,
-    treemapTileWidth,
-    treemapTileHeight,
+    fullCalendarTileWidth,
+    fullCalendarTileHeight,
   } = calculateTileDimensions();
 
   return (
@@ -168,6 +468,7 @@ export default function DesktopHome() {
                     width={chartTileWidth}
                     height={chartTileHeight}
                     isDarkMode={isDarkMode}
+                    marketId={selectedMarketSlug}
                   />
                 </div>
                 <div style={{ position: 'relative', width: calendarTileWidth, height: calendarTileHeight, flexShrink: 0 }}>
@@ -178,21 +479,128 @@ export default function DesktopHome() {
                     width={calendarTileWidth}
                     height={calendarTileHeight}
                     isDarkMode={isDarkMode}
+                    onEventClick={handleEventClick}
                   />
                 </div>
               </div>
 
               {/* Second Row */}
               <div style={{ display: 'flex', gap: `${GAP}px` }}>
-                <div style={{ position: 'relative', width: treemapTileWidth, height: treemapTileHeight, flexShrink: 0 }}>
-                  <TreemapTile
-                    id="treemap-tile"
-                    x={0}
-                    y={0}
-                    width={treemapTileWidth}
-                    height={treemapTileHeight}
-                    isDarkMode={isDarkMode}
-                  />
+                <div 
+                  style={{ 
+                    position: 'relative', 
+                    width: fullCalendarTileWidth, 
+                    height: fullCalendarTileHeight, 
+                    flexShrink: 0,
+                    backgroundColor: 'rgba(217, 217, 217, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    borderRadius: '24px',
+                    padding: '32px',
+                    display: 'flex',
+                    gap: '24px',
+                  }}
+                >
+                  {/* Calendar Section - 55% of width */}
+                  <div style={{ 
+                    flex: '0 0 55%',
+                    minWidth: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}>
+                    <Calendar 
+                      view="month" 
+                      isDarkMode={isDarkMode} 
+                      onDateSelect={handleDateSelect}
+                      onCategoryChange={setSelectedCategory}
+                    />
+                  </div>
+
+                  {/* Event List Section - 45% of width */}
+                  <div 
+                    style={{ 
+                      flex: '0 0 calc(45% - 24px)', // Account for gap
+                      display: 'flex',
+                      flexDirection: 'column',
+                      minWidth: 0,
+                    }}
+                  >
+                    <style jsx>{`
+                      .hide-scrollbar::-webkit-scrollbar {
+                        display: none;
+                      }
+                    `}</style>
+                    <h3
+                      className="text-white"
+                      style={{
+                        fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                        fontSize: '22px',
+                        fontWeight: 600,
+                        marginBottom: '12px',
+                      }}
+                    >
+                      {selectedDate ? formatSelectedDate(selectedDate) : 'Select a date'}
+                    </h3>
+
+                    <div 
+                      className="hide-scrollbar"
+                      style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        paddingTop: '10px',
+                        paddingBottom: '40px',
+                        maskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                      }}
+                    >
+                      {selectedDate ? (
+                        <>
+                          {getEventsForDate(selectedDate).length > 0 ? (
+                            <>
+                              {getEventsForDate(selectedDate).map((event, index, array) => (
+                                <CalendarItem
+                                  key={event.id}
+                                  event={event}
+                                  isDarkMode={isDarkMode}
+                                  isFirst={index === 0}
+                                  isLast={index === array.length - 1}
+                                />
+                              ))}
+                            </>
+                          ) : (
+                            <p
+                              className="text-white"
+                              style={{
+                                fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                                fontSize: '18px',
+                                fontWeight: 400,
+                                opacity: 0.4,
+                                fontStyle: 'italic',
+                                marginTop: '12px',
+                              }}
+                            >
+                              No events scheduled
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <p
+                          className="text-white"
+                          style={{
+                            fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                            fontSize: '18px',
+                            fontWeight: 400,
+                            opacity: 0.4,
+                            fontStyle: 'italic',
+                            marginTop: '12px',
+                          }}
+                        >
+                          Click on a date to view events
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

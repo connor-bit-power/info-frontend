@@ -100,15 +100,17 @@ export default function ChartTile({
       isDragging={isDragging}
       isResizing={isResizing}
     >
-      <div className="h-full" style={{ padding: '0px' }}>
-        <Chart
-          data={chartData}
-          title={marketTitle}
-          outcome="Yes"
-          height={height - 40}
-          loading={loading}
-          error={error}
-        />
+      <div className="h-full" style={{ padding: '0px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: '60%' }}>
+          <Chart
+            data={chartData}
+            title={marketTitle}
+            outcome="Yes"
+            height={(height * 0.6) - 40}
+            loading={loading}
+            error={error}
+          />
+        </div>
       </div>
     </Tile>
   );

@@ -44,6 +44,7 @@ export default function Chart({
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
   const [hoveredTime, setHoveredTime] = useState<string | null>(null);
   const [hoverXPosition, setHoverXPosition] = useState<number | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
 
   // Determine if we're using single data prop or series prop
   const seriesData = series || (data ? [{ label: outcome, data }] : []);
@@ -78,6 +79,19 @@ export default function Chart({
     });
   }
 
+  // Track container width for responsive title sizing
+  useEffect(() => {
+    const updateWidth = () => {
+      if (chartContainerRef.current) {
+        setContainerWidth(chartContainerRef.current.offsetWidth);
+      }
+    };
+    
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
   // Set initial focused values to latest (rightmost) data points
   useEffect(() => {
     if (yAxisDatasets.length > 0) {
@@ -87,14 +101,13 @@ export default function Chart({
           initialValues[dataset.label] = dataset.data[dataset.data.length - 1];
         }
       });
-      // Only update if the values have changed
-      const currentLabels = Object.keys(focusedValues).sort().join(',');
-      const newLabels = Object.keys(initialValues).sort().join(',');
-      if (currentLabels !== newLabels) {
-        setFocusedValues(initialValues);
-      }
+      // Always update when data changes
+      setFocusedValues(initialValues);
+    } else {
+      // Reset focused values when there's no data
+      setFocusedValues({});
     }
-  }, [yAxisDatasets]); // Remove focusedValues from dependencies
+  }, [data, series, outcome, yAxisDatasets.length]); // Depend on the actual data props and data length
 
   // Track mouse position over chart
   const handleChartMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -278,7 +291,6 @@ export default function Chart({
           onMouseMove={handleChartMouseMove}
           onMouseLeave={handleChartMouseLeave}
           style={{
-            backgroundColor: 'rgba(217, 217, 217, 0.1)',
             borderRadius: '12px',
             padding: '20px',
             position: 'relative',
@@ -297,9 +309,12 @@ export default function Chart({
               color: '#FFFFFF',
               margin: 0,
               zIndex: 10,
-              maxWidth: '80%',
+              maxWidth: containerWidth > 0 ? `${containerWidth - 280}px` : '50%',
+              paddingRight: '20px',
               lineHeight: '1.2',
               wordWrap: 'break-word',
+              overflowWrap: 'break-word',
+              hyphens: 'auto',
             }}
           >
             {title}

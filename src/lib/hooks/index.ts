@@ -22,9 +22,16 @@ export {
   useEventsByCategory,
 } from './useEvents';
 
+// Sports hooks
+export {
+  useSportsMetadata,
+  useTeams,
+} from './useSports';
+
 // Export hook types
 export type { UseMarketsOptions, UseMarketsResult, UseMarketOptions, UseMarketResult } from './useMarkets';
 export type { UseEventsOptions, UseEventsResult, UseEventOptions, UseEventResult } from './useEvents';
+export type { UseSportsMetadataOptions, UseSportsMetadataResult, UseTeamsOptions, UseTeamsResult } from './useSports';
 
 
 

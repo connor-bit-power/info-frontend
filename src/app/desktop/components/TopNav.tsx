@@ -99,11 +99,6 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode }
     <nav 
       className="w-full pt-10 pb-6"
       style={{
-        background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
         paddingLeft: '52px',
         paddingRight: '32px',
       }}

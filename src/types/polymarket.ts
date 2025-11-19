@@ -173,6 +173,7 @@ export interface Event {
   negRiskFeeBips?: number | null;
   commentCount?: number | null;
   markets?: Market[];
+  tags?: Tag[];
 }
 
 // ============================================================================
