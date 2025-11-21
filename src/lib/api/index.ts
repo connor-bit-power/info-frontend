@@ -25,7 +25,34 @@ export { newsService } from './services/news';
 
 // Types
 export type * from '@/types/polymarket';
-export type * from '@/types/news-api';
+export type {
+  MarketStatus,
+  MarketResolution,
+  MarketPricing,
+  MarketStats,
+  HeadlineSentiment,
+  ApiErrorResponse,
+  MarketSummary,
+  HeadlineItem,
+  HeadlinesResponse,
+  HeadlinesQueryParams,
+  PriceHistoryPoint,
+  MarketExtendedPricing,
+  MarketExtendedStats,
+  MarketResolutionDetails,
+  MarketDetail,
+  MarketHeadlineDetail,
+  MarketResponse,
+  MarketQueryParams as NewsMarketQueryParams,
+  WebSocketMessageType,
+  WSSubscriptionMessage,
+  WSUnsubscriptionMessage,
+  WSMarketPriceUpdate,
+  WSMarketStatusUpdate,
+  WSMarketHeadlineCreated,
+  WSErrorMessage,
+  WebSocketMessage,
+} from '@/types/news-api';
 
 /**
  * Main API object with all services

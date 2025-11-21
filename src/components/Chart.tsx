@@ -437,10 +437,6 @@ export default function Chart({
           margin={{ top: 60, right: 30, bottom: 10, left: -90 }}
           disableAxisListener={true}
           grid={{ horizontal: false, vertical: false }}
-          slotProps={{
-            legend: { hidden: true },
-          }}
-          tooltip={{ trigger: 'none' }}
           sx={{
             width: '100%',
             height: '100%',

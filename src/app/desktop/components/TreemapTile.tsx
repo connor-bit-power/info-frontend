@@ -22,9 +22,10 @@ interface TreemapTileProps {
 
 interface TreemapNode {
   name: string;
-  value: number;
-  change: number;
-  volume: number;
+  value?: number;
+  change?: number;
+  volume?: number;
+  children?: TreemapNode[];
 }
 
 interface HierarchyNode extends d3.HierarchyRectangularNode<TreemapNode> {
@@ -85,8 +86,8 @@ export default function TreemapTile({
     };
 
     // Create hierarchy and sort by value (descending) as in Observable example
-    const hierarchy = d3.hierarchy(dataWithValues)
-      .sum((d: any) => d.value)
+    const hierarchy = d3.hierarchy<TreemapNode>(dataWithValues as TreemapNode)
+      .sum((d) => d.value || 0)
       .sort((a, b) => (b.value || 0) - (a.value || 0));
 
     // Create treemap generator exactly as in Observable squarify example
@@ -277,7 +278,7 @@ export default function TreemapTile({
                     y={leaf.y0}
                     width={rectWidth}
                     height={rectHeight}
-                    fill={getColor(leaf.data.change)}
+                    fill={getColor(leaf.data.change ?? 0)}
                     stroke="none"
                     rx={4}
                     ry={4}
@@ -319,8 +320,8 @@ export default function TreemapTile({
                         }}
                       >
                         {selectedMetric === 'Change' 
-                          ? `${leaf.data.change > 0 ? '+' : ''}${leaf.data.change.toFixed(1)}%`
-                          : formatVolume(leaf.data.volume)
+                          ? `${(leaf.data.change ?? 0) > 0 ? '+' : ''}${(leaf.data.change ?? 0).toFixed(1)}%`
+                          : formatVolume(leaf.data.volume ?? 0)
                         }
                       </text>
                     </>
@@ -341,8 +342,8 @@ export default function TreemapTile({
                       }}
                     >
                       {selectedMetric === 'Change' 
-                        ? `${leaf.data.change > 0 ? '+' : ''}${leaf.data.change.toFixed(1)}%`
-                        : formatVolume(leaf.data.volume)
+                        ? `${(leaf.data.change ?? 0) > 0 ? '+' : ''}${(leaf.data.change ?? 0).toFixed(1)}%`
+                        : formatVolume(leaf.data.volume ?? 0)
                       }
                     </text>
                   )}
