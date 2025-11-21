@@ -59,6 +59,10 @@ export const API_ENDPOINTS = {
   relatedTagsBySlug: (slug: string) => `/api/tags/slug/${slug}/related-tags`,
   relatedTagObjectsById: (id: string) => `/api/tags/${id}/related-tags/tags`,
   relatedTagObjectsBySlug: (slug: string) => `/api/tags/slug/${slug}/related-tags/tags`,
+
+  // News & Headlines (New API)
+  headlines: '/headlines',
+  market: '/market',
 } as const;
 
 

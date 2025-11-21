@@ -9,6 +9,8 @@ interface TileProps {
   y: number;
   width: number;
   height: number;
+  minWidth?: number;
+  maxWidth?: number;
   backgroundColor?: string;
   borderRadius?: string;
   isDarkMode?: boolean;
@@ -25,6 +27,8 @@ export default function Tile({
   y,
   width,
   height,
+  minWidth,
+  maxWidth,
   backgroundColor = 'rgba(217, 217, 217, 0.1)',
   borderRadius = '20px',
   isDarkMode,
@@ -40,6 +44,8 @@ export default function Tile({
         position: 'relative',
         width: '100%',
         height: '100%',
+        minWidth: minWidth ? `${minWidth}px` : undefined,
+        maxWidth: maxWidth ? `${maxWidth}px` : undefined,
         backgroundColor: backgroundColor,
         borderRadius: borderRadius,
         userSelect: 'none',

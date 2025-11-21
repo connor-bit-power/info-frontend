@@ -1,22 +1,22 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import TopNav, { TopNavRef } from '../components/TopNav';
+import TopNav, { TopNavRef, ComponentType } from '../components/TopNav';
 import GradientBackground from '../../components/GradientBackground';
 import ThemeToggler from '../../components/ThemeToggler';
 import NewsTile from '../components/NewsTile';
 import ChartTile from '../components/ChartTile';
-import CalendarTile from '../components/CalendarTile';
 import Calendar from '../../../components/Calendar';
 import CalendarItem from '../components/CalendarItem';
 import { useActiveEvents, useEvents } from '../../../lib/hooks/useEvents';
 import type { Event, Market, Tag } from '../../../types/polymarket';
 import { CATEGORIES } from '../../../components/CategoryFilter';
 
-interface DynamicChartTile {
+interface DynamicTile {
   id: string;
-  eventSlug: string;
-  eventTitle: string;
+  type: ComponentType;
+  eventSlug?: string;
+  eventTitle?: string;
 }
 
 export default function DesktopHome() {
@@ -31,7 +31,14 @@ export default function DesktopHome() {
     return today;
   });
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [dynamicChartTiles, setDynamicChartTiles] = useState<DynamicChartTile[]>([]);
+  const [dynamicTiles, setDynamicTiles] = useState<DynamicTile[]>([
+    {
+      id: 'initial-chart-1',
+      type: 'chart',
+      eventSlug: 'trump-agrees-to-sell-f-35-to-saudi-arabia-by-november-30',
+      eventTitle: 'Market Chart',
+    },
+  ]);
 
   // Fetch active events for the calendar event list
   const { events: generalEvents } = useActiveEvents({
@@ -240,6 +247,20 @@ export default function DesktopHome() {
     setSelectedMarketSlug(eventSlug);
   };
 
+  const handleAddComponent = (type: ComponentType) => {
+    console.log('➕ Adding component:', type);
+    
+    const newTile: DynamicTile = {
+      id: `dynamic-${type}-${Date.now()}`,
+      type,
+      eventSlug: type === 'chart' ? selectedMarketSlug : undefined,
+      eventTitle: type === 'chart' ? 'Market Chart' : undefined,
+    };
+    
+    setDynamicTiles(prev => [...prev, newTile]);
+    console.log('➕ Added new tile:', newTile);
+  };
+
   const handleCalendarItemClick = (event: Event) => {
     console.log('📊 Calendar item clicked:', event.title, event.slug);
     
@@ -250,17 +271,18 @@ export default function DesktopHome() {
     }
     
     // Check if this chart tile already exists
-    const exists = dynamicChartTiles.some(tile => tile.eventSlug === event.slug);
+    const exists = dynamicTiles.some(tile => tile.type === 'chart' && tile.eventSlug === event.slug);
     
     if (!exists) {
       // Add new chart tile
-      const newTile: DynamicChartTile = {
+      const newTile: DynamicTile = {
         id: `dynamic-chart-${Date.now()}`,
+        type: 'chart',
         eventSlug: event.slug,
         eventTitle: event.title || 'Market Chart',
       };
       
-      setDynamicChartTiles(prev => [...prev, newTile]);
+      setDynamicTiles(prev => [...prev, newTile]);
       console.log('📊 Added new chart tile:', newTile);
     } else {
       console.log('📊 Chart tile already exists for:', event.slug);
@@ -455,83 +477,51 @@ export default function DesktopHome() {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Calculate tile dimensions dynamically to fit in window
+  // Tile configuration with min/max widths optimized for responsive grid layout
   const GAP = 16;
-  const CONTAINER_PADDING = 32; // padding on left and right
+  const CONTAINER_PADDING = 32;
   
-  // Calculate dimensions based on available space
-  // First row has 3 tiles, second row has 1 tile (Calendar instead of Treemap)
-  const calculateTileDimensions = () => {
-    if (containerHeight === 0 || containerWidth === 0) {
-      return {
-        tallTileWidth: 0,
-        tallTileHeight: 0,
-        chartTileWidth: 0,
-        chartTileHeight: 0,
-        calendarTileWidth: 0,
-        calendarTileHeight: 0,
-        fullCalendarTileWidth: 0,
-        fullCalendarTileHeight: 0,
-      };
-    }
-
-    // Account for container padding (32px on each side = 64px total)
-    const availableWidth = containerWidth - (CONTAINER_PADDING * 2);
-    const availableHeight = containerHeight;
-
-    // Original aspect ratios
-    const tallAspectRatio = 680 / 1250; // width / height
-    const chartMultiplier = 1.75;
-
-    // Calculate based on height (95% of container height for tiles)
-    let tallTileHeight = Math.floor(availableHeight * 0.95);
-    let tallTileWidth = Math.floor(tallTileHeight * tallAspectRatio);
-    let chartTileHeight = tallTileHeight;
-    let chartTileWidth = Math.floor(tallTileWidth * chartMultiplier);
-    let calendarTileHeight = chartTileHeight;
-    let calendarTileWidth = chartTileWidth;
-    let fullCalendarTileHeight = chartTileHeight;
-    // Make the full calendar wider - double the chart width
-    let fullCalendarTileWidth = chartTileWidth * 2;
-
-    // Check if first row fits in available width
-    const firstRowWidth = tallTileWidth + chartTileWidth + calendarTileWidth + (GAP * 2);
-    
-    if (firstRowWidth > availableWidth) {
-      // Scale down to fit width
-      const scaleFactor = availableWidth / firstRowWidth;
-      tallTileWidth = Math.floor(tallTileWidth * scaleFactor);
-      tallTileHeight = Math.floor(tallTileHeight * scaleFactor);
-      chartTileWidth = Math.floor(chartTileWidth * scaleFactor);
-      chartTileHeight = Math.floor(chartTileHeight * scaleFactor);
-      calendarTileWidth = Math.floor(calendarTileWidth * scaleFactor);
-      calendarTileHeight = Math.floor(calendarTileHeight * scaleFactor);
-      fullCalendarTileWidth = Math.floor(fullCalendarTileWidth * scaleFactor);
-      fullCalendarTileHeight = Math.floor(fullCalendarTileHeight * scaleFactor);
-    }
-
-    return {
-      tallTileWidth,
-      tallTileHeight,
-      chartTileWidth,
-      chartTileHeight,
-      calendarTileWidth,
-      calendarTileHeight,
-      fullCalendarTileWidth,
-      fullCalendarTileHeight,
-    };
+  // Base column unit: 300px. This allows for clean 2-6 column layouts
+  // News tiles: 1-2 columns (300-600px)
+  // Chart tiles: 2-3 columns (600-900px)  
+  // Calendar tile: spans full width with internal flex layout
+  const COLUMN_UNIT = 300;
+  
+  const TILE_CONFIG = {
+    news: {
+      minWidth: 420,
+      maxWidth: 420, // Fixed consistent width
+    },
+    chart: {
+      minWidth: 650,
+      maxWidth: 650, // Fixed consistent width - can fit with calendar
+    },
+    calendar: {
+      minWidth: 1050, // High enough to prevent 2 charts + calendar on same row (650+650+1050=2350px)
+      maxWidth: 1400, // Can grow large but still fits with a chart
+    },
   };
 
-  const {
-    tallTileWidth,
-    tallTileHeight,
-    chartTileWidth,
-    chartTileHeight,
-    calendarTileWidth,
-    calendarTileHeight,
-    fullCalendarTileWidth,
-    fullCalendarTileHeight,
-  } = calculateTileDimensions();
+  // Calculate tile height and grid columns based on available viewport space
+  const MAX_TILE_HEIGHT = 680; // Maximum reasonable height for tiles
+  
+  const calculateLayoutDimensions = () => {
+    if (containerHeight === 0 || containerWidth === 0) {
+      return { tileHeight: 0, gridColumns: 4 };
+    }
+    
+    // Use 88% of available height for tiles, but cap at max height
+    const calculatedHeight = Math.floor(containerHeight * 0.88);
+    const tileHeight = Math.min(calculatedHeight, MAX_TILE_HEIGHT);
+    
+    // Calculate optimal number of columns based on available width
+    const availableWidth = containerWidth - (CONTAINER_PADDING * 2);
+    const gridColumns = Math.max(2, Math.floor(availableWidth / COLUMN_UNIT));
+    
+    return { tileHeight, gridColumns };
+  };
+
+  const { tileHeight, gridColumns } = calculateLayoutDimensions();
 
   return (
     <div className="h-screen w-screen overflow-hidden fixed top-0 left-0">
@@ -542,7 +532,7 @@ export default function DesktopHome() {
       </div>
       
       <div className="relative z-10 h-full overflow-y-auto">
-        <TopNav ref={topNavRef} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        <TopNav ref={topNavRef} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} onAddComponent={handleAddComponent} />
         
         {/* Main content area with tiles */}
         <div 
@@ -550,202 +540,183 @@ export default function DesktopHome() {
           style={{ paddingLeft: '32px', paddingRight: '32px' }}
           ref={containerRef}
         >
-          {containerHeight > 0 && containerWidth > 0 && tallTileWidth > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: `${GAP}px` }}>
-              {/* First Row */}
-              <div style={{ display: 'flex', gap: `${GAP}px` }}>
-                <div style={{ position: 'relative', width: tallTileWidth, height: tallTileHeight, flexShrink: 0 }}>
-                  <NewsTile
-                    id="tall-tile"
-                    x={0}
-                    y={0}
-                    width={tallTileWidth}
-                    height={tallTileHeight}
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
-                <div style={{ position: 'relative', width: chartTileWidth, height: chartTileHeight, flexShrink: 0 }}>
-                  <ChartTile
-                    id="chart-tile"
-                    x={0}
-                    y={0}
-                    width={chartTileWidth}
-                    height={chartTileHeight}
-                    isDarkMode={isDarkMode}
-                    marketId={selectedMarketSlug}
-                  />
-                </div>
-                <div style={{ position: 'relative', width: calendarTileWidth, height: calendarTileHeight, flexShrink: 0 }}>
-                  <CalendarTile
-                    id="calendar-tile"
-                    x={0}
-                    y={0}
-                    width={calendarTileWidth}
-                    height={calendarTileHeight}
-                    isDarkMode={isDarkMode}
-                    onEventClick={handleEventClick}
-                  />
-                </div>
-              </div>
+          {containerHeight > 0 && containerWidth > 0 && tileHeight > 0 && gridColumns > 0 && (
+            <div 
+              style={{ 
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: `${GAP}px`,
+                width: '100%',
+                maxWidth: '100%',
+              }}
+            >
 
-              {/* Second Row */}
-              <div style={{ display: 'flex', gap: `${GAP}px` }}>
-                <div 
-                  style={{ 
-                    position: 'relative', 
-                    width: fullCalendarTileWidth, 
-                    height: fullCalendarTileHeight, 
-                    flexShrink: 0,
-                    backgroundColor: 'rgba(217, 217, 217, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: '24px',
-                    padding: '32px',
-                    display: 'flex',
-                    gap: '24px',
-                  }}
-                >
-                  {/* Calendar Section - 55% of width */}
-                  <div style={{ 
-                    flex: '0 0 55%',
-                    minWidth: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}>
-                    <Calendar 
-                      view="month" 
-                      isDarkMode={isDarkMode} 
-                      onDateSelect={handleDateSelect}
-                      onCategoryChange={setSelectedCategory}
-                    />
-                  </div>
-
-                  {/* Event List Section - 45% of width */}
-                  <div 
-                    style={{ 
-                      flex: '0 0 calc(45% - 24px)', // Account for gap
-                      display: 'flex',
-                      flexDirection: 'column',
-                      minWidth: 0,
-                    }}
-                  >
-                    <style jsx>{`
-                      .hide-scrollbar::-webkit-scrollbar {
-                        display: none;
-                      }
-                    `}</style>
-                    <h3
-                      className="text-white"
-                      style={{
-                        fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                        fontSize: '22px',
-                        fontWeight: 600,
-                        marginBottom: '12px',
-                      }}
-                    >
-                      {selectedDate ? formatSelectedDate(selectedDate) : 'Select a date'}
-                    </h3>
-
+              {/* Dynamic Tiles - All component types */}
+              {dynamicTiles.map((tile) => {
+                if (tile.type === 'news') {
+                  return (
                     <div 
-                      className="hide-scrollbar"
-                      style={{
-                        flex: 1,
-                        overflowY: 'auto',
-                        paddingTop: '10px',
-                        paddingBottom: '40px',
-                        maskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
-                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
+                      key={tile.id} 
+                      style={{ 
+                        height: tileHeight,
+                        width: TILE_CONFIG.news.maxWidth,
+                        minWidth: TILE_CONFIG.news.minWidth,
+                        flexShrink: 0,
                       }}
                     >
-                      {selectedDate ? (
-                        <>
-                          {selectedDateEvents.length > 0 ? (
-                            <>
-                              {selectedDateEvents.map((event, index, array) => (
-                                <CalendarItem
-                                  key={`${formatDateKey(selectedDate!)}-${event.id}`}
-                                  event={event}
-                                  isDarkMode={isDarkMode}
-                                  isFirst={index === 0}
-                                  isLast={index === array.length - 1}
-                                  onClick={() => handleCalendarItemClick(event)}
-                                />
-                              ))}
-                            </>
-                          ) : (
-                            <p
-                              className="text-white"
-                              style={{
-                                fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                                fontSize: '18px',
-                                fontWeight: 400,
-                                opacity: 0.4,
-                                fontStyle: 'italic',
-                                marginTop: '12px',
-                              }}
-                            >
-                              No events scheduled
-                            </p>
-                          )}
-                        </>
-                      ) : (
-                        <p
-                          className="text-white"
-                          style={{
-                            fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                            fontSize: '18px',
-                            fontWeight: 400,
-                            opacity: 0.4,
-                            fontStyle: 'italic',
-                            marginTop: '12px',
+                      <NewsTile
+                        id={tile.id}
+                        x={0}
+                        y={0}
+                        width={TILE_CONFIG.news.maxWidth}
+                        height={tileHeight}
+                        minWidth={TILE_CONFIG.news.minWidth}
+                        maxWidth={TILE_CONFIG.news.maxWidth}
+                        isDarkMode={isDarkMode}
+                      />
+                    </div>
+                  );
+                } else if (tile.type === 'chart') {
+                  return (
+                    <div 
+                      key={tile.id} 
+                      style={{ 
+                        height: tileHeight,
+                        width: TILE_CONFIG.chart.maxWidth,
+                        minWidth: TILE_CONFIG.chart.minWidth,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <ChartTile
+                        id={tile.id}
+                        x={0}
+                        y={0}
+                        width={TILE_CONFIG.chart.maxWidth}
+                        height={tileHeight}
+                        minWidth={TILE_CONFIG.chart.minWidth}
+                        maxWidth={TILE_CONFIG.chart.maxWidth}
+                        isDarkMode={isDarkMode}
+                        marketId={tile.eventSlug}
+                      />
+                    </div>
+                  );
+                } else if (tile.type === 'calendar') {
+                  return (
+                    <div 
+                      key={tile.id}
+                      style={{ 
+                        height: tileHeight,
+                        flex: '1 1 auto',
+                        minWidth: TILE_CONFIG.calendar.minWidth,
+                        maxWidth: TILE_CONFIG.calendar.maxWidth,
+                        backgroundColor: 'rgba(217, 217, 217, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        borderRadius: '24px',
+                        padding: '32px',
+                        display: 'flex',
+                        gap: '24px',
+                      }}
+                    >
+                        <div style={{ 
+                          flex: '0 0 55%',
+                          minWidth: 0,
+                          display: 'flex',
+                          flexDirection: 'column',
+                        }}>
+                          <Calendar 
+                            view="month" 
+                            isDarkMode={isDarkMode} 
+                            onDateSelect={handleDateSelect}
+                            onCategoryChange={setSelectedCategory}
+                          />
+                        </div>
+
+                        <div 
+                          style={{ 
+                            flex: '0 0 calc(45% - 24px)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            minWidth: 0,
                           }}
                         >
-                          Click on a date to view events
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                          <h3
+                            className="text-white"
+                            style={{
+                              fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                              fontSize: '22px',
+                              fontWeight: 600,
+                              marginBottom: '12px',
+                            }}
+                          >
+                            {selectedDate ? formatSelectedDate(selectedDate) : 'Select a date'}
+                          </h3>
 
-              {/* Dynamic Chart Tiles - Fill rows with up to 3 tiles each */}
-              {(() => {
-                // Calculate how many tiles fit per row (same as first row: tall, chart, calendar)
-                const tilesPerRow = 3;
-                const rows: DynamicChartTile[][] = [];
-                
-                // Group tiles into rows
-                for (let i = 0; i < dynamicChartTiles.length; i += tilesPerRow) {
-                  rows.push(dynamicChartTiles.slice(i, i + tilesPerRow));
+                          <div 
+                            className="hide-scrollbar"
+                            style={{
+                              flex: 1,
+                              overflowY: 'auto',
+                              paddingTop: '10px',
+                              paddingBottom: '40px',
+                              maskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
+                              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
+                              scrollbarWidth: 'none',
+                              msOverflowStyle: 'none',
+                            }}
+                          >
+                            {selectedDate ? (
+                              <>
+                                {selectedDateEvents.length > 0 ? (
+                                  <>
+                                    {selectedDateEvents.map((event, index, array) => (
+                                      <CalendarItem
+                                        key={`${formatDateKey(selectedDate!)}-${event.id}`}
+                                        event={event}
+                                        isDarkMode={isDarkMode}
+                                        isFirst={index === 0}
+                                        isLast={index === array.length - 1}
+                                        onClick={() => handleCalendarItemClick(event)}
+                                      />
+                                    ))}
+                                  </>
+                                ) : (
+                                  <p
+                                    className="text-white"
+                                    style={{
+                                      fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                                      fontSize: '18px',
+                                      fontWeight: 400,
+                                      opacity: 0.4,
+                                      fontStyle: 'italic',
+                                      marginTop: '12px',
+                                    }}
+                                  >
+                                    No events scheduled
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              <p
+                                className="text-white"
+                                style={{
+                                  fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                                  fontSize: '18px',
+                                  fontWeight: 400,
+                                  opacity: 0.4,
+                                  fontStyle: 'italic',
+                                  marginTop: '12px',
+                                }}
+                              >
+                                Click on a date to view events
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                    </div>
+                  );
                 }
-                
-                return rows.map((rowTiles, rowIndex) => (
-                  <div key={`chart-row-${rowIndex}`} style={{ display: 'flex', gap: `${GAP}px` }}>
-                    {rowTiles.map((tile, tileIndex) => (
-                      <div 
-                        key={tile.id} 
-                        style={{ 
-                          position: 'relative', 
-                          width: chartTileWidth, 
-                          height: chartTileHeight, 
-                          flexShrink: 0 
-                        }}
-                      >
-                        <ChartTile
-                          id={tile.id}
-                          x={0}
-                          y={0}
-                          width={chartTileWidth}
-                          height={chartTileHeight}
-                          isDarkMode={isDarkMode}
-                          marketId={tile.eventSlug}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ));
-              })()}
+                return null;
+              })}
             </div>
           )}
         </div>

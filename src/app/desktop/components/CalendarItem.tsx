@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import type { Event } from '../../../types/polymarket';
 import { ChevronRightIcon } from '../../components/icons/ChevronRightIcon';
 
@@ -244,7 +245,16 @@ export default function CalendarItem({ event, isDarkMode = true, isFirst = false
 
   return (
     <>
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 30,
+          opacity: { duration: 0.2 }
+        }}
         onClick={onClick}
         style={{
           display: 'flex',
@@ -254,15 +264,10 @@ export default function CalendarItem({ event, isDarkMode = true, isFirst = false
           paddingBottom: '21px',
           position: 'relative',
           cursor: onClick ? 'pointer' : 'default',
-          transition: 'opacity 0.2s ease',
         }}
-        onMouseEnter={(e) => {
-          if (onClick) {
-            e.currentTarget.style.opacity = '0.8';
-          }
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.opacity = '1';
+        whileHover={{ 
+          opacity: onClick ? 0.8 : 1,
+          transition: { duration: 0.2 }
         }}
       >
         {/* Underline - 95% width, centered (hidden on last item) */}
@@ -397,7 +402,7 @@ export default function CalendarItem({ event, isDarkMode = true, isFirst = false
             <ChevronRightIcon size="sm" className="text-white opacity-85" />
           </div>
         )}
-      </div>
+      </motion.div>
     </>
   );
 }

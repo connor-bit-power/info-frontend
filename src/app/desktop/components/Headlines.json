@@ -1,203 +1,1242 @@
 [
   {
-    "id": 1,
+    "id": "hl_1",
     "title": "Global Markets Rally as Tech Stocks Lead Gains Across Major Exchanges",
-    "category": "market related"
+    "slug": "global-markets-rally-as-tech-stocks-lead-gains-across-major-exchanges",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_1",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Global Markets Rally as Tech Stocks Lead Gains Across Major Exchanges",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 2,
+    "id": "hl_2",
     "title": "Scientists Discover Breakthrough in Renewable Energy Storage Technology",
-    "category": "breaking"
+    "slug": "scientists-discover-breakthrough-in-renewable-energy-storage-technology",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_2",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Scientists Discover Breakthrough in Renewable Energy Storage Technology",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 3,
+    "id": "hl_3",
     "title": "New Climate Agreement Reached at International Summit",
-    "category": "economic"
+    "slug": "new-climate-agreement-reached-at-international-summit",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_3",
+      "polymarket_market_id": "0x123",
+      "question": "Market for New Climate Agreement Reached at International Summit",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 4,
+    "id": "hl_4",
     "title": "Major Sports Championship Sees Record-Breaking Attendance and Viewership Numbers",
-    "category": "new market"
+    "slug": "major-sports-championship-sees-record-breaking-attendance-and-viewership-numbers",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_4",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Major Sports Championship Sees Record-Breaking Attendance and Viewership Numbers",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 5,
+    "id": "hl_5",
     "title": "Innovative Healthcare Solution Promises to Transform Patient Care",
-    "category": "new market"
+    "slug": "innovative-healthcare-solution-promises-to-transform-patient-care",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_5",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Innovative Healthcare Solution Promises to Transform Patient Care",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 6,
+    "id": "hl_6",
     "title": "Urban Development Plans Announced for Sustainable City Infrastructure",
-    "category": "economic"
+    "slug": "urban-development-plans-announced-for-sustainable-city-infrastructure",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_6",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Urban Development Plans Announced for Sustainable City Infrastructure",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 7,
+    "id": "hl_7",
     "title": "Cultural Festival Celebrates Diversity with Art, Music, and Community Events",
-    "category": "breaking"
+    "slug": "cultural-festival-celebrates-diversity-with-art--music--and-community-events",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_7",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Cultural Festival Celebrates Diversity with Art, Music, and Community Events",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 8,
+    "id": "hl_8",
     "title": "Federal Reserve Announces Interest Rate Decision Affecting Global Markets",
-    "category": "economic"
+    "slug": "federal-reserve-announces-interest-rate-decision-affecting-global-markets",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_8",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Federal Reserve Announces Interest Rate Decision Affecting Global Markets",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 9,
+    "id": "hl_9",
     "title": "Tech Giant Unveils Revolutionary AI-Powered Consumer Device",
-    "category": "breaking"
+    "slug": "tech-giant-unveils-revolutionary-ai-powered-consumer-device",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_9",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Tech Giant Unveils Revolutionary AI-Powered Consumer Device",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 10,
+    "id": "hl_10",
     "title": "Cryptocurrency Trading Platform Launches New Security Features",
-    "category": "market related"
+    "slug": "cryptocurrency-trading-platform-launches-new-security-features",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_10",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Cryptocurrency Trading Platform Launches New Security Features",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 11,
+    "id": "hl_11",
     "title": "International Trade Deal Creates New Opportunities for Emerging Markets",
-    "category": "new market"
+    "slug": "international-trade-deal-creates-new-opportunities-for-emerging-markets",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_11",
+      "polymarket_market_id": "0x123",
+      "question": "Market for International Trade Deal Creates New Opportunities for Emerging Markets",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 12,
+    "id": "hl_12",
     "title": "Major Bank Reports Record Quarterly Earnings Despite Economic Uncertainty",
-    "category": "market related"
+    "slug": "major-bank-reports-record-quarterly-earnings-despite-economic-uncertainty",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_12",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Major Bank Reports Record Quarterly Earnings Despite Economic Uncertainty",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 13,
+    "id": "hl_13",
     "title": "Breakthrough Medical Treatment Receives FDA Approval",
-    "category": "breaking"
+    "slug": "breakthrough-medical-treatment-receives-fda-approval",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_13",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Breakthrough Medical Treatment Receives FDA Approval",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 14,
+    "id": "hl_14",
     "title": "Consumer Spending Data Shows Unexpected Growth in Retail Sector",
-    "category": "economic"
+    "slug": "consumer-spending-data-shows-unexpected-growth-in-retail-sector",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_14",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Consumer Spending Data Shows Unexpected Growth in Retail Sector",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 15,
+    "id": "hl_15",
     "title": "Startup Ecosystem Expands with Record Venture Capital Investments",
-    "category": "new market"
+    "slug": "startup-ecosystem-expands-with-record-venture-capital-investments",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_15",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Startup Ecosystem Expands with Record Venture Capital Investments",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 16,
+    "id": "hl_16",
     "title": "Oil Prices Surge Following Production Cut Announcement",
-    "category": "market related"
+    "slug": "oil-prices-surge-following-production-cut-announcement",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_16",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Oil Prices Surge Following Production Cut Announcement",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 17,
+    "id": "hl_17",
     "title": "Government Unveils Comprehensive Infrastructure Spending Plan",
-    "category": "economic"
+    "slug": "government-unveils-comprehensive-infrastructure-spending-plan",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_17",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Government Unveils Comprehensive Infrastructure Spending Plan",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 18,
+    "id": "hl_18",
     "title": "Electric Vehicle Manufacturer Reports Production Milestone",
-    "category": "new market"
+    "slug": "electric-vehicle-manufacturer-reports-production-milestone",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_18",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Electric Vehicle Manufacturer Reports Production Milestone",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 19,
+    "id": "hl_19",
     "title": "Major Corporate Merger Reshapes Industry Landscape",
-    "category": "breaking"
+    "slug": "major-corporate-merger-reshapes-industry-landscape",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_19",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Major Corporate Merger Reshapes Industry Landscape",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 20,
+    "id": "hl_20",
     "title": "Housing Market Trends Show Shifting Buyer Demographics",
-    "category": "market related"
+    "slug": "housing-market-trends-show-shifting-buyer-demographics",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_20",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Housing Market Trends Show Shifting Buyer Demographics",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 21,
+    "id": "hl_21",
     "title": "Central Bank Policy Shift Impacts Currency Markets Globally",
-    "category": "economic"
+    "slug": "central-bank-policy-shift-impacts-currency-markets-globally",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_21",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Central Bank Policy Shift Impacts Currency Markets Globally",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 22,
+    "id": "hl_22",
     "title": "Renewable Energy Sector Sees Record Investment Levels",
-    "category": "new market"
+    "slug": "renewable-energy-sector-sees-record-investment-levels",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_22",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Renewable Energy Sector Sees Record Investment Levels",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 23,
+    "id": "hl_23",
     "title": "Major Airline Reports Strong Recovery in International Travel",
-    "category": "market related"
+    "slug": "major-airline-reports-strong-recovery-in-international-travel",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_23",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Major Airline Reports Strong Recovery in International Travel",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 24,
+    "id": "hl_24",
     "title": "Biotechnology Firm Announces Promising Clinical Trial Results",
-    "category": "breaking"
+    "slug": "biotechnology-firm-announces-promising-clinical-trial-results",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_24",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Biotechnology Firm Announces Promising Clinical Trial Results",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 25,
+    "id": "hl_25",
     "title": "Supply Chain Innovation Transforms Global Logistics Industry",
-    "category": "economic"
+    "slug": "supply-chain-innovation-transforms-global-logistics-industry",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_25",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Supply Chain Innovation Transforms Global Logistics Industry",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 26,
+    "id": "hl_26",
     "title": "Emerging Markets Show Strong Growth in Digital Payment Adoption",
-    "category": "new market"
+    "slug": "emerging-markets-show-strong-growth-in-digital-payment-adoption",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_26",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Emerging Markets Show Strong Growth in Digital Payment Adoption",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 27,
+    "id": "hl_27",
     "title": "Manufacturing Sector Reports Increased Automation Investment",
-    "category": "market related"
+    "slug": "manufacturing-sector-reports-increased-automation-investment",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_27",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Manufacturing Sector Reports Increased Automation Investment",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 28,
+    "id": "hl_28",
     "title": "Space Tourism Company Completes Successful Test Flight",
-    "category": "breaking"
+    "slug": "space-tourism-company-completes-successful-test-flight",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_28",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Space Tourism Company Completes Successful Test Flight",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 29,
+    "id": "hl_29",
     "title": "Agricultural Technology Advances Promise Higher Crop Yields",
-    "category": "new market"
+    "slug": "agricultural-technology-advances-promise-higher-crop-yields",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_29",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Agricultural Technology Advances Promise Higher Crop Yields",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 30,
+    "id": "hl_30",
     "title": "Financial Markets React to Unexpected Economic Data Release",
-    "category": "economic"
+    "slug": "financial-markets-react-to-unexpected-economic-data-release",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_30",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Financial Markets React to Unexpected Economic Data Release",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 31,
+    "id": "hl_31",
     "title": "Semiconductor Industry Expands Production Capacity Worldwide",
-    "category": "market related"
+    "slug": "semiconductor-industry-expands-production-capacity-worldwide",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_31",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Semiconductor Industry Expands Production Capacity Worldwide",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 32,
+    "id": "hl_32",
     "title": "Healthcare Innovation Summit Showcases Breakthrough Technologies",
-    "category": "breaking"
+    "slug": "healthcare-innovation-summit-showcases-breakthrough-technologies",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_32",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Healthcare Innovation Summit Showcases Breakthrough Technologies",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 33,
+    "id": "hl_33",
     "title": "Retail Sector Adapts to Changing Consumer Shopping Habits",
-    "category": "market related"
+    "slug": "retail-sector-adapts-to-changing-consumer-shopping-habits",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_33",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Retail Sector Adapts to Changing Consumer Shopping Habits",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 34,
+    "id": "hl_34",
     "title": "Government Announces New Tax Incentives for Green Technology",
-    "category": "economic"
+    "slug": "government-announces-new-tax-incentives-for-green-technology",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_34",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Government Announces New Tax Incentives for Green Technology",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 35,
+    "id": "hl_35",
     "title": "Telecommunications Giant Launches Next-Generation Network",
-    "category": "new market"
+    "slug": "telecommunications-giant-launches-next-generation-network",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_35",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Telecommunications Giant Launches Next-Generation Network",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 36,
+    "id": "hl_36",
     "title": "Luxury Goods Market Experiences Unexpected Growth Surge",
-    "category": "market related"
+    "slug": "luxury-goods-market-experiences-unexpected-growth-surge",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_36",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Luxury Goods Market Experiences Unexpected Growth Surge",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 37,
+    "id": "hl_37",
     "title": "International Energy Conference Addresses Climate Challenges",
-    "category": "breaking"
+    "slug": "international-energy-conference-addresses-climate-challenges",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_37",
+      "polymarket_market_id": "0x123",
+      "question": "Market for International Energy Conference Addresses Climate Challenges",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 38,
+    "id": "hl_38",
     "title": "Small Business Lending Programs Show Positive Economic Impact",
-    "category": "economic"
+    "slug": "small-business-lending-programs-show-positive-economic-impact",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_38",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Small Business Lending Programs Show Positive Economic Impact",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 39,
+    "id": "hl_39",
     "title": "Quantum Computing Startup Secures Major Funding Round",
-    "category": "new market"
+    "slug": "quantum-computing-startup-secures-major-funding-round",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_39",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Quantum Computing Startup Secures Major Funding Round",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   },
   {
-    "id": 40,
+    "id": "hl_40",
     "title": "Global Trade Volume Reaches New Record High This Quarter",
-    "category": "market related"
+    "slug": "global-trade-volume-reaches-new-record-high-this-quarter",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2025-11-21T06:46:20Z",
+    "created_at": "2025-11-21T06:46:20Z",
+    "updated_at": "2025-11-21T06:46:20Z",
+    "market": {
+      "id": "mkt_40",
+      "polymarket_market_id": "0x123",
+      "question": "Market for Global Trade Volume Reaches New Record High This Quarter",
+      "status": "open",
+      "resolution": null,
+      "end_date": "2025-12-31T00:00:00Z",
+      "pricing": {
+        "best_bid_yes": 0.5,
+        "best_ask_yes": 0.51,
+        "best_bid_no": 0.49,
+        "best_ask_no": 0.5,
+        "last_price_yes": 0.5,
+        "last_trade_at": "2025-11-21T06:46:20Z"
+      },
+      "stats": {
+        "volume_24h": 1000,
+        "liquidity": 5000,
+        "open_interest": 2000
+      }
+    }
   }
 ]
-

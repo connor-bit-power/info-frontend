@@ -27,6 +27,9 @@ interface ChartProps {
   height?: number;
   loading?: boolean;
   error?: string | null;
+  onHoverPositionChange?: (percentage: number | null, hoveredDate?: Date) => void; // Callback for hover position (0-100) and date
+  titleFontSize?: string;
+  valueFontSize?: string;
 }
 
 export default function Chart({
@@ -37,6 +40,9 @@ export default function Chart({
   height = 400,
   loading = false,
   error = null,
+  onHoverPositionChange,
+  titleFontSize = '28px',
+  valueFontSize = '28px',
 }: ChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [hoverPosition, setHoverPosition] = useState<number | null>(null);
@@ -146,6 +152,11 @@ export default function Chart({
       const formattedTime = hoveredDateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       setHoveredDate(formattedDate);
       setHoveredTime(formattedTime);
+      
+      // Notify parent component of hover position change with date
+      if (onHoverPositionChange) {
+        onHoverPositionChange(percentage, hoveredDateObj);
+      }
     }
   };
 
@@ -155,6 +166,12 @@ export default function Chart({
     setHoveredDate(null);
     setHoveredTime(null);
     setHoverXPosition(null);
+    
+    // Notify parent component that hover ended
+    if (onHoverPositionChange) {
+      onHoverPositionChange(null);
+    }
+    
     // Reset to latest values (rightmost data points)
     const latestValues: { [key: string]: number } = {};
     yAxisDatasets.forEach((dataset) => {
@@ -289,7 +306,7 @@ export default function Chart({
             className="text-white font-semibold"
             style={{ 
               fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-              fontSize: '28px',
+              fontSize: titleFontSize,
               position: 'absolute',
               top: '15px',
               left: '30px',
@@ -338,7 +355,7 @@ export default function Chart({
                 </div>
               )}
               <div style={{ 
-                fontSize: yAxisDatasets.length > 1 ? '18px' : '28px', 
+                fontSize: yAxisDatasets.length > 1 ? '18px' : valueFontSize, 
                 fontWeight: 600,
                 lineHeight: '1.1',
               }}>

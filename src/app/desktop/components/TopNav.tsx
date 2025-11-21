@@ -3,23 +3,25 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import PillButton from '../../components/PillButton';
 
+export type ComponentType = 'news' | 'chart' | 'calendar';
+
 interface TopNavProps {
   isDarkMode?: boolean;
   setIsDarkMode?: (isDark: boolean) => void;
+  onAddComponent?: (type: ComponentType) => void;
 }
 
 export interface TopNavRef {
   focusSearch: () => void;
 }
 
-const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode }: TopNavProps = {}, ref) => {
-  const [selectedPill, setSelectedPill] = useState<string>('one');
+const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, onAddComponent }: TopNavProps = {}, ref) => {
+  const [selectedPill, setSelectedPill] = useState<ComponentType>('news');
   const [searchValue, setSearchValue] = useState<string>('');
-  const [pills, setPills] = useState<string[]>(['one', 'two', 'three', 'four', 'five']);
+  const [pills] = useState<ComponentType[]>(['news', 'chart', 'calendar']);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverItem, setDragOverItem] = useState<string | null>(null);
   const [isNewTabAnimating, setIsNewTabAnimating] = useState(false);
-  const [closingPill, setClosingPill] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Expose focusSearch method to parent component
@@ -29,36 +31,24 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode }
     }
   }));
 
-  const handleNewTab = () => {
-    const newTabNumber = pills.length + 1;
-    const newTabName = `tab${newTabNumber}`;
+  const handlePillClick = (type: ComponentType) => {
+    setSelectedPill(type);
     setIsNewTabAnimating(true);
-    setPills([...pills, newTabName]);
-    setSelectedPill(newTabName);
+    onAddComponent?.(type);
     setTimeout(() => setIsNewTabAnimating(false), 300);
   };
 
-  const handleClosePill = (e: React.MouseEvent, pillToClose: string) => {
-    e.stopPropagation();
-    
-    // Don't allow closing if it's the last pill
-    if (pills.length <= 1) return;
-    
-    // Trigger close animation
-    setClosingPill(pillToClose);
-    
-    // If closing the selected pill, select another one
-    if (selectedPill === pillToClose) {
-      const currentIndex = pills.indexOf(pillToClose);
-      const newSelectedIndex = currentIndex > 0 ? currentIndex - 1 : 1;
-      setSelectedPill(pills[newSelectedIndex]);
+  const getComponentLabel = (type: ComponentType): string => {
+    switch (type) {
+      case 'news':
+        return 'News';
+      case 'chart':
+        return 'Chart';
+      case 'calendar':
+        return 'Calendar';
+      default:
+        return type;
     }
-    
-    // Remove the pill after animation completes
-    setTimeout(() => {
-      setPills(prevPills => prevPills.filter(p => p !== pillToClose));
-      setClosingPill(null);
-    }, 250);
   };
 
   const handleDragStart = (e: React.DragEvent, pill: string) => {
@@ -121,48 +111,27 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode }
           />
         </div>
 
-        {/* Pill Buttons */}
+        {/* Pill Buttons - Component Types */}
         <div 
           className="flex gap-3"
           style={{
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          {/* +NEW Button */}
-          <div
-            style={{
-              animation: isNewTabAnimating ? 'pulse 0.3s ease-in-out' : 'none',
-            }}
-          >
-            <PillButton
-              label="+NEW"
-              isSelected={false}
-              onClick={handleNewTab}
-            />
-          </div>
-          {pills.map((pill, index) => (
+          {pills.map((pill) => (
             <div
               key={pill}
               style={{
-                animation: closingPill === pill 
-                  ? 'slideOutToRight 0.25s cubic-bezier(0.4, 0, 1, 1) forwards'
-                  : isNewTabAnimating && index === pills.length - 1 
-                    ? 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
-                    : 'none',
+                animation: isNewTabAnimating && selectedPill === pill
+                  ? 'pulse 0.3s ease-in-out'
+                  : 'none',
               }}
             >
               <PillButton
-                label={pill}
+                label={getComponentLabel(pill)}
                 isSelected={selectedPill === pill}
-                onClick={() => setSelectedPill(pill)}
-                onClose={(e) => handleClosePill(e, pill)}
-                draggable={true}
-                onDragStart={(e) => handleDragStart(e, pill)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => handleDragOver(e, pill)}
-                onDrop={(e) => handleDrop(e, pill)}
-                isDragOver={dragOverItem === pill}
-                showClose={true}
+                onClick={() => handlePillClick(pill)}
+                showClose={false}
               />
             </div>
           ))}

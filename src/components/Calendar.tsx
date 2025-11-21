@@ -438,7 +438,14 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
 
   const getEventsForDate = (date: Date): Event[] => {
     const key = formatDateKey(date);
-    return eventsByDate.get(key) || [];
+    const events = eventsByDate.get(key) || [];
+    
+    // Sort by liquidity (highest first), with null/undefined values at the end
+    return events.sort((a, b) => {
+      const liquidityA = a.liquidity ?? 0;
+      const liquidityB = b.liquidity ?? 0;
+      return liquidityB - liquidityA;
+    });
   };
 
   // Helper function to get team info for sports events
@@ -596,9 +603,9 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     today.setHours(0, 0, 0, 0);
 
     return (
-      <div className="flex flex-col h-full" style={{ fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif' }}>
+      <div className="flex flex-col h-full overflow-hidden" style={{ fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif' }}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 shrink-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigateMonth('prev')}
@@ -628,9 +635,9 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
         </div>
 
         {/* Calendar Grid */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
+          <div className="grid grid-cols-7 gap-1 mb-2 shrink-0">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div
                 key={day}
@@ -643,7 +650,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
           </div>
 
           {/* Calendar Days */}
-          <div className="flex-1 flex flex-col gap-1 relative">
+          <div className="flex-1 flex flex-col gap-1 relative min-h-0 overflow-hidden">
             <AnimatePresence initial={false} mode="wait" custom={direction}>
               <motion.div
                 key={`${currentDate.getMonth()}-${currentDate.getFullYear()}`}
@@ -657,10 +664,10 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
                   damping: 30,
                   opacity: { duration: 0.2 }
                 }}
-                className="flex-1 flex flex-col gap-1 absolute inset-0"
+                className="flex-1 flex flex-col gap-1 absolute inset-0 overflow-hidden"
               >
                 {weeks.map((week, weekIndex) => (
-                  <div key={weekIndex} className="grid grid-cols-7 gap-1 flex-1">
+                  <div key={weekIndex} className="grid grid-cols-7 gap-1 flex-1 min-h-0">
                     {week.map((day, dayIndex) => {
                       // Don't render days outside current month
                       if (!day.isCurrentMonth) {
@@ -671,6 +678,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
                       const isToday = day.date.getTime() === today.getTime();
                       const isSelected = selectedDate && day.date.getTime() === selectedDate.getTime();
                       const dayStr = day.date.getDate();
+                      const eventCount = events.length;
 
                       return (
                         <motion.div
@@ -684,7 +692,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
                             delay: (weekIndex * 7 + dayIndex) * 0.01
                           }}
                           onClick={() => handleDateClick(day.date)}
-                          className="relative rounded-lg p-2 cursor-pointer overflow-hidden"
+                          className="relative rounded-lg p-2 cursor-pointer overflow-hidden flex flex-col min-h-0"
                           style={{
                             backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
                             border: isSelected 
@@ -695,60 +703,25 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
                           whileTap={{ scale: 0.95 }}
                         >
                           <div
-                            className="text-sm font-medium mb-1"
+                            className="text-sm font-medium mb-1 shrink-0"
                             style={{ color: isToday ? '#2E5CFF' : (isDarkMode ? 'white' : '#1a1a1a') }}
                           >
                             {dayStr}
                           </div>
-                          <div className="space-y-1">
-                            {events.slice(0, 2).map((event) => {
-                              const isSports = isSportsEvent(event);
-                              const { teamA, teamB, teamAName, teamBName } = getTeamsForEvent(event);
-                              const displayText = isSports ? `${teamAName} vs ${teamBName}` : (event.title || 'Untitled Event');
-
-                              return (
-                                <div
-                                  key={event.id}
-                                  className="text-xs px-1 py-0.5 rounded truncate"
-                                  style={{
-                                    backgroundColor: isSports 
-                                      ? (isDarkMode ? 'rgba(34, 197, 94, 0.3)' : 'rgba(34, 197, 94, 0.2)')
-                                      : (isDarkMode ? 'rgba(46, 92, 255, 0.3)' : 'rgba(46, 92, 255, 0.2)'),
-                                    color: isDarkMode ? 'white' : '#1a1a1a',
-                                  }}
-                                  title={displayText}
-                                >
-                                  {isSports && (teamA?.logo || teamB?.logo) && (
-                                    <div className="flex items-center gap-0.5 mb-0.5">
-                                      {teamA?.logo && (
-                                        <img 
-                                          src={teamA.logo} 
-                                          alt={teamAName} 
-                                          className="w-3 h-3 rounded-sm object-contain"
-                                        />
-                                      )}
-                                      {teamB?.logo && (
-                                        <img 
-                                          src={teamB.logo} 
-                                          alt={teamBName} 
-                                          className="w-3 h-3 rounded-sm object-contain"
-                                        />
-                                      )}
-                                    </div>
-                                  )}
-                                  {displayText}
-                                </div>
-                              );
-                            })}
-                            {events.length > 2 && (
-                              <div
-                                className="text-xs px-1"
-                                style={{ color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
-                              >
-                                +{events.length - 2} more
-                              </div>
-                            )}
-                          </div>
+                          
+                          {/* Show event count badge if there are events */}
+                          {eventCount > 0 && (
+                            <div 
+                              className="shrink-0 text-xs font-semibold px-2 py-1 rounded-full text-center"
+                              style={{
+                                backgroundColor: isDarkMode ? 'rgba(46, 92, 255, 0.4)' : 'rgba(46, 92, 255, 0.3)',
+                                color: isDarkMode ? 'white' : '#1a1a1a',
+                              }}
+                              title={events.map(e => getEventDisplayText(e)).join('\n')}
+                            >
+                              {eventCount} {eventCount === 1 ? 'event' : 'events'}
+                            </div>
+                          )}
                         </motion.div>
                       );
                     })}
@@ -765,6 +738,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   // Week View (not currently used but kept for completeness)
   return null;
 }
+
 
 
 

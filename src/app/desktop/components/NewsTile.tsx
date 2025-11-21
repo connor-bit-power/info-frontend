@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Tile from './Tile';
 import headlinesData from './Headlines.json';
 import { InfoCircleIcon } from '../../components/icons/InfoCircleIcon';
+import type { HeadlineItem } from '@/types/news-api';
 
 interface NewsTileProps {
   id: string;
@@ -12,6 +13,8 @@ interface NewsTileProps {
   y: number;
   width: number;
   height: number;
+  minWidth?: number;
+  maxWidth?: number;
   isDarkMode?: boolean;
   onMouseDown?: (e: React.MouseEvent) => void;
   onResizeStart?: (e: React.MouseEvent, handle: string) => void;
@@ -25,6 +28,8 @@ export default function NewsTile({
   y,
   width,
   height,
+  minWidth,
+  maxWidth,
   isDarkMode,
   onMouseDown,
   onResizeStart,
@@ -36,6 +41,9 @@ export default function NewsTile({
   const [isAtTop, setIsAtTop] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousCountRef = useRef(12);
+
+  // Cast mock data to HeadlineItem[]
+  const headlines: HeadlineItem[] = headlinesData as unknown as HeadlineItem[];
 
   // Track scroll position
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -54,33 +62,20 @@ export default function NewsTile({
   // Add new headlines every second until we reach 40
   useEffect(() => {
     // Only run if we haven't reached 40 yet
-    if (headlineCount >= 40) return;
+    if (headlineCount >= headlines.length) return;
 
     const timer = setTimeout(() => {
-      setHeadlineCount(prev => Math.min(prev + 1, 40));
+      setHeadlineCount(prev => Math.min(prev + 1, headlines.length));
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [headlineCount]);
+  }, [headlineCount, headlines.length]);
 
   // Get the headlines to display (newest first)
-  const displayHeadlines = headlinesData.slice(0, headlineCount).reverse();
+  const displayHeadlines = headlines.slice(0, headlineCount).reverse();
 
-  // Get color based on category
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'breaking':
-        return '#FF0000'; // Red
-      case 'new market':
-        return '#FFD700'; // Gold/Yellow
-      case 'economic':
-        return '#00FF00'; // Green
-      case 'market related':
-        return '#2E5CFF'; // Blue
-      default:
-        return '#FF0000'; // Default to red
-    }
-  };
+  // NOTE: HeadlineItem does not have a category field in the new API schema.
+  // Removed getCategoryColor and the dot element to match the schema 1:1.
 
   return (
     <>
@@ -95,6 +90,8 @@ export default function NewsTile({
         y={y}
         width={width}
         height={height}
+        minWidth={minWidth}
+        maxWidth={maxWidth}
         isDarkMode={isDarkMode}
         onMouseDown={onMouseDown}
         onResizeStart={onResizeStart}
@@ -155,18 +152,7 @@ export default function NewsTile({
                   position: 'relative',
                 }}
               >
-                {/* Category dot */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: '-15px',
-                    top: '10px',
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: getCategoryColor(headline.category),
-                  }}
-                />
+                {/* Category dot removed as it's not in schema */}
                 <p
                   className="text-white"
                   style={{
@@ -191,4 +177,3 @@ export default function NewsTile({
     </>
   );
 }
-

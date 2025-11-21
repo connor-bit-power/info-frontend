@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import GradientBackground from '../components/GradientBackground';
 import ThemeToggler from '../components/ThemeToggler';
 import Calendar from '../../components/Calendar';
@@ -71,7 +72,14 @@ export default function CalendarPage() {
 
   const getEventsForDate = (date: Date): Event[] => {
     const key = formatDateKey(date);
-    return eventsByDate.get(key) || [];
+    const events = eventsByDate.get(key) || [];
+    
+    // Sort by liquidity (highest first), with null/undefined values at the end
+    return events.sort((a, b) => {
+      const liquidityA = a.liquidity ?? 0;
+      const liquidityB = b.liquidity ?? 0;
+      return liquidityB - liquidityA;
+    });
   };
 
   const formatSelectedDate = (date: Date) => {
@@ -177,7 +185,7 @@ export default function CalendarPage() {
                   {selectedDate ? (
                     <>
                       {getEventsForDate(selectedDate).length > 0 ? (
-                        <>
+                        <AnimatePresence mode="popLayout">
                           {getEventsForDate(selectedDate).map((event, index, array) => (
                             <CalendarItem
                               key={event.id}
@@ -187,7 +195,7 @@ export default function CalendarPage() {
                               isLast={index === array.length - 1}
                             />
                           ))}
-                        </>
+                        </AnimatePresence>
                       ) : (
                         <p
                           className="text-white"

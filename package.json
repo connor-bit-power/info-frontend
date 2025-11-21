@@ -20,6 +20,7 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-switch": "^1.2.6",
+    "@react-spring/web": "^10.0.3",
     "@types/d3": "^7.4.3",
     "animate-ui": "^0.0.4",
     "d3": "^7.9.0",

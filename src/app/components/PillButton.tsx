@@ -63,12 +63,12 @@ export default function PillButton({
       onDragEnd={handleDragEnd}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className="rounded-full relative"
+      className="rounded-full relative flex-shrink-0"
       style={{
-        backgroundColor: 'rgba(217, 217, 217, 0.1)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        color: '#FFFFFF',
+        backgroundColor: isSelected ? '#FFFFFF' : 'rgba(217, 217, 217, 0.1)',
+        backdropFilter: isSelected ? 'none' : 'blur(10px)',
+        WebkitBackdropFilter: isSelected ? 'none' : 'blur(10px)',
+        color: isSelected ? '#000000' : '#FFFFFF',
         paddingTop: '7px',
         paddingBottom: '7px',
         paddingLeft: '21px',
@@ -86,6 +86,7 @@ export default function PillButton({
         display: 'inline-block',
         transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: showClose && isHovered ? 'translateX(-6px)' : 'translateX(0)',
+        fontWeight: isSelected ? 500 : 400,
       }}>
         {label}
       </span>
@@ -121,4 +122,3 @@ export default function PillButton({
     </button>
   );
 }
-

@@ -1,182 +1,602 @@
 [
   {
-    "id": 1,
+    "id": "hl_1",
     "title": "Federal Reserve signals potential rate cuts amid cooling inflation data",
-    "category": "economic",
-    "date": "2024-11-17"
+    "slug": "federal-reserve-signals-potential-rate-cuts-amid-cooling-inflation-data",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-17T12:00:00Z",
+    "created_at": "2024-11-17T12:00:00Z",
+    "updated_at": "2024-11-17T12:00:00Z",
+    "summary": "Federal Reserve signals potential rate cuts amid cooling inflation data",
+    "lead": "Federal Reserve signals potential rate cuts amid cooling inflation data",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 2,
+    "id": "hl_2",
     "title": "Tech sector rebounds as AI chip demand reaches record highs",
-    "category": "market related",
-    "date": "2024-11-16"
+    "slug": "tech-sector-rebounds-as-ai-chip-demand-reaches-record-highs",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-16T12:00:00Z",
+    "created_at": "2024-11-16T12:00:00Z",
+    "updated_at": "2024-11-16T12:00:00Z",
+    "summary": "Tech sector rebounds as AI chip demand reaches record highs",
+    "lead": "Tech sector rebounds as AI chip demand reaches record highs",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   },
   {
-    "id": 3,
+    "id": "hl_3",
     "title": "Oil prices surge following OPEC+ production cut announcement",
-    "category": "breaking",
-    "date": "2024-11-15"
+    "slug": "oil-prices-surge-following-opec--production-cut-announcement",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-15T12:00:00Z",
+    "created_at": "2024-11-15T12:00:00Z",
+    "updated_at": "2024-11-15T12:00:00Z",
+    "summary": "Oil prices surge following OPEC+ production cut announcement",
+    "lead": "Oil prices surge following OPEC+ production cut announcement",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "breaking"
+    ],
+    "image_url": null
   },
   {
-    "id": 4,
+    "id": "hl_4",
     "title": "Major cryptocurrency exchange launches institutional trading platform",
-    "category": "new market",
-    "date": "2024-11-14"
+    "slug": "major-cryptocurrency-exchange-launches-institutional-trading-platform",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-14T12:00:00Z",
+    "created_at": "2024-11-14T12:00:00Z",
+    "updated_at": "2024-11-14T12:00:00Z",
+    "summary": "Major cryptocurrency exchange launches institutional trading platform",
+    "lead": "Major cryptocurrency exchange launches institutional trading platform",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "new market"
+    ],
+    "image_url": null
   },
   {
-    "id": 5,
+    "id": "hl_5",
     "title": "Manufacturing sector shows unexpected growth in latest PMI data",
-    "category": "economic",
-    "date": "2024-11-13"
+    "slug": "manufacturing-sector-shows-unexpected-growth-in-latest-pmi-data",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-13T12:00:00Z",
+    "created_at": "2024-11-13T12:00:00Z",
+    "updated_at": "2024-11-13T12:00:00Z",
+    "summary": "Manufacturing sector shows unexpected growth in latest PMI data",
+    "lead": "Manufacturing sector shows unexpected growth in latest PMI data",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 6,
+    "id": "hl_6",
     "title": "European markets rally on improved GDP forecasts",
-    "category": "market related",
-    "date": "2024-11-12"
+    "slug": "european-markets-rally-on-improved-gdp-forecasts",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-12T12:00:00Z",
+    "created_at": "2024-11-12T12:00:00Z",
+    "updated_at": "2024-11-12T12:00:00Z",
+    "summary": "European markets rally on improved GDP forecasts",
+    "lead": "European markets rally on improved GDP forecasts",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   },
   {
-    "id": 7,
+    "id": "hl_7",
     "title": "Breaking: Major semiconductor merger approved by regulators",
-    "category": "breaking",
-    "date": "2024-11-11"
+    "slug": "breaking--major-semiconductor-merger-approved-by-regulators",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-11T12:00:00Z",
+    "created_at": "2024-11-11T12:00:00Z",
+    "updated_at": "2024-11-11T12:00:00Z",
+    "summary": "Breaking: Major semiconductor merger approved by regulators",
+    "lead": "Breaking: Major semiconductor merger approved by regulators",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "breaking"
+    ],
+    "image_url": null
   },
   {
-    "id": 8,
+    "id": "hl_8",
     "title": "Treasury yields decline as bond market anticipates policy shift",
-    "category": "market related",
-    "date": "2024-11-10"
+    "slug": "treasury-yields-decline-as-bond-market-anticipates-policy-shift",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-10T12:00:00Z",
+    "created_at": "2024-11-10T12:00:00Z",
+    "updated_at": "2024-11-10T12:00:00Z",
+    "summary": "Treasury yields decline as bond market anticipates policy shift",
+    "lead": "Treasury yields decline as bond market anticipates policy shift",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   },
   {
-    "id": 9,
+    "id": "hl_9",
     "title": "Emerging markets ETF sees largest inflows in five years",
-    "category": "new market",
-    "date": "2024-11-09"
+    "slug": "emerging-markets-etf-sees-largest-inflows-in-five-years",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-09T12:00:00Z",
+    "created_at": "2024-11-09T12:00:00Z",
+    "updated_at": "2024-11-09T12:00:00Z",
+    "summary": "Emerging markets ETF sees largest inflows in five years",
+    "lead": "Emerging markets ETF sees largest inflows in five years",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "new market"
+    ],
+    "image_url": null
   },
   {
-    "id": 10,
+    "id": "hl_10",
     "title": "Consumer confidence index reaches three-year high",
-    "category": "economic",
-    "date": "2024-11-08"
+    "slug": "consumer-confidence-index-reaches-three-year-high",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-08T12:00:00Z",
+    "created_at": "2024-11-08T12:00:00Z",
+    "updated_at": "2024-11-08T12:00:00Z",
+    "summary": "Consumer confidence index reaches three-year high",
+    "lead": "Consumer confidence index reaches three-year high",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 11,
+    "id": "hl_11",
     "title": "Breaking: Global shipping costs drop 30% amid capacity expansion",
-    "category": "breaking",
-    "date": "2024-11-07"
+    "slug": "breaking--global-shipping-costs-drop-30--amid-capacity-expansion",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-07T12:00:00Z",
+    "created_at": "2024-11-07T12:00:00Z",
+    "updated_at": "2024-11-07T12:00:00Z",
+    "summary": "Breaking: Global shipping costs drop 30% amid capacity expansion",
+    "lead": "Breaking: Global shipping costs drop 30% amid capacity expansion",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "breaking"
+    ],
+    "image_url": null
   },
   {
-    "id": 12,
+    "id": "hl_12",
     "title": "New carbon credit marketplace launches with Fortune 500 backing",
-    "category": "new market",
-    "date": "2024-11-06"
+    "slug": "new-carbon-credit-marketplace-launches-with-fortune-500-backing",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-06T12:00:00Z",
+    "created_at": "2024-11-06T12:00:00Z",
+    "updated_at": "2024-11-06T12:00:00Z",
+    "summary": "New carbon credit marketplace launches with Fortune 500 backing",
+    "lead": "New carbon credit marketplace launches with Fortune 500 backing",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "new market"
+    ],
+    "image_url": null
   },
   {
-    "id": 13,
+    "id": "hl_13",
     "title": "Dollar strengthens as jobless claims fall below expectations",
-    "category": "economic",
-    "date": "2024-11-05"
+    "slug": "dollar-strengthens-as-jobless-claims-fall-below-expectations",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-05T12:00:00Z",
+    "created_at": "2024-11-05T12:00:00Z",
+    "updated_at": "2024-11-05T12:00:00Z",
+    "summary": "Dollar strengthens as jobless claims fall below expectations",
+    "lead": "Dollar strengthens as jobless claims fall below expectations",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 14,
+    "id": "hl_14",
     "title": "Electric vehicle stocks surge on breakthrough battery technology",
-    "category": "market related",
-    "date": "2024-11-04"
+    "slug": "electric-vehicle-stocks-surge-on-breakthrough-battery-technology",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-04T12:00:00Z",
+    "created_at": "2024-11-04T12:00:00Z",
+    "updated_at": "2024-11-04T12:00:00Z",
+    "summary": "Electric vehicle stocks surge on breakthrough battery technology",
+    "lead": "Electric vehicle stocks surge on breakthrough battery technology",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   },
   {
-    "id": 15,
+    "id": "hl_15",
     "title": "Breaking: Central bank announces surprise liquidity measures",
-    "category": "breaking",
-    "date": "2024-11-03"
+    "slug": "breaking--central-bank-announces-surprise-liquidity-measures",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-03T12:00:00Z",
+    "created_at": "2024-11-03T12:00:00Z",
+    "updated_at": "2024-11-03T12:00:00Z",
+    "summary": "Breaking: Central bank announces surprise liquidity measures",
+    "lead": "Breaking: Central bank announces surprise liquidity measures",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "breaking"
+    ],
+    "image_url": null
   },
   {
-    "id": 16,
+    "id": "hl_16",
     "title": "Real estate investment trusts gain momentum in urban markets",
-    "category": "new market",
-    "date": "2024-11-02"
+    "slug": "real-estate-investment-trusts-gain-momentum-in-urban-markets",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-02T12:00:00Z",
+    "created_at": "2024-11-02T12:00:00Z",
+    "updated_at": "2024-11-02T12:00:00Z",
+    "summary": "Real estate investment trusts gain momentum in urban markets",
+    "lead": "Real estate investment trusts gain momentum in urban markets",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "new market"
+    ],
+    "image_url": null
   },
   {
-    "id": 17,
+    "id": "hl_17",
     "title": "Retail sales data exceeds forecasts for third consecutive month",
-    "category": "economic",
-    "date": "2024-11-01"
+    "slug": "retail-sales-data-exceeds-forecasts-for-third-consecutive-month",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-11-01T12:00:00Z",
+    "created_at": "2024-11-01T12:00:00Z",
+    "updated_at": "2024-11-01T12:00:00Z",
+    "summary": "Retail sales data exceeds forecasts for third consecutive month",
+    "lead": "Retail sales data exceeds forecasts for third consecutive month",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 18,
+    "id": "hl_18",
     "title": "Pharmaceutical sector rallies on positive clinical trial results",
-    "category": "market related",
-    "date": "2024-10-31"
+    "slug": "pharmaceutical-sector-rallies-on-positive-clinical-trial-results",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-31T12:00:00Z",
+    "created_at": "2024-10-31T12:00:00Z",
+    "updated_at": "2024-10-31T12:00:00Z",
+    "summary": "Pharmaceutical sector rallies on positive clinical trial results",
+    "lead": "Pharmaceutical sector rallies on positive clinical trial results",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   },
   {
-    "id": 19,
+    "id": "hl_19",
     "title": "Breaking: Trade agreement reached between major economic powers",
-    "category": "breaking",
-    "date": "2024-10-30"
+    "slug": "breaking--trade-agreement-reached-between-major-economic-powers",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-30T12:00:00Z",
+    "created_at": "2024-10-30T12:00:00Z",
+    "updated_at": "2024-10-30T12:00:00Z",
+    "summary": "Breaking: Trade agreement reached between major economic powers",
+    "lead": "Breaking: Trade agreement reached between major economic powers",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "breaking"
+    ],
+    "image_url": null
   },
   {
-    "id": 20,
+    "id": "hl_20",
     "title": "Green energy funds attract record institutional investment",
-    "category": "new market",
-    "date": "2024-10-29"
+    "slug": "green-energy-funds-attract-record-institutional-investment",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-29T12:00:00Z",
+    "created_at": "2024-10-29T12:00:00Z",
+    "updated_at": "2024-10-29T12:00:00Z",
+    "summary": "Green energy funds attract record institutional investment",
+    "lead": "Green energy funds attract record institutional investment",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "new market"
+    ],
+    "image_url": null
   },
   {
-    "id": 21,
+    "id": "hl_21",
     "title": "GDP growth revised upward in latest government estimates",
-    "category": "economic",
-    "date": "2024-10-28"
+    "slug": "gdp-growth-revised-upward-in-latest-government-estimates",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-28T12:00:00Z",
+    "created_at": "2024-10-28T12:00:00Z",
+    "updated_at": "2024-10-28T12:00:00Z",
+    "summary": "GDP growth revised upward in latest government estimates",
+    "lead": "GDP growth revised upward in latest government estimates",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 22,
+    "id": "hl_22",
     "title": "Technology giants announce major cloud infrastructure expansion",
-    "category": "market related",
-    "date": "2024-10-27"
+    "slug": "technology-giants-announce-major-cloud-infrastructure-expansion",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-27T12:00:00Z",
+    "created_at": "2024-10-27T12:00:00Z",
+    "updated_at": "2024-10-27T12:00:00Z",
+    "summary": "Technology giants announce major cloud infrastructure expansion",
+    "lead": "Technology giants announce major cloud infrastructure expansion",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   },
   {
-    "id": 23,
+    "id": "hl_23",
     "title": "Breaking: Commodity prices stabilize after volatile trading session",
-    "category": "breaking",
-    "date": "2024-10-26"
+    "slug": "breaking--commodity-prices-stabilize-after-volatile-trading-session",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-26T12:00:00Z",
+    "created_at": "2024-10-26T12:00:00Z",
+    "updated_at": "2024-10-26T12:00:00Z",
+    "summary": "Breaking: Commodity prices stabilize after volatile trading session",
+    "lead": "Breaking: Commodity prices stabilize after volatile trading session",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "breaking"
+    ],
+    "image_url": null
   },
   {
-    "id": 24,
+    "id": "hl_24",
     "title": "Decentralized finance platforms see surge in institutional adoption",
-    "category": "new market",
-    "date": "2024-10-25"
+    "slug": "decentralized-finance-platforms-see-surge-in-institutional-adoption",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-25T12:00:00Z",
+    "created_at": "2024-10-25T12:00:00Z",
+    "updated_at": "2024-10-25T12:00:00Z",
+    "summary": "Decentralized finance platforms see surge in institutional adoption",
+    "lead": "Decentralized finance platforms see surge in institutional adoption",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "new market"
+    ],
+    "image_url": null
   },
   {
-    "id": 25,
+    "id": "hl_25",
     "title": "Housing market shows signs of stabilization in key regions",
-    "category": "economic",
-    "date": "2024-10-24"
+    "slug": "housing-market-shows-signs-of-stabilization-in-key-regions",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-24T12:00:00Z",
+    "created_at": "2024-10-24T12:00:00Z",
+    "updated_at": "2024-10-24T12:00:00Z",
+    "summary": "Housing market shows signs of stabilization in key regions",
+    "lead": "Housing market shows signs of stabilization in key regions",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 26,
+    "id": "hl_26",
     "title": "Banking sector reports stronger than expected quarterly earnings",
-    "category": "market related",
-    "date": "2024-10-23"
+    "slug": "banking-sector-reports-stronger-than-expected-quarterly-earnings",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-23T12:00:00Z",
+    "created_at": "2024-10-23T12:00:00Z",
+    "updated_at": "2024-10-23T12:00:00Z",
+    "summary": "Banking sector reports stronger than expected quarterly earnings",
+    "lead": "Banking sector reports stronger than expected quarterly earnings",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   },
   {
-    "id": 27,
+    "id": "hl_27",
     "title": "Breaking: Major cybersecurity breach impacts financial institutions",
-    "category": "breaking",
-    "date": "2024-10-22"
+    "slug": "breaking--major-cybersecurity-breach-impacts-financial-institutions",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-22T12:00:00Z",
+    "created_at": "2024-10-22T12:00:00Z",
+    "updated_at": "2024-10-22T12:00:00Z",
+    "summary": "Breaking: Major cybersecurity breach impacts financial institutions",
+    "lead": "Breaking: Major cybersecurity breach impacts financial institutions",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "breaking"
+    ],
+    "image_url": null
   },
   {
-    "id": 28,
+    "id": "hl_28",
     "title": "Space technology companies attract billion-dollar investments",
-    "category": "new market",
-    "date": "2024-10-21"
+    "slug": "space-technology-companies-attract-billion-dollar-investments",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-21T12:00:00Z",
+    "created_at": "2024-10-21T12:00:00Z",
+    "updated_at": "2024-10-21T12:00:00Z",
+    "summary": "Space technology companies attract billion-dollar investments",
+    "lead": "Space technology companies attract billion-dollar investments",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "new market"
+    ],
+    "image_url": null
   },
   {
-    "id": 29,
+    "id": "hl_29",
     "title": "Inflation metrics continue downward trend across major economies",
-    "category": "economic",
-    "date": "2024-10-20"
+    "slug": "inflation-metrics-continue-downward-trend-across-major-economies",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-20T12:00:00Z",
+    "created_at": "2024-10-20T12:00:00Z",
+    "updated_at": "2024-10-20T12:00:00Z",
+    "summary": "Inflation metrics continue downward trend across major economies",
+    "lead": "Inflation metrics continue downward trend across major economies",
+    "raw_text_available": true,
+    "sentiment": "neutral",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "economic"
+    ],
+    "image_url": null
   },
   {
-    "id": 30,
+    "id": "hl_30",
     "title": "Semiconductor industry consolidation reshapes global supply chains",
-    "category": "market related",
-    "date": "2024-10-19"
+    "slug": "semiconductor-industry-consolidation-reshapes-global-supply-chains",
+    "url": "https://example.com",
+    "source": "polymarket",
+    "published_at": "2024-10-19T12:00:00Z",
+    "created_at": "2024-10-19T12:00:00Z",
+    "updated_at": "2024-10-19T12:00:00Z",
+    "summary": "Semiconductor industry consolidation reshapes global supply chains",
+    "lead": "Semiconductor industry consolidation reshapes global supply chains",
+    "raw_text_available": true,
+    "sentiment": "bullish",
+    "relevance_score": 0.9,
+    "impact_score": 0.8,
+    "topics": [
+      "market related"
+    ],
+    "image_url": null
   }
 ]

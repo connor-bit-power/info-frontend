@@ -9,6 +9,7 @@ import { eventsService } from './services/events';
 import { tagsService } from './services/tags';
 import { sportsService } from './services/sports';
 import { searchService } from './services/search';
+import { newsService } from './services/news';
 
 // Re-export everything
 export { apiClient, ApiClient } from './client';
@@ -20,9 +21,11 @@ export { eventsService, EventsService } from './services/events';
 export { tagsService, TagsService } from './services/tags';
 export { sportsService, SportsService } from './services/sports';
 export { searchService, SearchService } from './services/search';
+export { newsService } from './services/news';
 
 // Types
 export type * from '@/types/polymarket';
+export type * from '@/types/news-api';
 
 /**
  * Main API object with all services
@@ -34,8 +37,8 @@ export const polymarketApi = {
   tags: tagsService,
   sports: sportsService,
   search: searchService,
+  news: newsService,
   
   // Health check
   healthCheck: () => apiClient.healthCheck(),
 } as const;
-
