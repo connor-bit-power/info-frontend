@@ -18,9 +18,9 @@ export interface TopNavRef {
 const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, onAddComponent }: TopNavProps = {}, ref) => {
   const [selectedPill, setSelectedPill] = useState<ComponentType>('news');
   const [searchValue, setSearchValue] = useState<string>('');
-  const [pills] = useState<ComponentType[]>(['news', 'chart', 'calendar']);
-  const [draggedItem, setDraggedItem] = useState<string | null>(null);
-  const [dragOverItem, setDragOverItem] = useState<string | null>(null);
+  const [pills, setPills] = useState<ComponentType[]>(['news', 'chart', 'calendar']);
+  const [draggedItem, setDraggedItem] = useState<ComponentType | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<ComponentType | null>(null);
   const [isNewTabAnimating, setIsNewTabAnimating] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +51,7 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
     }
   };
 
-  const handleDragStart = (e: React.DragEvent, pill: string) => {
+  const handleDragStart = (e: React.DragEvent, pill: ComponentType) => {
     setDraggedItem(pill);
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -61,7 +61,7 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
     setDragOverItem(null);
   };
 
-  const handleDragOver = (e: React.DragEvent, pill: string) => {
+  const handleDragOver = (e: React.DragEvent, pill: ComponentType) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     if (draggedItem && draggedItem !== pill) {
@@ -69,7 +69,7 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
     }
   };
 
-  const handleDrop = (e: React.DragEvent, targetPill: string) => {
+  const handleDrop = (e: React.DragEvent, targetPill: ComponentType) => {
     e.preventDefault();
     if (!draggedItem || draggedItem === targetPill) return;
 
