@@ -52,7 +52,7 @@ export default function ChartTile({
   const [marketTitle, setMarketTitle] = useState<string>('Market Overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Cast mock data to correct type
   const [headlines] = useState<Headline[]>(headlinesData as unknown as Headline[]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -88,16 +88,16 @@ export default function ChartTile({
           const market = event.markets[0];
           const clobTokenIds = JSON.parse(market.clobTokenIds || '[]');
           const outcomes = JSON.parse(market.outcomes || '[]');
-          
+
           // Find Yes index
           const yesIndex = outcomes.findIndex((o: string) => /^yes$/i.test(o.trim()));
-          
+
           if (yesIndex >= 0 && clobTokenIds[yesIndex]) {
             // Fetch price history
             const priceResponse = await fetch(
               `http://localhost:3001/api/prices-history?market=${clobTokenIds[yesIndex]}&interval=max&fidelity=60`
             );
-            
+
             if (priceResponse.ok) {
               const data = await priceResponse.json();
               setChartData(data);
@@ -128,7 +128,7 @@ export default function ChartTile({
         endDate: new Date('2024-11-17'),
       };
     }
-    
+
     const timestamps = chartData.history.map(point => point.t);
     return {
       startDate: new Date(Math.min(...timestamps) * 1000),
@@ -139,12 +139,12 @@ export default function ChartTile({
   // Track mouse position over chart and align headlines
   const handleChartMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!chartContainerRef.current) return;
-    
+
     const rect = chartContainerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const percentage = (x / rect.width) * 100;
     const clampedPercentage = Math.max(0, Math.min(100, percentage));
-    
+
     // Scroll to corresponding headline based on date
     scrollToCorrespondingHeadline(clampedPercentage);
   };
@@ -195,8 +195,8 @@ export default function ChartTile({
         if (headlineElements[targetIndex]) {
           const element = headlineElements[targetIndex] as HTMLElement;
           // Scroll to align the element just below the mask/padding area
-          const scrollTop = element.offsetTop - 60; 
-          
+          const scrollTop = element.offsetTop - 60;
+
           scrollContainerRef.current.scrollTo({
             top: scrollTop,
             behavior: 'smooth',
@@ -242,10 +242,10 @@ export default function ChartTile({
       >
         <div className="h-full" style={{ padding: '0px', display: 'flex', flexDirection: 'column' }}>
           {/* Chart Section - 60% */}
-          <div 
+          <div
             ref={chartContainerRef}
-            style={{ 
-              height: '60%', 
+            style={{
+              height: '60%',
               position: 'relative',
               flexShrink: 0, // Prevent flex shrinking
             }}
@@ -263,27 +263,27 @@ export default function ChartTile({
           </div>
 
           {/* Headlines Section - 40% */}
-          <div 
+          <div
             ref={scrollContainerRef}
             className="overflow-y-auto hide-scrollbar"
-            style={{ 
+            style={{
               height: '40%',
               flexShrink: 0,
               position: 'relative', // Ensure offsetTop is relative to this container
-              paddingLeft: '15px',
-              paddingRight: '30px',
-              paddingTop: '60px', // Push content down below the mask/fade area
-              paddingBottom: '40px',
+              paddingLeft: '12px',
+              paddingRight: '24px',
+              paddingTop: '50px', // Push content down below the mask/fade area
+              paddingBottom: '32px',
               // Fade out the top 40px and bottom 60px
-              maskImage: 'linear-gradient(to bottom, transparent 0px, black 40px, black calc(100% - 60px), transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 40px, black calc(100% - 60px), transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 50px), transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 32px, black calc(100% - 50px), transparent 100%)',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
             }}
           >
             {displayHeadlines.map((headline, index) => {
               const isFocused = focusedHeadlineDate === headline.published_at;
-              
+
               return (
                 <HeadlineItem
                   key={`headline-${headline.id}`}
@@ -317,8 +317,8 @@ function HeadlineItem({
   isFirst: boolean;
 }) {
   const springProps = useSpring({
-    backgroundColor: isFocused 
-      ? 'rgba(255, 215, 0, 0.2)' 
+    backgroundColor: isFocused
+      ? 'rgba(255, 215, 0, 0.2)'
       : 'rgba(255, 255, 255, 0)',
     padding: isFocused ? 8 : 0,
     marginLeft: isFocused ? -8 : 0,
@@ -334,7 +334,7 @@ function HeadlineItem({
   });
 
   const textSpring = useSpring({
-    color: isFocused ? '#FFD700' : '#FFFFFF',
+    color: isFocused ? '#FFD700' : (isDarkMode ? '#FFFFFF' : '#181818'),
     fontWeight: isFocused ? 600 : 400,
     config: { tension: 300, friction: 30 },
   });
@@ -360,13 +360,13 @@ function HeadlineItem({
           backgroundColor: getSentimentColor(headline.sentiment),
         }}
       />
-      
+
       <animated.p
-        className="text-white"
+        className={isDarkMode ? 'text-white' : ''}
         style={{
           ...textSpring,
           fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-          fontSize: '18px',
+          fontSize: '16px',
           lineHeight: '1.3',
           margin: 0,
           overflow: 'hidden',

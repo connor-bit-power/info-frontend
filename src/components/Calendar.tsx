@@ -154,7 +154,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     console.log('🔍 ========== FILTERING START ==========');
     console.log('🔍 Selected category:', selectedCategory);
     console.log('🔍 Total allEvents:', allEvents.length);
-    
+
     if (selectedCategory === 'all') {
       console.log('🔍 Returning all events (no filter)');
       return allEvents;
@@ -162,7 +162,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
 
     // Map category to event sources
     let filtered: Event[] = [];
-    
+
     switch (selectedCategory) {
       case 'nfl':
         filtered = [...(nflEvents || [])];
@@ -193,7 +193,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
         console.log('🔍 MMA filter: returning', filtered.length, 'events');
         break;
       case 'esports':
-        filtered = [...(generalEvents || [])].filter(event => 
+        filtered = [...(generalEvents || [])].filter(event =>
           (event.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '64')
         );
         console.log('🔍 Esports filter: returning', filtered.length, 'events');
@@ -293,24 +293,24 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     console.log('📅 Calendar - Total combined events:', allEvents.length);
     console.log('📅 Calendar - Selected category:', selectedCategory);
     console.log('📅 Calendar - Filtered events:', events.length);
-    
+
     if (events && events.length > 0) {
-      const sportsEvents = events.filter(e => 
+      const sportsEvents = events.filter(e =>
         e.markets && e.markets.some(m => m.gameStartTime)
       );
       console.log('📅 Calendar - Sports events with gameStartTime:', sportsEvents.length);
-      
+
       // Check for NFL/NBA specifically
-      const nflSportsEvents = sportsEvents.filter(e => 
+      const nflSportsEvents = sportsEvents.filter(e =>
         (e.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '450')
       );
-      const nbaSportsEvents = sportsEvents.filter(e => 
+      const nbaSportsEvents = sportsEvents.filter(e =>
         (e.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '745')
       );
-      
+
       console.log('📅 Calendar - NFL sports events:', nflSportsEvents.length);
       console.log('📅 Calendar - NBA sports events:', nbaSportsEvents.length);
-      
+
       if (nflSportsEvents.length > 0) {
         const sample = nflSportsEvents[0];
         const gameTime = sample.markets?.find(m => m.gameStartTime)?.gameStartTime;
@@ -321,7 +321,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
           endDate: sample.endDate,
         });
       }
-      
+
       if (nbaSportsEvents.length > 0) {
         const sample = nbaSportsEvents[0];
         const gameTime = sample.markets?.find(m => m.gameStartTime)?.gameStartTime;
@@ -388,7 +388,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   // Group events by their display date (gameStartTime for sports, endDate for others)
   const eventsByDate = useMemo((): Map<string, Event[]> => {
     const dateMap = new Map<string, Event[]>();
-    
+
     if (!events || events.length === 0) return dateMap;
 
     // Patterns to exclude (crypto up/down markets and other recurring short-term events)
@@ -411,7 +411,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
 
       displayDate.setHours(0, 0, 0, 0);
       const dateKey = formatDateKey(displayDate);
-      
+
       if (!dateMap.has(dateKey)) {
         dateMap.set(dateKey, []);
       }
@@ -422,9 +422,9 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     const datesWithSports = Array.from(dateMap.entries())
       .filter(([_, evts]) => evts.some(e => isSportsEvent(e)))
       .slice(0, 5);
-    
+
     if (datesWithSports.length > 0) {
-      console.log('📅 Calendar - Dates with sports events (first 5):', 
+      console.log('📅 Calendar - Dates with sports events (first 5):',
         datesWithSports.map(([date, evts]) => ({
           date,
           count: evts.filter(e => isSportsEvent(e)).length,
@@ -439,7 +439,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   const getEventsForDate = (date: Date): Event[] => {
     const key = formatDateKey(date);
     const events = eventsByDate.get(key) || [];
-    
+
     // Sort by liquidity (highest first), with null/undefined values at the end
     return events.sort((a, b) => {
       const liquidityA = a.liquidity ?? 0;
@@ -449,8 +449,8 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   };
 
   // Helper function to get team info for sports events
-  const getTeamsForEvent = useCallback((event: Event): { 
-    teamA: Team | undefined; 
+  const getTeamsForEvent = useCallback((event: Event): {
+    teamA: Team | undefined;
     teamB: Team | undefined;
     teamAName: string;
     teamBName: string;
@@ -475,15 +475,15 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
 
     // Otherwise, parse team names from the title
     const title = event.title || '';
-    
+
     // Common patterns: "Team A vs. Team B", "Team A vs Team B", "Team A @ Team B"
     const vsPattern = /(.+?)\s+(?:vs\.?|@)\s+(.+)/i;
     const match = title.match(vsPattern);
-    
+
     if (match) {
       const teamAName = match[1].trim();
       const teamBName = match[2].trim();
-      
+
       return {
         teamA: undefined,
         teamB: undefined,
@@ -503,12 +503,12 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   // Helper function to format event display text
   const getEventDisplayText = useCallback((event: Event): string => {
     const { teamAName, teamBName } = getTeamsForEvent(event);
-    
+
     // For sports events, show team names
     if (isSportsEvent(event)) {
       return `${teamAName} vs ${teamBName}`;
     }
-    
+
     // For non-sports events, show the title
     return event.title || 'Untitled Event';
   }, [getTeamsForEvent, isSportsEvent]);
@@ -524,14 +524,14 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     return { daysInMonth, startingDayOfWeek, year, month };
   };
 
   const getWeekDays = (date: Date) => {
     const curr = new Date(date);
     const sunday = new Date(curr.setDate(curr.getDate() - curr.getDay()));
-    
+
     const days = [];
     for (let i = 0; i < 7; i++) {
       const day = new Date(sunday);
@@ -573,23 +573,23 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentDate);
     const weeks = [];
     let days = [];
-    
+
     // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       const prevMonthDate = new Date(year, month, -(startingDayOfWeek - i - 1));
       days.push({ date: prevMonthDate, isCurrentMonth: false });
     }
-    
+
     // Add days of current month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push({ date: new Date(year, month, day), isCurrentMonth: true });
-      
+
       if (days.length === 7) {
         weeks.push(days);
         days = [];
       }
     }
-    
+
     // Add remaining days from next month
     if (days.length > 0) {
       const remainingDays = 7 - days.length;
@@ -609,23 +609,23 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigateMonth('prev')}
-              className="text-2xl font-semibold transition-opacity hover:opacity-70"
-              style={{ color: isDarkMode ? 'white' : '#1a1a1a' }}
+              className="text-xl font-semibold transition-opacity hover:opacity-70"
+              style={{ color: isDarkMode ? 'white' : '#181818' }}
             >
               ‹
             </button>
-            <h2 className="text-2xl font-semibold" style={{ color: isDarkMode ? 'white' : '#1a1a1a' }}>
+            <h2 className="text-xl font-semibold" style={{ color: isDarkMode ? 'white' : '#181818' }}>
               {getMonthName(currentDate)}
             </h2>
             <button
               onClick={() => navigateMonth('next')}
-              className="text-2xl font-semibold transition-opacity hover:opacity-70"
-              style={{ color: isDarkMode ? 'white' : '#1a1a1a' }}
+              className="text-xl font-semibold transition-opacity hover:opacity-70"
+              style={{ color: isDarkMode ? 'white' : '#181818' }}
             >
               ›
             </button>
           </div>
-          
+
           {/* Category Filter */}
           <CategoryFilter
             selectedCategory={selectedCategory}
@@ -641,7 +641,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div
                 key={day}
-                className="text-center text-sm font-semibold py-2"
+                className="text-center text-xs font-semibold py-2"
                 style={{ color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
               >
                 {day}
@@ -695,27 +695,27 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
                           className="relative rounded-lg p-2 cursor-pointer overflow-hidden flex flex-col min-h-0"
                           style={{
                             backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
-                            border: isSelected 
-                              ? '2px solid white' 
+                            border: isSelected
+                              ? '2px solid white'
                               : '1px solid transparent',
                           }}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
                           <div
-                            className="text-sm font-medium mb-1 shrink-0"
-                            style={{ color: isToday ? '#2E5CFF' : (isDarkMode ? 'white' : '#1a1a1a') }}
+                            className="text-xs font-medium mb-1 shrink-0"
+                            style={{ color: isToday ? '#2E5CFF' : (isDarkMode ? 'white' : '#181818') }}
                           >
                             {dayStr}
                           </div>
-                          
+
                           {/* Show event count badge if there are events */}
                           {eventCount > 0 && (
-                            <div 
+                            <div
                               className="shrink-0 text-xs font-semibold px-2 py-1 rounded-full text-center"
                               style={{
                                 backgroundColor: isDarkMode ? 'rgba(46, 92, 255, 0.4)' : 'rgba(46, 92, 255, 0.3)',
-                                color: isDarkMode ? 'white' : '#1a1a1a',
+                                color: isDarkMode ? 'white' : '#181818',
                               }}
                               title={events.map(e => getEventDisplayText(e)).join('\n')}
                             >

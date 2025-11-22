@@ -33,19 +33,19 @@ export default function MobileHome() {
   };
 
   return (
-    <div 
+    <div
       className="h-screen w-screen overflow-hidden fixed top-0 left-0 flex flex-col"
       style={{ overscrollBehavior: 'none' }}
     >
       <GradientBackground isDarkMode={isDarkMode} flipped={true} verticalOffset={15} />
-      
+
       {/* Conditional rendering based on view */}
       {!isEventViewOpen ? (
         <>
           {/* Header - stacked on top */}
           <div className="relative z-10 shrink-0">
-            <Header 
-              selectedTab={selectedTab} 
+            <Header
+              selectedTab={selectedTab}
               onTabChange={setSelectedTab}
               scrollProgress={scrollProgress}
             />
@@ -53,7 +53,7 @@ export default function MobileHome() {
 
           {/* News Feed - fills remaining space */}
           <div className="relative z-10 flex-1 flex flex-col min-h-0">
-            <NewsFeed 
+            <NewsFeed
               headlines={headlines}
               onHeadlineClick={handleHeadlineClick}
               onScroll={handleScroll}
@@ -63,7 +63,7 @@ export default function MobileHome() {
       ) : (
         /* Event View - full screen */
         <div className="relative z-10 flex-1 flex flex-col min-h-0">
-          <EventView 
+          <EventView
             headline={selectedHeadline?.title || ''}
             onBack={handleBackToFeed}
           />

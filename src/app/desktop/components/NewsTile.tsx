@@ -100,33 +100,34 @@ export default function NewsTile({
       >
         {/* Tile content */}
         <div className="h-full">
-          <div className="flex justify-between items-center" style={{ position: 'absolute', top: '15px', left: '30px', right: '30px' }}>
-            <h1 
-              className="text-white font-semibold"
-              style={{ 
+          <div className="flex justify-between items-center" style={{ position: 'absolute', top: '15px', left: '24px', right: '24px' }}>
+            <h1
+              className={`${isDarkMode ? 'text-white' : ''} font-semibold`}
+              style={{
                 fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                fontSize: '28px',
+                fontSize: '24px',
+                color: isDarkMode ? 'white' : '#181818',
               }}
             >
               Latest News
             </h1>
-            <InfoCircleIcon size="md" className="text-white opacity-85" />
+            <InfoCircleIcon size="md" className={`${isDarkMode ? 'text-white' : 'text-[#181818]'} opacity-85`} />
           </div>
-          
+
           {/* Headlines list - Scrollable */}
-          <div 
+          <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
             className="overflow-y-auto hide-scrollbar"
-            style={{ 
+            style={{
               position: 'absolute',
-              top: '60px',
-              left: '15px',
-              right: '30px',
-              bottom: '30px',
-              paddingLeft: '15px',
-              paddingTop: '20px',
-              paddingBottom: '40px',
+              top: '50px',
+              left: '12px',
+              right: '24px',
+              bottom: '24px',
+              paddingLeft: '12px',
+              paddingTop: '16px',
+              paddingBottom: '32px',
               maskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
               WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
               scrollbarWidth: 'none',
@@ -139,9 +140,9 @@ export default function NewsTile({
                 initial={index === 0 ? { opacity: 0 } : false}
                 animate={{ opacity: 1 }}
                 layout="position"
-                transition={{ 
+                transition={{
                   opacity: { duration: 0.5 },
-                  layout: { 
+                  layout: {
                     type: "spring",
                     stiffness: 300,
                     damping: 30
@@ -154,10 +155,10 @@ export default function NewsTile({
               >
                 {/* Category dot removed as it's not in schema */}
                 <p
-                  className="text-white"
+                  className={isDarkMode ? 'text-white' : ''}
                   style={{
                     fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                    fontSize: '18px',
+                    fontSize: '16px',
                     fontWeight: 400,
                     lineHeight: '1.3',
                     overflow: 'hidden',
@@ -165,6 +166,7 @@ export default function NewsTile({
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
                     textOverflow: 'ellipsis',
+                    color: isDarkMode ? 'white' : '#181818',
                   }}
                 >
                   {headline.title}

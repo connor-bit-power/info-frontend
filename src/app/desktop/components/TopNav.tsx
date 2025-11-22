@@ -3,7 +3,7 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import PillButton from '../../components/PillButton';
 
-export type ComponentType = 'news' | 'chart' | 'calendar';
+export type ComponentType = 'news' | 'chart' | 'calendar' | 'profile' | 'explorer';
 
 interface TopNavProps {
   isDarkMode?: boolean;
@@ -18,7 +18,7 @@ export interface TopNavRef {
 const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, onAddComponent }: TopNavProps = {}, ref) => {
   const [selectedPill, setSelectedPill] = useState<ComponentType>('news');
   const [searchValue, setSearchValue] = useState<string>('');
-  const [pills, setPills] = useState<ComponentType[]>(['news', 'chart', 'calendar']);
+  const [pills, setPills] = useState<ComponentType[]>(['news', 'chart', 'calendar', 'explorer']);
   const [draggedItem, setDraggedItem] = useState<ComponentType | null>(null);
   const [dragOverItem, setDragOverItem] = useState<ComponentType | null>(null);
   const [isNewTabAnimating, setIsNewTabAnimating] = useState(false);
@@ -46,6 +46,8 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
         return 'Chart';
       case 'calendar':
         return 'Calendar';
+      case 'explorer':
+        return 'Explorer';
       default:
         return type;
     }
@@ -86,16 +88,21 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
   };
 
   return (
-    <nav 
-      className="w-full pt-10 pb-6"
+    <nav
+      className="w-full pt-8 pb-4"
       style={{
-        paddingLeft: '52px',
-        paddingRight: '32px',
+        paddingLeft: '40px',
+        paddingRight: '24px',
       }}
     >
       <div className="flex flex-col gap-6">
         {/* Search Input */}
         <div className="flex items-center gap-3">
+          <img
+            src="/white.gif"
+            alt="Logo"
+            className="h-8 w-auto"
+          />
           <input
             ref={searchInputRef}
             type="text"
@@ -106,13 +113,13 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
             style={{
               color: '#FFFFFF',
               fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-              fontSize: '24px',
+              fontSize: '20px',
             }}
           />
         </div>
 
         {/* Pill Buttons - Component Types */}
-        <div 
+        <div
           className="flex gap-3"
           style={{
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -136,7 +143,7 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
             </div>
           ))}
         </div>
-        
+
         {/* CSS Animations */}
         <style jsx>{`
           .search-input::placeholder {

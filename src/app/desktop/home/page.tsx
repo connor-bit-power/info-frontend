@@ -6,8 +6,10 @@ import GradientBackground from '../../components/GradientBackground';
 import ThemeToggler from '../../components/ThemeToggler';
 import NewsTile from '../components/NewsTile';
 import ChartTile from '../components/ChartTile';
+import ProfileTile from '../components/ProfileTile';
 import Calendar from '../../../components/Calendar';
 import CalendarItem from '../components/CalendarItem';
+import ExplorerTile from '../../mobile/components/ExplorerTile';
 import { useActiveEvents, useEvents } from '../../../lib/hooks/useEvents';
 import type { Event, Market, Tag } from '../../../types/polymarket';
 import { CATEGORIES } from '../../../components/CategoryFilter';
@@ -33,10 +35,8 @@ export default function DesktopHome() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [dynamicTiles, setDynamicTiles] = useState<DynamicTile[]>([
     {
-      id: 'initial-chart-1',
-      type: 'chart',
-      eventSlug: 'trump-agrees-to-sell-f-35-to-saudi-arabia-by-november-30',
-      eventTitle: 'Market Chart',
+      id: 'initial-news-1',
+      type: 'news',
     },
   ]);
 
@@ -158,7 +158,7 @@ export default function DesktopHome() {
     if (selectedCategory === 'all') return allEvents;
 
     let filtered: Event[] = [];
-    
+
     switch (selectedCategory) {
       case 'nfl':
         filtered = [...(nflEvents || [])];
@@ -182,7 +182,7 @@ export default function DesktopHome() {
         filtered = [...(mmaEvents || [])];
         break;
       case 'esports':
-        filtered = [...(generalEvents || [])].filter(event => 
+        filtered = [...(generalEvents || [])].filter(event =>
           (event.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '64')
         );
         break;
@@ -249,30 +249,30 @@ export default function DesktopHome() {
 
   const handleAddComponent = (type: ComponentType) => {
     console.log('➕ Adding component:', type);
-    
+
     const newTile: DynamicTile = {
       id: `dynamic-${type}-${Date.now()}`,
       type,
       eventSlug: type === 'chart' ? selectedMarketSlug : undefined,
       eventTitle: type === 'chart' ? 'Market Chart' : undefined,
     };
-    
+
     setDynamicTiles(prev => [...prev, newTile]);
     console.log('➕ Added new tile:', newTile);
   };
 
   const handleCalendarItemClick = (event: Event) => {
     console.log('📊 Calendar item clicked:', event.title, event.slug);
-    
+
     // Check if event has a slug
     if (!event.slug) {
       console.warn('📊 Event has no slug, cannot create chart tile');
       return;
     }
-    
+
     // Check if this chart tile already exists
     const exists = dynamicTiles.some(tile => tile.type === 'chart' && tile.eventSlug === event.slug);
-    
+
     if (!exists) {
       // Add new chart tile
       const newTile: DynamicTile = {
@@ -281,7 +281,7 @@ export default function DesktopHome() {
         eventSlug: event.slug,
         eventTitle: event.title || 'Market Chart',
       };
-      
+
       setDynamicTiles(prev => [...prev, newTile]);
       console.log('📊 Added new chart tile:', newTile);
     } else {
@@ -293,19 +293,19 @@ export default function DesktopHome() {
     console.log('📆 ========== DATE SELECT CALLED ==========');
     console.log('📆 Incoming date:', date);
     console.log('📆 Incoming date timestamp:', date.getTime());
-    
+
     // Normalize the date to midnight to ensure consistent matching
     const normalizedDate = new Date(date);
     normalizedDate.setHours(0, 0, 0, 0);
     const key = formatDateKey(normalizedDate);
-    
+
     console.log('📆 Normalized date:', normalizedDate);
     console.log('📆 Normalized timestamp:', normalizedDate.getTime());
     console.log('📆 Date key:', key);
     console.log('📆 Events available for this date:', eventsByDate.get(key)?.length || 0);
     console.log('📆 Current selectedDate before update:', selectedDate);
     console.log('📆 Current selectedDate timestamp:', selectedDate?.getTime());
-    
+
     // Force a new Date object to ensure React detects the change
     const newDate = new Date(normalizedDate.getTime());
     console.log('📆 Setting new selected date:', newDate);
@@ -349,7 +349,7 @@ export default function DesktopHome() {
   // Group events by their display date (gameStartTime for sports, endDate for others)
   const eventsByDate = useMemo((): Map<string, Event[]> => {
     const dateMap = new Map<string, Event[]>();
-    
+
     if (!events || events.length === 0) return dateMap;
 
     // Patterns to exclude (crypto up/down markets and other recurring short-term events)
@@ -371,7 +371,7 @@ export default function DesktopHome() {
 
       displayDate.setHours(0, 0, 0, 0);
       const dateKey = formatDateKey(displayDate);
-      
+
       if (!dateMap.has(dateKey)) {
         dateMap.set(dateKey, []);
       }
@@ -396,7 +396,7 @@ export default function DesktopHome() {
     }
     const key = formatDateKey(selectedDate);
     const events = eventsByDate.get(key) || [];
-    
+
     // Deduplicate events by ID (in case the same event appears multiple times)
     const seenIds = new Set<string>();
     const uniqueEvents = events.filter(event => {
@@ -407,7 +407,7 @@ export default function DesktopHome() {
       seenIds.add(event.id);
       return true;
     });
-    
+
     console.log('📋 ========== SELECTED DATE EVENTS ==========');
     console.log('📋 Selected date:', selectedDate);
     console.log('📋 Date key:', key);
@@ -443,9 +443,9 @@ export default function DesktopHome() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Check if "/" is pressed and not inside an input/textarea
-      if (event.key === '/' && 
-          !(event.target instanceof HTMLInputElement) && 
-          !(event.target instanceof HTMLTextAreaElement)) {
+      if (event.key === '/' &&
+        !(event.target instanceof HTMLInputElement) &&
+        !(event.target instanceof HTMLTextAreaElement)) {
         event.preventDefault(); // Prevent "/" from being typed in the search bar
         topNavRef.current?.focusSearch();
       }
@@ -457,17 +457,17 @@ export default function DesktopHome() {
 
   // Update container dimensions
   const [containerWidth, setContainerWidth] = useState(0);
-  
+
   useEffect(() => {
     const updateDimensions = () => {
       // Use window dimensions instead of container ref since we're now scrolling
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
-      
+
       // Account for TopNav height (approximately 180px based on padding)
       const topNavHeight = 180;
       const availableHeight = viewportHeight - topNavHeight;
-      
+
       setContainerHeight(availableHeight);
       setContainerWidth(viewportWidth);
     };
@@ -478,46 +478,54 @@ export default function DesktopHome() {
   }, []);
 
   // Tile configuration with min/max widths optimized for responsive grid layout
-  const GAP = 16;
-  const CONTAINER_PADDING = 32;
-  
+  const GAP = 12;
+  const CONTAINER_PADDING = 24;
+
   // Base column unit: 300px. This allows for clean 2-6 column layouts
   // News tiles: 1-2 columns (300-600px)
   // Chart tiles: 2-3 columns (600-900px)  
   // Calendar tile: spans full width with internal flex layout
-  const COLUMN_UNIT = 300;
-  
+  const COLUMN_UNIT = 280;
+
   const TILE_CONFIG = {
     news: {
-      minWidth: 420,
-      maxWidth: 420, // Fixed consistent width
+      minWidth: 340,
+      maxWidth: 380, // Fixed consistent width
     },
     chart: {
-      minWidth: 650,
-      maxWidth: 650, // Fixed consistent width - can fit with calendar
+      minWidth: 450,
+      maxWidth: 600, // Fixed consistent width - can fit with calendar
     },
     calendar: {
-      minWidth: 1050, // High enough to prevent 2 charts + calendar on same row (650+650+1050=2350px)
-      maxWidth: 1400, // Can grow large but still fits with a chart
+      minWidth: 700, // Reduced to allow fitting with chart on laptop screens
+      maxWidth: 1000, // Flexible max width
+    },
+    profile: {
+      minWidth: 450,
+      maxWidth: 600, // Same as chart
+    },
+    explorer: {
+      minWidth: 700,
+      maxWidth: 1000, // Same as calendar
     },
   };
 
   // Calculate tile height and grid columns based on available viewport space
-  const MAX_TILE_HEIGHT = 680; // Maximum reasonable height for tiles
-  
+  const MAX_TILE_HEIGHT = 700; // Maximum reasonable height for tiles
+
   const calculateLayoutDimensions = () => {
     if (containerHeight === 0 || containerWidth === 0) {
       return { tileHeight: 0, gridColumns: 4 };
     }
-    
+
     // Use 88% of available height for tiles, but cap at max height
     const calculatedHeight = Math.floor(containerHeight * 0.88);
     const tileHeight = Math.min(calculatedHeight, MAX_TILE_HEIGHT);
-    
+
     // Calculate optimal number of columns based on available width
     const availableWidth = containerWidth - (CONTAINER_PADDING * 2);
     const gridColumns = Math.max(2, Math.floor(availableWidth / COLUMN_UNIT));
-    
+
     return { tileHeight, gridColumns };
   };
 
@@ -527,22 +535,28 @@ export default function DesktopHome() {
     <div className="h-screen w-screen overflow-hidden fixed top-0 left-0">
       <GradientBackground isDarkMode={isDarkMode} />
       {/* Theme Toggler - Top Right */}
-      <div className="absolute top-8 right-8 z-20">
+      <div className="absolute top-8 right-8 z-20 flex gap-4">
+        <button
+          onClick={() => handleAddComponent('profile')}
+          className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors backdrop-blur-md"
+        >
+          Add Profile
+        </button>
         <ThemeToggler isDarkMode={isDarkMode} onToggle={handleToggle} />
       </div>
-      
+
       <div className="relative z-10 h-full overflow-y-auto">
         <TopNav ref={topNavRef} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} onAddComponent={handleAddComponent} />
-        
+
         {/* Main content area with tiles */}
-        <div 
-          className="pb-8 pt-2" 
+        <div
+          className="pb-8 pt-2"
           style={{ paddingLeft: '32px', paddingRight: '32px' }}
           ref={containerRef}
         >
           {containerHeight > 0 && containerWidth > 0 && tileHeight > 0 && gridColumns > 0 && (
-            <div 
-              style={{ 
+            <div
+              style={{
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: `${GAP}px`,
@@ -555,9 +569,9 @@ export default function DesktopHome() {
               {dynamicTiles.map((tile) => {
                 if (tile.type === 'news') {
                   return (
-                    <div 
-                      key={tile.id} 
-                      style={{ 
+                    <div
+                      key={tile.id}
+                      style={{
                         height: tileHeight,
                         width: TILE_CONFIG.news.maxWidth,
                         minWidth: TILE_CONFIG.news.minWidth,
@@ -578,9 +592,9 @@ export default function DesktopHome() {
                   );
                 } else if (tile.type === 'chart') {
                   return (
-                    <div 
-                      key={tile.id} 
-                      style={{ 
+                    <div
+                      key={tile.id}
+                      style={{
                         height: tileHeight,
                         width: TILE_CONFIG.chart.maxWidth,
                         minWidth: TILE_CONFIG.chart.minWidth,
@@ -602,9 +616,9 @@ export default function DesktopHome() {
                   );
                 } else if (tile.type === 'calendar') {
                   return (
-                    <div 
+                    <div
                       key={tile.id}
-                      style={{ 
+                      style={{
                         height: tileHeight,
                         flex: '1 1 auto',
                         minWidth: TILE_CONFIG.calendar.minWidth,
@@ -617,101 +631,141 @@ export default function DesktopHome() {
                         gap: '24px',
                       }}
                     >
-                        <div style={{ 
-                          flex: '0 0 55%',
-                          minWidth: 0,
+                      <div style={{
+                        flex: '0 0 55%',
+                        minWidth: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}>
+                        <Calendar
+                          view="month"
+                          isDarkMode={isDarkMode}
+                          onDateSelect={handleDateSelect}
+                          onCategoryChange={setSelectedCategory}
+                        />
+                      </div>
+
+                      <div
+                        style={{
+                          flex: '0 0 calc(45% - 24px)',
                           display: 'flex',
                           flexDirection: 'column',
-                        }}>
-                          <Calendar 
-                            view="month" 
-                            isDarkMode={isDarkMode} 
-                            onDateSelect={handleDateSelect}
-                            onCategoryChange={setSelectedCategory}
-                          />
-                        </div>
-
-                        <div 
-                          style={{ 
-                            flex: '0 0 calc(45% - 24px)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            minWidth: 0,
+                          minWidth: 0,
+                        }}
+                      >
+                        <h3
+                          className={isDarkMode ? 'text-white' : ''}
+                          style={{
+                            fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                            fontSize: '22px',
+                            fontWeight: 600,
+                            marginBottom: '12px',
+                            color: isDarkMode ? 'white' : '#181818',
                           }}
                         >
-                          <h3
-                            className="text-white"
-                            style={{
-                              fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                              fontSize: '22px',
-                              fontWeight: 600,
-                              marginBottom: '12px',
-                            }}
-                          >
-                            {selectedDate ? formatSelectedDate(selectedDate) : 'Select a date'}
-                          </h3>
+                          {selectedDate ? formatSelectedDate(selectedDate) : 'Select a date'}
+                        </h3>
 
-                          <div 
-                            className="hide-scrollbar"
-                            style={{
-                              flex: 1,
-                              overflowY: 'auto',
-                              paddingTop: '10px',
-                              paddingBottom: '40px',
-                              maskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
-                              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
-                              scrollbarWidth: 'none',
-                              msOverflowStyle: 'none',
-                            }}
-                          >
-                            {selectedDate ? (
-                              <>
-                                {selectedDateEvents.length > 0 ? (
-                                  <>
-                                    {selectedDateEvents.map((event, index, array) => (
-                                      <CalendarItem
-                                        key={`${formatDateKey(selectedDate!)}-${event.id}`}
-                                        event={event}
-                                        isDarkMode={isDarkMode}
-                                        isFirst={index === 0}
-                                        isLast={index === array.length - 1}
-                                        onClick={() => handleCalendarItemClick(event)}
-                                      />
-                                    ))}
-                                  </>
-                                ) : (
-                                  <p
-                                    className="text-white"
-                                    style={{
-                                      fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                                      fontSize: '18px',
-                                      fontWeight: 400,
-                                      opacity: 0.4,
-                                      fontStyle: 'italic',
-                                      marginTop: '12px',
-                                    }}
-                                  >
-                                    No events scheduled
-                                  </p>
-                                )}
-                              </>
-                            ) : (
-                              <p
-                                className="text-white"
-                                style={{
-                                  fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                                  fontSize: '18px',
-                                  fontWeight: 400,
-                                  opacity: 0.4,
-                                  fontStyle: 'italic',
-                                  marginTop: '12px',
-                                }}
-                              >
-                                Click on a date to view events
-                              </p>
-                            )}
-                          </div>
+                        <div
+                          className="hide-scrollbar"
+                          style={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            paddingTop: '10px',
+                            paddingBottom: '40px',
+                            maskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
+                            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 60px, black calc(100% - 60px), transparent 100%)',
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                          }}
+                        >
+                          {selectedDate ? (
+                            <>
+                              {selectedDateEvents.length > 0 ? (
+                                <>
+                                  {selectedDateEvents.map((event, index, array) => (
+                                    <CalendarItem
+                                      key={`${formatDateKey(selectedDate!)}-${event.id}`}
+                                      event={event}
+                                      isDarkMode={isDarkMode}
+                                      isFirst={index === 0}
+                                      isLast={index === array.length - 1}
+                                      onClick={() => handleCalendarItemClick(event)}
+                                    />
+                                  ))}
+                                </>
+                              ) : (
+                                <p
+                                  className={isDarkMode ? 'text-white' : ''}
+                                  style={{
+                                    fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                                    fontSize: '18px',
+                                    fontWeight: 400,
+                                    opacity: 0.4,
+                                    fontStyle: 'italic',
+                                    marginTop: '12px',
+                                    color: isDarkMode ? 'white' : '#181818',
+                                  }}
+                                >
+                                  No events scheduled
+                                </p>
+                              )}
+                            </>
+                          ) : (
+                            <p
+                              className={isDarkMode ? 'text-white' : ''}
+                              style={{
+                                fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                                fontSize: '18px',
+                                fontWeight: 400,
+                                opacity: 0.4,
+                                fontStyle: 'italic',
+                                marginTop: '12px',
+                                color: isDarkMode ? 'white' : '#181818',
+                              }}
+                            >
+                              Click on a date to view events
+                            </p>
+                          )}
                         </div>
+                      </div>
+                    </div>
+                  );
+                } else if (tile.type === 'profile') {
+                  return (
+                    <div
+                      key={tile.id}
+                      style={{
+                        height: tileHeight,
+                        width: TILE_CONFIG.profile.maxWidth,
+                        minWidth: TILE_CONFIG.profile.minWidth,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <ProfileTile
+                        id={tile.id}
+                        x={0}
+                        y={0}
+                        width={TILE_CONFIG.profile.maxWidth}
+                        height={tileHeight}
+                        minWidth={TILE_CONFIG.profile.minWidth}
+                        maxWidth={TILE_CONFIG.profile.maxWidth}
+                        isDarkMode={isDarkMode}
+                      />
+                    </div>
+                  );
+                } else if (tile.type === 'explorer') {
+                  return (
+                    <div
+                      key={tile.id}
+                      style={{
+                        height: tileHeight,
+                        flex: '1 1 auto',
+                        minWidth: TILE_CONFIG.explorer.minWidth,
+                        maxWidth: TILE_CONFIG.explorer.maxWidth,
+                      }}
+                    >
+                      <ExplorerTile isDarkMode={isDarkMode} />
                     </div>
                   );
                 }

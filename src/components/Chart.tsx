@@ -30,6 +30,7 @@ interface ChartProps {
   onHoverPositionChange?: (percentage: number | null, hoveredDate?: Date) => void; // Callback for hover position (0-100) and date
   titleFontSize?: string;
   valueFontSize?: string;
+  hideOverlay?: boolean;
 }
 
 export default function Chart({
@@ -43,6 +44,7 @@ export default function Chart({
   onHoverPositionChange,
   titleFontSize = '28px',
   valueFontSize = '28px',
+  hideOverlay = false,
 }: ChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [hoverPosition, setHoverPosition] = useState<number | null>(null);
@@ -54,7 +56,7 @@ export default function Chart({
 
   // Determine if we're using single data prop or series prop
   const seriesData = series || (data ? [{ label: outcome, data }] : []);
-  
+
   // Color palette for multi-outcome charts
   const colors = [
     '#2196F3', // Blue
@@ -62,16 +64,16 @@ export default function Chart({
     '#FF9800', // Orange
     '#9C27B0', // Purple
   ];
-  
+
   // Transform data for MUI X Charts (do this before early returns to avoid conditional hook calls)
   // For multiple series, we need to align timestamps and create a unified x-axis
   let xAxisData: Date[] = [];
   const yAxisDatasets: { label: string; data: number[]; color?: string }[] = [];
-  
+
   if (seriesData.length > 0 && seriesData[0].data?.history) {
     // Use the first series' timestamps as the x-axis reference
     xAxisData = seriesData[0].data.history.map((point) => new Date(point.t * 1000));
-    
+
     // Transform each series
     seriesData.forEach((s, index) => {
       if (s.data?.history) {
@@ -92,7 +94,7 @@ export default function Chart({
         setContainerWidth(chartContainerRef.current.offsetWidth);
       }
     };
-    
+
     updateWidth();
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
@@ -120,18 +122,18 @@ export default function Chart({
     if (chartContainerRef.current && xAxisData.length > 0) {
       const rect = chartContainerRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      
+
       // Account for chart margins
       const chartAreaLeft = 30;
       const chartAreaRight = 30;
       const chartWidth = rect.width - chartAreaLeft - chartAreaRight;
       const xInChart = x - chartAreaLeft;
-      
+
       // Calculate percentage within the actual chart area
       const percentage = Math.max(0, Math.min(100, (xInChart / chartWidth) * 100));
       setHoverPosition(percentage);
       setHoverXPosition(x);
-      
+
       // Calculate the corresponding data point index and values for all series
       const dataIndex = Math.floor((percentage / 100) * (yAxisDatasets[0]?.data.length - 1 || 0));
       const newFocusedValues: { [key: string]: number } = {};
@@ -141,7 +143,7 @@ export default function Chart({
         }
       });
       setFocusedValues(newFocusedValues);
-      
+
       // Calculate and format the hovered date
       const startDate = xAxisData[0];
       const endDate = xAxisData[xAxisData.length - 1];
@@ -152,7 +154,7 @@ export default function Chart({
       const formattedTime = hoveredDateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       setHoveredDate(formattedDate);
       setHoveredTime(formattedTime);
-      
+
       // Notify parent component of hover position change with date
       if (onHoverPositionChange) {
         onHoverPositionChange(percentage, hoveredDateObj);
@@ -166,12 +168,12 @@ export default function Chart({
     setHoveredDate(null);
     setHoveredTime(null);
     setHoverXPosition(null);
-    
+
     // Notify parent component that hover ended
     if (onHoverPositionChange) {
       onHoverPositionChange(null);
     }
-    
+
     // Reset to latest values (rightmost data points)
     const latestValues: { [key: string]: number } = {};
     yAxisDatasets.forEach((dataset) => {
@@ -300,201 +302,195 @@ export default function Chart({
             position: 'relative',
           }}
         >
-        {/* Market title at top */}
-        {title && (
-          <h1 
-            className="text-white font-semibold"
-            style={{ 
-              fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-              fontSize: titleFontSize,
-              position: 'absolute',
-              top: '15px',
-              left: '30px',
-              color: '#FFFFFF',
-              margin: 0,
-              zIndex: 10,
-              maxWidth: containerWidth > 0 ? `${containerWidth - 280}px` : '50%',
-              paddingRight: '20px',
-              lineHeight: '1.2',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              hyphens: 'auto',
-            }}
-          >
-            {title}
-          </h1>
-        )}
-
-        {/* Odds display in top right */}
-        <div
-          style={{ 
-            position: 'absolute',
-            top: '15px',
-            right: '30px',
-            zIndex: 10,
-            textAlign: 'right',
-          }}
-        >
-          {yAxisDatasets.map((dataset, index) => (
-            <div
-              key={dataset.label}
+          {/* Market title at top */}
+          {!hideOverlay && title && (
+            <h1
+              className="text-white font-semibold"
               style={{
                 fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                fontSize: titleFontSize,
+                position: 'absolute',
+                top: '15px',
+                left: '30px',
                 color: '#FFFFFF',
-                marginBottom: yAxisDatasets.length > 1 ? '4px' : '0',
+                margin: 0,
+                zIndex: 10,
+                maxWidth: containerWidth > 0 ? `${containerWidth - 280}px` : '50%',
+                paddingRight: '20px',
+                lineHeight: '1.2',
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
+                hyphens: 'auto',
               }}
             >
-              {yAxisDatasets.length > 1 && (
-                <div style={{ 
-                  fontSize: '11px', 
-                  opacity: 0.7, 
-                  marginBottom: '0px',
-                  lineHeight: '1.1',
-                }}>
-                  {dataset.label}
+              {title}
+            </h1>
+          )}
+
+          {/* Odds display in top right */}
+          {!hideOverlay && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '30px',
+                zIndex: 10,
+                textAlign: 'right',
+              }}
+            >
+              {yAxisDatasets.map((dataset, index) => (
+                <div
+                  key={dataset.label}
+                  style={{
+                    fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                    color: '#FFFFFF',
+                    marginBottom: yAxisDatasets.length > 1 ? '4px' : '0',
+                  }}
+                >
+                  {yAxisDatasets.length > 1 && (
+                    <div style={{
+                      fontSize: '11px',
+                      opacity: 0.7,
+                      marginBottom: '0px',
+                      lineHeight: '1.1',
+                    }}>
+                      {dataset.label}
+                    </div>
+                  )}
+                  <div style={{
+                    fontSize: yAxisDatasets.length > 1 ? '18px' : valueFontSize,
+                    fontWeight: 600,
+                    lineHeight: '1.1',
+                  }}>
+                    {focusedValues[dataset.label] !== undefined ? (
+                      <CountingNumber number={focusedValues[dataset.label]} />
+                    ) : (
+                      '-- % Chance'
+                    )}
+                  </div>
                 </div>
-              )}
-              <div style={{ 
-                fontSize: yAxisDatasets.length > 1 ? '18px' : valueFontSize, 
-                fontWeight: 600,
-                lineHeight: '1.1',
-              }}>
-                {focusedValues[dataset.label] !== undefined ? (
-                  <CountingNumber number={focusedValues[dataset.label]} />
-                ) : (
-                  '-- % Chance'
-                )}
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
 
-        {/* Custom date and time label at top of hover line */}
-        {hoveredDate && hoverXPosition !== null && (
-          <div
-            style={{
-              position: 'absolute',
-              left: `${hoverXPosition}px`,
-              top: '60px',
-              transform: 'translateX(-50%)',
-              color: '#FFFFFF',
-              fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-              fontSize: '12px',
-              fontWeight: 500,
-              pointerEvents: 'none',
-              zIndex: 10,
-              textAlign: 'center',
-              lineHeight: '1.3',
-            }}
-          >
-            <div>{hoveredDate}</div>
-            {hoveredTime && <div style={{ fontSize: '10px', opacity: 0.8 }}>{hoveredTime}</div>}
-          </div>
-        )}
+          {/* Custom date and time label at top of hover line */}
+          {hoveredDate && hoverXPosition !== null && (
+            <div
+              style={{
+                position: 'absolute',
+                left: `${hoverXPosition}px`,
+                top: '60px',
+                transform: 'translateX(-50%)',
+                color: '#FFFFFF',
+                fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                fontSize: '12px',
+                fontWeight: 500,
+                pointerEvents: 'none',
+                zIndex: 10,
+                textAlign: 'center',
+                lineHeight: '1.3',
+              }}
+            >
+              <div>{hoveredDate}</div>
+              {hoveredTime && <div style={{ fontSize: '10px', opacity: 0.8 }}>{hoveredTime}</div>}
+            </div>
+          )}
 
-        {/* SVG gradient definition */}
-        <svg width="0" height="0" style={{ position: 'absolute' }}>
-          <defs>
-            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.2)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 1)" />
-            </linearGradient>
-          </defs>
-        </svg>
-        
-        <LineChart
-          xAxis={[
-            {
-              data: xAxisData,
-              scaleType: 'time',
-              valueFormatter: (date: Date) => {
-                return date.toLocaleString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
+          {/* SVG gradient definition */}
+          <svg width="0" height="0" style={{ position: 'absolute' }}>
+            <defs>
+              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(255, 255, 255, 0.2)" />
+                <stop offset="100%" stopColor="rgba(255, 255, 255, 1)" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <LineChart
+            xAxis={[
+              {
+                data: xAxisData,
+                scaleType: 'time',
+                valueFormatter: (date: Date) => {
+                  return date.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  });
+                },
               },
-            },
-          ]}
-          yAxis={[
-            {
-              min: 0,
-              max: 100,
-              disableTicks: true,
-              disableLine: true,
-            },
-          ]}
-          series={yAxisDatasets.map((dataset, index) => ({
-            data: dataset.data,
-            label: dataset.label,
-            color: yAxisDatasets.length === 1 ? 'url(#lineGradient)' : dataset.color,
-            area: false,
-            showMark: false,
-            curve: 'catmullRom',
-          }))}
-          height={height}
-          margin={{ top: 60, right: 30, bottom: 10, left: -90 }}
-          disableAxisListener={true}
-          grid={{ horizontal: false, vertical: false }}
-          sx={{
-            width: '100%',
-            height: '100%',
-            '& .MuiLineElement-root': {
-              strokeWidth: 2.5,
-              strokeLinecap: 'round',
-              strokeLinejoin: 'round',
-            },
-            '& .MuiChartsAxis-line': {
-              stroke: 'transparent',
-              strokeWidth: 0,
-              display: 'none',
-            },
-            '& .MuiChartsAxis-tick': {
-              stroke: 'transparent',
-              strokeWidth: 0,
-              display: 'none',
-            },
-            '& .MuiChartsAxis-tickLabel': {
-              fill: 'transparent',
-              fontSize: '12px',
-              display: 'none',
-            },
-            '& .MuiChartsAxisHighlight-root': {
-              stroke: '#FFFFFF',
-              strokeWidth: 1,
-              strokeDasharray: 'none',
-            },
-            '& .MuiChartsTooltip-root': {
-              display: 'none !important',
-              visibility: 'hidden !important',
-              opacity: '0 !important',
-              pointerEvents: 'none !important',
-            },
-            '& .MuiChartsTooltip-paper': {
-              display: 'none !important',
-            },
-            '& .MuiPopper-root': {
-              display: 'none !important',
-            },
-            '& .MuiChartsTooltip-table': {
-              display: 'none !important',
-            },
-          }}
-        />
+            ]}
+            yAxis={[
+              {
+                min: 0,
+                max: 100,
+                disableTicks: true,
+                disableLine: true,
+              },
+            ]}
+            series={yAxisDatasets.map((dataset, index) => ({
+              data: dataset.data,
+              label: dataset.label,
+              color: yAxisDatasets.length === 1 ? 'url(#lineGradient)' : dataset.color,
+              area: false,
+              showMark: false,
+              curve: 'catmullRom',
+            }))}
+            height={height}
+            margin={{ top: hideOverlay ? 10 : 60, right: 30, bottom: 10, left: -90 }}
+            disableAxisListener={true}
+            grid={{ horizontal: false, vertical: false }}
+            sx={{
+              width: '100%',
+              height: '100%',
+              '& .MuiChartsLegend-root': {
+                display: 'none',
+              },
+              '& .MuiLineElement-root': {
+                strokeWidth: 2.5,
+                strokeLinecap: 'round',
+                strokeLinejoin: 'round',
+              },
+              '& .MuiChartsAxis-line': {
+                stroke: 'transparent',
+                strokeWidth: 0,
+                display: 'none',
+              },
+              '& .MuiChartsAxis-tick': {
+                stroke: 'transparent',
+                strokeWidth: 0,
+                display: 'none',
+              },
+              '& .MuiChartsAxis-tickLabel': {
+                fill: 'transparent',
+                fontSize: '12px',
+                display: 'none',
+              },
+              '& .MuiChartsAxisHighlight-root': {
+                stroke: '#FFFFFF',
+                strokeWidth: 1,
+                strokeDasharray: 'none',
+              },
+              '& .MuiChartsTooltip-root': {
+                display: 'none !important',
+                visibility: 'hidden !important',
+                opacity: '0 !important',
+                pointerEvents: 'none !important',
+              },
+              '& .MuiChartsTooltip-paper': {
+                display: 'none !important',
+              },
+              '& .MuiPopper-root': {
+                display: 'none !important',
+              },
+              '& .MuiChartsTooltip-table': {
+                display: 'none !important',
+              },
+            }}
+          />
+        </div>
       </div>
-      <div
-        style={{
-          marginTop: '8px',
-          fontSize: '12px',
-          color: '#666',
-          textAlign: 'center',
-        }}
-      >
-        {yAxisDatasets.length} series • {xAxisData.length} data points
-      </div>
-    </div>
     </>
   );
 }
-

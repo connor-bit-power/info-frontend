@@ -18,8 +18,8 @@ export default function GradientBackground({
   className,
   ...props
 }: GradientBackgroundProps) {
-  const startColor = '#2E5CFF'; // Blue
-  const endColor = isDarkMode ? '#181818' : '#E9DFE5'; // Dark or Light
+  const startColor = '#181818'; // Dark gray
+  const endColor = isDarkMode ? '#000000' : '#E9DFE5'; // Pure black or Light
 
   // Flip the gradient positions vertically when flipped is true, and apply offset
   const getPosition = (verticalPercent: number) => {
