@@ -240,7 +240,7 @@ export default function ChartTile({
         isDragging={isDragging}
         isResizing={isResizing}
       >
-        <div className="h-full" style={{ padding: '0px', display: 'flex', flexDirection: 'column' }}>
+        <div className="h-full" style={{ padding: '16px', display: 'flex', flexDirection: 'column' }}>
           {/* Chart Section - 60% */}
           <div
             ref={chartContainerRef}

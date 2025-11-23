@@ -32,7 +32,7 @@ export default function NewsFeed({ headlines, onHeadlineClick, onScroll }: NewsF
   return (
     <>
       {/* Top gradient mask overlay - only visible when header is fully compacted */}
-      <div 
+      <div
         className="absolute top-0 left-0 right-0 pointer-events-none transition-opacity duration-300"
         style={{
           height: '120px',
@@ -41,11 +41,12 @@ export default function NewsFeed({ headlines, onHeadlineClick, onScroll }: NewsF
           zIndex: 10,
         }}
       />
-      
-      <div 
+
+
+      <div
         ref={scrollContainerRef}
         className="overflow-y-auto flex-1"
-        style={{ 
+        style={{
           paddingLeft: '20px',
           paddingRight: '20px',
           paddingTop: '20px',
@@ -54,24 +55,31 @@ export default function NewsFeed({ headlines, onHeadlineClick, onScroll }: NewsF
           WebkitMaskImage: "linear-gradient(to bottom, black calc(100% - 80px), transparent 100%)",
           overscrollBehavior: 'contain',
           WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}
       >
-      {headlines.map((headline, index) => (
-        <div
-          key={headline.id}
-          className="text-white cursor-pointer hover:opacity-70 transition-opacity"
-          style={{
-            fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-            fontSize: '21px',
-            fontWeight: 'normal',
-            lineHeight: '25px',
-            marginBottom: '21px'
-          }}
-          onClick={() => onHeadlineClick(headline, index)}
-        >
-          {headline.title}
-        </div>
-      ))}
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        {headlines.map((headline, index) => (
+          <div
+            key={headline.id}
+            className="text-[#E0E0E0] cursor-pointer hover:opacity-70 transition-opacity"
+            style={{
+              fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+              fontSize: '21px',
+              fontWeight: 'normal',
+              lineHeight: '25px',
+              marginBottom: '21px'
+            }}
+            onClick={() => onHeadlineClick(headline, index)}
+          >
+            {headline.title}
+          </div>
+        ))}
       </div>
     </>
   );

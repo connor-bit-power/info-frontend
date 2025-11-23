@@ -166,8 +166,6 @@ export default function ExplorerTile({ isDarkMode = true, className, style }: Ex
                                 return (
                                     <motion.div
                                         key={event.id}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
                                         style={{
                                             height: '100%',
                                             cursor: 'pointer',

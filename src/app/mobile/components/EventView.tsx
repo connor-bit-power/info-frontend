@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSpring, animated } from '@react-spring/web';
-import Chart from '../../../components/Chart';
+import ChartMobile from '../../../components/ChartMobile';
 import Tile from './Tile';
 import headlinesData from '../../desktop/components/ChartHeadlines.json';
 import mockChartData from '../../desktop/components/ChartMockData.json';
@@ -33,7 +33,7 @@ export default function EventView({ headline, onBack }: EventViewProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [focusedHeadlineDate, setFocusedHeadlineDate] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
-  
+
   // Mobile-specific state
   const [containerHeight, setContainerHeight] = useState(800); // Default fallback
 
@@ -49,7 +49,7 @@ export default function EventView({ headline, onBack }: EventViewProps) {
     const loadData = async () => {
       setLoading(true);
       setError(null);
-      
+
       // Simulate loading mock data
       setChartData(mockChartData as PriceHistoryData);
       setLoading(false);
@@ -71,32 +71,12 @@ export default function EventView({ headline, onBack }: EventViewProps) {
         endDate: new Date('2024-11-17'),
       };
     }
-    
+
     const timestamps = chartData.history.map(point => point.t);
     return {
       startDate: new Date(Math.min(...timestamps) * 1000),
       endDate: new Date(Math.max(...timestamps) * 1000),
     };
-  };
-
-  // Track mouse/touch position over chart and align headlines
-  const handleChartMouseMove = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    if (!chartContainerRef.current) return;
-    
-    const rect = chartContainerRef.current.getBoundingClientRect();
-    let clientX;
-    
-    if ('touches' in e) {
-      clientX = e.touches[0].clientX;
-    } else {
-      clientX = (e as React.MouseEvent).clientX;
-    }
-    
-    const x = clientX - rect.left;
-    const percentage = (x / rect.width) * 100;
-    const clampedPercentage = Math.max(0, Math.min(100, percentage));
-    
-    scrollToCorrespondingHeadline(clampedPercentage);
   };
 
   const handleChartMouseLeave = () => {
@@ -138,8 +118,8 @@ export default function EventView({ headline, onBack }: EventViewProps) {
         if (headlineElements[targetIndex]) {
           const element = headlineElements[targetIndex] as HTMLElement;
           // Mobile offset: paddingTop (20px) + a bit of buffer
-          const scrollTop = element.offsetTop - 30; 
-          
+          const scrollTop = element.offsetTop - 30;
+
           scrollContainerRef.current.scrollTo({
             top: scrollTop,
             behavior: 'smooth',
@@ -171,8 +151,8 @@ export default function EventView({ headline, onBack }: EventViewProps) {
       `}</style>
 
       {/* Header Area */}
-      <div style={{ 
-        marginBottom: '12px', 
+      <div style={{
+        marginBottom: '12px',
         flexShrink: 0,
         display: 'flex',
         justifyContent: 'space-between',
@@ -219,67 +199,69 @@ export default function EventView({ headline, onBack }: EventViewProps) {
         <Tile padding="0px"> {/* Remove Tile padding to have full control */}
           <div className="h-full w-full flex flex-col relative">
             {/* Chart Section */}
-          <div 
-            ref={chartContainerRef}
-            style={{ 
-              height: '45%', 
-              position: 'relative',
-              flexShrink: 0,
-              marginTop: '0px' 
-            }}
-            onMouseMove={handleChartMouseMove}
-            onTouchMove={handleChartMouseMove}
-            onMouseLeave={handleChartMouseLeave}
-            onTouchEnd={handleChartMouseLeave}
-          >
-            <Chart
-              data={chartData}
-              title={headline}
-              outcome="Yes"
-              height={containerHeight * 0.45} 
-              loading={loading}
-              error={error}
-              titleFontSize="20px"
-              valueFontSize="20px"
-            />
-            {/* Add top padding spacer for back button inside chart area if needed, 
-                or just let the back button float over */}
-          </div>
+            <div
+              ref={chartContainerRef}
+              style={{
+                height: '45%',
+                position: 'relative',
+                flexShrink: 0,
+                marginTop: '0px'
+              }}
+            >
+              <ChartMobile
+                data={chartData}
+                title={headline}
+                outcome="Yes"
+                height={containerHeight * 0.45}
+                loading={loading}
+                error={error}
+                titleFontSize="20px"
+                valueFontSize="20px"
+                onHoverPositionChange={(percentage, hoveredDate) => {
+                  if (percentage !== null && hoveredDate) {
+                    const hoveredDateStr = hoveredDate.toISOString().split('T')[0];
+                    scrollToCorrespondingHeadline(percentage);
+                  } else {
+                    handleChartMouseLeave();
+                  }
+                }}
+              />
+            </div>
 
-          {/* Headlines Section */}
-          <div 
-            ref={scrollContainerRef}
-            className="overflow-y-auto hide-scrollbar"
-            style={{ 
-              flex: 1,
-              position: 'relative',
-              paddingLeft: '16px',
-              paddingRight: '16px',
-              paddingTop: '20px', // Reduced top padding
-              paddingBottom: '20px',
-              maskImage: 'linear-gradient(to bottom, transparent 0px, black 20px, black calc(100% - 40px), transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 20px, black calc(100% - 40px), transparent 100%)',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-            }}
-          >
-            {displayHeadlines.map((headline, index) => {
-              const isFocused = focusedHeadlineDate === headline.published_at;
-              
-              return (
-                <HeadlineItemComponent
-                  key={`headline-${headline.id}`}
-                  headline={headline}
-                  isFocused={isFocused}
-                  isDarkMode={true}
-                  getSentimentColor={getSentimentColor}
-                  isFirst={index === 0}
-                />
-              );
-            })}
+            {/* Headlines Section */}
+            <div
+              ref={scrollContainerRef}
+              className="overflow-y-auto hide-scrollbar"
+              style={{
+                flex: 1,
+                position: 'relative',
+                paddingLeft: '16px',
+                paddingRight: '16px',
+                paddingTop: '20px', // Reduced top padding
+                paddingBottom: '20px',
+                maskImage: 'linear-gradient(to bottom, transparent 0px, black 20px, black calc(100% - 40px), transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 20px, black calc(100% - 40px), transparent 100%)',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {displayHeadlines.map((headline, index) => {
+                const isFocused = focusedHeadlineDate === headline.published_at;
+
+                return (
+                  <HeadlineItemComponent
+                    key={`headline-${headline.id}`}
+                    headline={headline}
+                    isFocused={isFocused}
+                    isDarkMode={true}
+                    getSentimentColor={getSentimentColor}
+                    isFirst={index === 0}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </Tile>
+        </Tile>
       </div>
     </div>
   );
@@ -300,8 +282,8 @@ function HeadlineItemComponent({
   isFirst: boolean;
 }) {
   const springProps = useSpring({
-    backgroundColor: isFocused 
-      ? 'rgba(255, 215, 0, 0.2)' 
+    backgroundColor: isFocused
+      ? 'rgba(255, 215, 0, 0.2)'
       : 'rgba(255, 255, 255, 0)',
     padding: isFocused ? 8 : 0,
     marginLeft: isFocused ? -8 : 0,
@@ -342,7 +324,7 @@ function HeadlineItemComponent({
           backgroundColor: getSentimentColor(headline.sentiment),
         }}
       />
-      
+
       <animated.p
         className="text-white"
         style={{

@@ -60,7 +60,10 @@ export interface HeadlineItem {
   published_at: string;
   created_at: string;
   updated_at: string;
-  market: MarketSummary;
+  summary: string | null;
+  lead: string | null;
+  tags: string[];
+  markets: MarketSummary[];
 }
 
 export interface HeadlinesResponse {
@@ -157,12 +160,12 @@ export interface MarketQueryParams {
 // WEBSOCKET TYPES
 // ============================================================================
 
-export type WebSocketMessageType = 
-  | "subscribe" 
-  | "unsubscribe" 
-  | "market_price_update" 
-  | "market_status_update" 
-  | "market_headline_created" 
+export type WebSocketMessageType =
+  | "subscribe"
+  | "unsubscribe"
+  | "market_price_update"
+  | "market_status_update"
+  | "market_headline_created"
   | "error";
 
 export interface WSSubscriptionMessage {
@@ -226,11 +229,11 @@ export interface WSErrorMessage {
   };
 }
 
-export type WebSocketMessage = 
-  | WSSubscriptionMessage 
-  | WSUnsubscriptionMessage 
-  | WSMarketPriceUpdate 
-  | WSMarketStatusUpdate 
-  | WSMarketHeadlineCreated 
+export type WebSocketMessage =
+  | WSSubscriptionMessage
+  | WSUnsubscriptionMessage
+  | WSMarketPriceUpdate
+  | WSMarketStatusUpdate
+  | WSMarketHeadlineCreated
   | WSErrorMessage;
 

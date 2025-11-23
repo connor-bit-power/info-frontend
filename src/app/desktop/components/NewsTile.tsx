@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+
 import { motion } from 'framer-motion';
 import Tile from './Tile';
-import headlinesData from './Headlines.json';
+import { useHeadlines } from '@/hooks/useHeadlines';
+
 import { InfoCircleIcon } from '../../components/icons/InfoCircleIcon';
 import type { HeadlineItem } from '@/types/news-api';
 
@@ -36,43 +37,11 @@ export default function NewsTile({
   isDragging,
   isResizing,
 }: NewsTileProps) {
-  // State to manage visible headlines - start with first 12
-  const [headlineCount, setHeadlineCount] = useState(12);
-  const [isAtTop, setIsAtTop] = useState(true);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const previousCountRef = useRef(12);
-
-  // Cast mock data to HeadlineItem[]
-  const headlines: HeadlineItem[] = headlinesData as unknown as HeadlineItem[];
-
-  // Track scroll position
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollTop = e.currentTarget.scrollTop;
-    setIsAtTop(scrollTop < 5); // Consider "at top" if within 5px
-  };
-
-  // Auto-scroll to top when new headline is added (only if already at top)
-  useEffect(() => {
-    if (headlineCount > previousCountRef.current && isAtTop && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = 0;
-    }
-    previousCountRef.current = headlineCount;
-  }, [headlineCount, isAtTop]);
-
-  // Add new headlines every second until we reach 40
-  useEffect(() => {
-    // Only run if we haven't reached 40 yet
-    if (headlineCount >= headlines.length) return;
-
-    const timer = setTimeout(() => {
-      setHeadlineCount(prev => Math.min(prev + 1, headlines.length));
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [headlineCount, headlines.length]);
+  // Use cached headlines hook
+  const { headlines } = useHeadlines();
 
   // Get the headlines to display (newest first)
-  const displayHeadlines = headlines.slice(0, headlineCount).reverse();
+  const displayHeadlines = headlines;
 
   // NOTE: HeadlineItem does not have a category field in the new API schema.
   // Removed getCategoryColor and the dot element to match the schema 1:1.
@@ -116,8 +85,6 @@ export default function NewsTile({
 
           {/* Headlines list - Scrollable */}
           <div
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
             className="overflow-y-auto hide-scrollbar"
             style={{
               position: 'absolute',

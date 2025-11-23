@@ -19,22 +19,21 @@ interface SeriesData {
   color?: string;
 }
 
-interface ChartProps {
-  data?: PriceHistoryData | null; // Single series (backward compatible)
-  series?: SeriesData[]; // Multiple series for multi-outcome markets
+interface ChartMobileProps {
+  data?: PriceHistoryData | null;
+  series?: SeriesData[];
   title?: string;
   outcome?: string;
   height?: number;
   loading?: boolean;
   error?: string | null;
-  onHoverPositionChange?: (percentage: number | null, hoveredDate?: Date) => void; // Callback for hover position (0-100) and date
+  onHoverPositionChange?: (percentage: number | null, hoveredDate?: Date) => void;
   titleFontSize?: string;
   valueFontSize?: string;
   hideOverlay?: boolean;
-  stackedLayout?: boolean; // Mobile-specific: title full width, odds below
 }
 
-export default function Chart({
+export default function ChartMobile({
   data,
   series,
   title = 'Market Odds Over Time',
@@ -43,18 +42,17 @@ export default function Chart({
   loading = false,
   error = null,
   onHoverPositionChange,
-  titleFontSize = '28px',
-  valueFontSize = '28px',
+  titleFontSize = '20px',
+  valueFontSize = '20px',
   hideOverlay = false,
-  stackedLayout = false, // Mobile-specific: title full width, odds below
-}: ChartProps) {
+}: ChartMobileProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const [hoverPosition, setHoverPosition] = useState<number | null>(null);
   const [focusedValues, setFocusedValues] = useState<{ [key: string]: number }>({});
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
   const [hoveredTime, setHoveredTime] = useState<string | null>(null);
   const [hoverXPosition, setHoverXPosition] = useState<number | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
+  const [isTouching, setIsTouching] = useState(false);
 
   // Determine if we're using single data prop or series prop
   const seriesData = series || (data ? [{ label: outcome, data }] : []);
@@ -67,19 +65,16 @@ export default function Chart({
     '#9C27B0', // Purple
   ];
 
-  // Transform data for MUI X Charts (do this before early returns to avoid conditional hook calls)
-  // For multiple series, we need to align timestamps and create a unified x-axis
+  // Transform data for MUI X Charts
   let xAxisData: Date[] = [];
   const yAxisDatasets: { label: string; data: number[]; color?: string }[] = [];
 
   if (seriesData.length > 0 && seriesData[0].data?.history) {
-    // Use the first series' timestamps as the x-axis reference
     xAxisData = seriesData[0].data.history.map((point) => new Date(point.t * 1000));
 
-    // Transform each series
     seriesData.forEach((s, index) => {
       if (s.data?.history) {
-        const yData = s.data.history.map((point) => point.p * 100); // Convert to percentage
+        const yData = s.data.history.map((point) => point.p * 100);
         yAxisDatasets.push({
           label: s.label,
           data: yData,
@@ -102,7 +97,7 @@ export default function Chart({
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  // Set initial focused values to latest (rightmost) data points
+  // Set initial focused values to latest data points
   useEffect(() => {
     if (yAxisDatasets.length > 0) {
       const initialValues: { [key: string]: number } = {};
@@ -111,32 +106,25 @@ export default function Chart({
           initialValues[dataset.label] = dataset.data[dataset.data.length - 1];
         }
       });
-      // Always update when data changes
       setFocusedValues(initialValues);
     } else {
-      // Reset focused values when there's no data
       setFocusedValues({});
     }
-  }, [data, series, outcome, yAxisDatasets.length]); // Depend on the actual data props and data length
+  }, [data, series, outcome, yAxisDatasets.length]);
 
-  // Track mouse position over chart
-  const handleChartMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Handle continuous touch/mouse tracking
+  const updatePosition = (clientX: number) => {
     if (chartContainerRef.current && xAxisData.length > 0) {
       const rect = chartContainerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
+      const x = clientX - rect.left;
 
-      // Account for chart margins (no container padding now)
-      const chartAreaLeft = 0;
-      const chartAreaRight = 0;
-      const chartWidth = rect.width - chartAreaLeft - chartAreaRight;
-      const xInChart = x - chartAreaLeft;
+      const chartWidth = rect.width;
+      const xInChart = x;
 
-      // Calculate percentage within the actual chart area
       const percentage = Math.max(0, Math.min(100, (xInChart / chartWidth) * 100));
-      setHoverPosition(percentage);
       setHoverXPosition(x);
 
-      // Calculate the corresponding data point index and values for all series
+      // Calculate the corresponding data point index and values
       const dataIndex = Math.floor((percentage / 100) * (yAxisDatasets[0]?.data.length - 1 || 0));
       const newFocusedValues: { [key: string]: number } = {};
       yAxisDatasets.forEach((dataset) => {
@@ -157,26 +145,69 @@ export default function Chart({
       setHoveredDate(formattedDate);
       setHoveredTime(formattedTime);
 
-      // Notify parent component of hover position change with date
+      // Notify parent component
       if (onHoverPositionChange) {
         onHoverPositionChange(percentage, hoveredDateObj);
       }
     }
   };
 
-  // Reset when mouse leaves chart
-  const handleChartMouseLeave = () => {
-    setHoverPosition(null);
+  // Touch start handler
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setIsTouching(true);
+    if (e.touches.length > 0) {
+      updatePosition(e.touches[0].clientX);
+    }
+  };
+
+  // Touch move handler - continuously follows finger
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault(); // Prevent scrolling while dragging
+    if (e.touches.length > 0) {
+      updatePosition(e.touches[0].clientX);
+    }
+  };
+
+  // Touch end handler
+  const handleTouchEnd = () => {
+    setIsTouching(false);
+    resetToLatest();
+  };
+
+  // Mouse handlers for desktop compatibility
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsTouching(true);
+    updatePosition(e.clientX);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isTouching) {
+      updatePosition(e.clientX);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsTouching(false);
+    resetToLatest();
+  };
+
+  const handleMouseLeave = () => {
+    if (isTouching) {
+      setIsTouching(false);
+      resetToLatest();
+    }
+  };
+
+  const resetToLatest = () => {
     setHoveredDate(null);
     setHoveredTime(null);
     setHoverXPosition(null);
 
-    // Notify parent component that hover ended
     if (onHoverPositionChange) {
       onHoverPositionChange(null);
     }
 
-    // Reset to latest values (rightmost data points)
+    // Reset to latest values
     const latestValues: { [key: string]: number } = {};
     yAxisDatasets.forEach((dataset) => {
       if (dataset.data.length > 0) {
@@ -186,60 +217,7 @@ export default function Chart({
     setFocusedValues(latestValues);
   };
 
-  // Update gradient when hover position changes
-  useEffect(() => {
-    const gradient = document.getElementById('lineGradient');
-    if (gradient) {
-      // Clear existing stops
-      while (gradient.firstChild) {
-        gradient.removeChild(gradient.firstChild);
-      }
-
-      if (hoverPosition !== null) {
-        // Create dramatic focused gradient with tight falloff
-        const falloffRange = 5;
-        const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop1.setAttribute('offset', '0%');
-        stop1.setAttribute('stop-color', 'rgba(255, 255, 255, 0.1)');
-
-        const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop2.setAttribute('offset', `${Math.max(0, hoverPosition - falloffRange)}%`);
-        stop2.setAttribute('stop-color', 'rgba(255, 255, 255, 0.1)');
-
-        const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop3.setAttribute('offset', `${hoverPosition}%`);
-        stop3.setAttribute('stop-color', 'rgba(255, 255, 255, 1)'); // Full opacity at hover
-
-        const stop4 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop4.setAttribute('offset', `${Math.min(100, hoverPosition + falloffRange)}%`);
-        stop4.setAttribute('stop-color', 'rgba(255, 255, 255, 0.1)');
-
-        const stop5 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop5.setAttribute('offset', '100%');
-        stop5.setAttribute('stop-color', 'rgba(255, 255, 255, 0.1)');
-
-        gradient.appendChild(stop1);
-        gradient.appendChild(stop2);
-        gradient.appendChild(stop3);
-        gradient.appendChild(stop4);
-        gradient.appendChild(stop5);
-      } else {
-        // Reset to default gradient if not hovering
-        const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop1.setAttribute('offset', '0%');
-        stop1.setAttribute('stop-color', 'rgba(255, 255, 255, 0.2)');
-
-        const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop2.setAttribute('offset', '100%');
-        stop2.setAttribute('stop-color', 'rgba(255, 255, 255, 1)');
-
-        gradient.appendChild(stop1);
-        gradient.appendChild(stop2);
-      }
-    }
-  }, [hoverPosition, data]);
-
-  // Handle loading state - return null to show nothing while loading
+  // Handle loading state
   if (loading) {
     return null;
   }
@@ -296,15 +274,22 @@ export default function Chart({
       <div style={{ width: '100%' }}>
         <div
           ref={chartContainerRef}
-          onMouseMove={handleChartMouseMove}
-          onMouseLeave={handleChartMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
           style={{
             borderRadius: '12px',
             padding: '0px',
             position: 'relative',
+            touchAction: 'none', // Prevent default touch behaviors
+            cursor: isTouching ? 'grabbing' : 'grab',
           }}
         >
-          {/* Market title at top */}
+          {/* Market title at top - full width */}
           {!hideOverlay && title && (
             <h1
               className="text-white font-semibold"
@@ -317,33 +302,32 @@ export default function Chart({
                 color: '#FFFFFF',
                 margin: 0,
                 zIndex: 10,
-                maxWidth: stackedLayout 
-                  ? (containerWidth > 0 ? `${containerWidth - 20}px` : '100%')
-                  : (containerWidth > 0 ? `${containerWidth - 280}px` : '50%'),
-                paddingRight: stackedLayout ? '10px' : '20px',
+                maxWidth: containerWidth > 0 ? `${containerWidth - 20}px` : '100%',
+                paddingRight: '10px',
                 lineHeight: '1.2',
                 whiteSpace: 'normal',
                 wordBreak: 'normal',
                 overflowWrap: 'normal',
+                pointerEvents: 'none', // Don't interfere with chart interaction
               }}
             >
               {title}
             </h1>
           )}
 
-          {/* Odds display - stacked below title for mobile, top right for desktop */}
+          {/* Odds display - positioned below title */}
           {!hideOverlay && (
             <div
               style={{
                 position: 'absolute',
-                top: stackedLayout ? '85px' : '5px',
-                right: stackedLayout ? 'auto' : '10px',
-                left: stackedLayout ? '10px' : 'auto',
+                top: '85px',
+                left: '10px',
                 zIndex: 10,
-                textAlign: stackedLayout ? 'left' : 'right',
+                textAlign: 'left',
+                pointerEvents: 'none', // Don't interfere with chart interaction
               }}
             >
-              {yAxisDatasets.map((dataset, index) => (
+              {yAxisDatasets.map((dataset) => (
                 <div
                   key={dataset.label}
                   style={{
@@ -401,16 +385,7 @@ export default function Chart({
             </div>
           )}
 
-          {/* SVG gradient definition */}
-          <svg width="0" height="0" style={{ position: 'absolute' }}>
-            <defs>
-              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="rgba(255, 255, 255, 0.2)" />
-                <stop offset="100%" stopColor="rgba(255, 255, 255, 1)" />
-              </linearGradient>
-            </defs>
-          </svg>
-
+          {/* Simple white line - no gradient effect */}
           <LineChart
             xAxis={[
               {
@@ -434,10 +409,10 @@ export default function Chart({
                 disableLine: true,
               },
             ]}
-            series={yAxisDatasets.map((dataset, index) => ({
+            series={yAxisDatasets.map((dataset) => ({
               data: dataset.data,
               label: dataset.label,
-              color: yAxisDatasets.length === 1 ? 'url(#lineGradient)' : dataset.color,
+              color: yAxisDatasets.length === 1 ? '#FFFFFF' : dataset.color, // Simple white line for single series
               area: false,
               showMark: false,
               curve: 'catmullRom',
@@ -456,6 +431,7 @@ export default function Chart({
                 strokeWidth: 2.5,
                 strokeLinecap: 'round',
                 strokeLinejoin: 'round',
+                opacity: 0.8, // Slightly transparent white line
               },
               '& .MuiChartsAxis-line': {
                 stroke: 'transparent',
@@ -499,3 +475,4 @@ export default function Chart({
     </>
   );
 }
+
