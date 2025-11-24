@@ -6,6 +6,8 @@ import GradientBackground from '../../components/GradientBackground';
 import ThemeToggler from '../../components/ThemeToggler';
 import NewsTile from '../components/NewsTile';
 import ChartTile from '../components/ChartTile';
+import IndiciesTile from '../components/IndiciesTile';
+import IndexTile from '../components/IndexTile';
 import ProfileTile from '../components/ProfileTile';
 import Calendar from '../../../components/Calendar';
 import CalendarItem from '../components/CalendarItem';
@@ -37,6 +39,14 @@ export default function DesktopHome() {
     {
       id: 'initial-news-1',
       type: 'news',
+    },
+    {
+      id: 'initial-explorer-1',
+      type: 'explorer',
+    },
+    {
+      id: 'initial-indicies-1',
+      type: 'indicies',
     },
   ]);
 
@@ -289,6 +299,24 @@ export default function DesktopHome() {
     }
   };
 
+  const handleIndexClick = (title: string) => {
+    console.log('📈 Index clicked:', title);
+
+    // Check if index tile already exists
+    const exists = dynamicTiles.some(tile => tile.type === 'index' && tile.eventTitle === title);
+
+    if (!exists) {
+      const newTile: DynamicTile = {
+        id: `dynamic-index-${Date.now()}`,
+        type: 'index', // We need to add 'index' to ComponentType in TopNav.tsx first? Or just cast it?
+        // Actually, dynamicTiles type is ComponentType. I need to update ComponentType in TopNav.tsx
+        eventTitle: title,
+      };
+      // @ts-ignore - 'index' is not yet in ComponentType, will update TopNav next
+      setDynamicTiles(prev => [...prev, newTile]);
+    }
+  };
+
   const handleDateSelect = (date: Date) => {
     console.log('📆 ========== DATE SELECT CALLED ==========');
     console.log('📆 Incoming date:', date);
@@ -505,6 +533,14 @@ export default function DesktopHome() {
       maxWidth: 600, // Same as chart
     },
     explorer: {
+      minWidth: 700,
+      maxWidth: 1000, // Same as calendar
+    },
+    indicies: {
+      minWidth: 340,
+      maxWidth: 380, // Same as news
+    },
+    index: {
       minWidth: 700,
       maxWidth: 1000, // Same as calendar
     },
@@ -766,6 +802,54 @@ export default function DesktopHome() {
                       }}
                     >
                       <ExplorerTile isDarkMode={isDarkMode} />
+                    </div>
+                  );
+                } else if (tile.type === 'indicies') {
+                  return (
+                    <div
+                      key={tile.id}
+                      style={{
+                        height: tileHeight,
+                        width: TILE_CONFIG.indicies.maxWidth,
+                        minWidth: TILE_CONFIG.indicies.minWidth,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <IndiciesTile
+                        id={tile.id}
+                        x={0}
+                        y={0}
+                        width={TILE_CONFIG.indicies.maxWidth}
+                        height={tileHeight}
+                        minWidth={TILE_CONFIG.indicies.minWidth}
+                        maxWidth={TILE_CONFIG.indicies.maxWidth}
+                        isDarkMode={isDarkMode}
+                        onIndexClick={handleIndexClick}
+                      />
+                    </div>
+                  );
+                } else if (tile.type === 'index') {
+                  return (
+                    <div
+                      key={tile.id}
+                      style={{
+                        height: tileHeight,
+                        width: TILE_CONFIG.index.maxWidth,
+                        minWidth: TILE_CONFIG.index.minWidth,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <IndexTile
+                        id={tile.id}
+                        x={0}
+                        y={0}
+                        width={TILE_CONFIG.index.maxWidth}
+                        height={tileHeight}
+                        minWidth={TILE_CONFIG.index.minWidth}
+                        maxWidth={TILE_CONFIG.index.maxWidth}
+                        isDarkMode={isDarkMode}
+                        title={tile.eventTitle}
+                      />
                     </div>
                   );
                 }

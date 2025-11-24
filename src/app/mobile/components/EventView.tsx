@@ -1,18 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useSpring, animated } from '@react-spring/web';
+import { useState, useEffect } from 'react';
 import ChartMobile from '../../../components/ChartMobile';
-import Tile from './Tile';
-import headlinesData from '../../desktop/components/ChartHeadlines.json';
-import mockChartData from '../../desktop/components/ChartMockData.json';
-import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon';
-import PlusCircleIcon from '../../components/icons/PlusCircleIcon';
-import CheckmarkCircleFillIcon from '../../components/icons/CheckmarkCircleFillIcon';
-import type { MarketHeadlineDetail, HeadlineSentiment } from '@/types/news-api';
+import CountingNumber from '../../../app/components/CountingNumber';
+import EventHeadlineItem from './EventHeadlineItem';
+import type { MarketHeadlineDetail, HeadlineSentiment, MarketResponse } from '@/types/news-api';
 
 interface EventViewProps {
-  headline: string;
+  headline?: string;
+  marketId?: string;
   onBack: () => void;
 }
 
@@ -20,84 +16,133 @@ interface PriceHistoryData {
   history: Array<{ t: number; p: number }>;
 }
 
-// Renamed to avoid conflict with the component
-type DisplayHeadline = MarketHeadlineDetail;
-
-export default function EventView({ headline, onBack }: EventViewProps) {
+export default function EventView({ headline: initialHeadline, marketId, onBack }: EventViewProps) {
   const [chartData, setChartData] = useState<PriceHistoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Cast mock data
-  const [headlines] = useState<DisplayHeadline[]>(headlinesData as unknown as DisplayHeadline[]);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [headlines, setHeadlines] = useState<MarketHeadlineDetail[]>([]);
+  const [title, setTitle] = useState<string>(initialHeadline || '');
   const [focusedHeadlineDate, setFocusedHeadlineDate] = useState<string | null>(null);
-  const [isFollowing, setIsFollowing] = useState(false);
 
-  // Mobile-specific state
-  const [containerHeight, setContainerHeight] = useState(800); // Default fallback
+  // State for odds display
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+  const [hoveredTime, setHoveredTime] = useState<string | null>(null);
 
-  useEffect(() => {
-    setContainerHeight(window.innerHeight);
-    const handleResize = () => setContainerHeight(window.innerHeight);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Use mock data logic from ChartTile
   useEffect(() => {
     const loadData = async () => {
+      if (!marketId) {
+        setError('No market ID provided');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
-      // Simulate loading mock data
-      setChartData(mockChartData as PriceHistoryData);
-      setLoading(false);
+      try {
+        const response = await fetch(`http://localhost:8082/api/market?marketId=${encodeURIComponent(marketId)}`);
+        if (!response.ok) throw new Error('Failed to fetch market data');
+
+        const data: MarketResponse = await response.json();
+
+        // Set Title
+        setTitle(data.market.question);
+
+        // Set Chart Data
+        if (data.market.pricing.price_history) {
+          const history = data.market.pricing.price_history.map(point => ({
+            t: new Date(point.timestamp).getTime() / 1000,
+            p: point.yes_price
+          }));
+          setChartData({ history });
+
+          // Set initial price
+          if (history.length > 0) {
+            setCurrentPrice(history[history.length - 1].p * 100);
+          }
+        }
+
+        // Set Headlines
+        setHeadlines(data.headlines);
+
+      } catch (err) {
+        console.error(err);
+        setError(err instanceof Error ? err.message : 'Failed to load market data');
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadData();
-  }, []);
+  }, [marketId]);
 
   // Static set of headlines - sorted by date descending (newest first)
   const displayHeadlines = [...headlines].sort((a, b) => {
     return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
   });
 
-  // Get date range from chart data
-  const getDateRange = () => {
-    if (!chartData?.history || chartData.history.length === 0) {
-      return {
-        startDate: new Date('2024-10-19'),
-        endDate: new Date('2024-11-17'),
-      };
+  // Calculate price change for a headline based on chart data
+  const calculatePriceChange = (publishedAt: string): number | null => {
+    if (!chartData?.history || chartData.history.length < 2) return null;
+
+    const headlineTime = new Date(publishedAt).getTime() / 1000;
+    
+    // Find the closest data point before the headline
+    let beforePrice: number | null = null;
+    let afterPrice: number | null = null;
+    
+    for (let i = 0; i < chartData.history.length; i++) {
+      const point = chartData.history[i];
+      
+      if (point.t <= headlineTime) {
+        beforePrice = point.p;
+      }
+      
+      if (point.t >= headlineTime && afterPrice === null) {
+        afterPrice = point.p;
+        break;
+      }
     }
 
-    const timestamps = chartData.history.map(point => point.t);
-    return {
-      startDate: new Date(Math.min(...timestamps) * 1000),
-      endDate: new Date(Math.max(...timestamps) * 1000),
-    };
+    // Calculate percentage change (use 24 hours after headline if possible)
+    if (beforePrice !== null && afterPrice !== null) {
+      const change = ((afterPrice - beforePrice) / beforePrice) * 100;
+      return change;
+    }
+
+    return null;
   };
 
-  const handleChartMouseLeave = () => {
-    setFocusedHeadlineDate(null);
+
+  const handleChartHover = (percentage: number | null, date?: Date, price?: number) => {
+    if (percentage !== null && date && price !== undefined) {
+      // Use the exact price value passed from ChartMobile (already in percentage form 0-100)
+      setCurrentPrice(price);
+
+      // Format date for display
+      setHoveredDate(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      setHoveredTime(date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }));
+
+      // Scroll headlines
+      const hoveredDateStr = date.toISOString().split('T')[0];
+      scrollToCorrespondingHeadline(hoveredDateStr);
+    } else {
+      // Reset to latest
+      if (chartData?.history && chartData.history.length > 0) {
+        setCurrentPrice(chartData.history[chartData.history.length - 1].p * 100);
+      }
+      setHoveredDate(null);
+      setHoveredTime(null);
+      setFocusedHeadlineDate(null);
+    }
   };
 
-  const scrollToCorrespondingHeadline = (percentage: number) => {
-    if (!scrollContainerRef.current) return;
-
-    const { startDate, endDate } = getDateRange();
-    const timeRange = endDate.getTime() - startDate.getTime();
-    const hoveredTimestamp = startDate.getTime() + (percentage / 100) * timeRange;
-    const hoveredDate = new Date(hoveredTimestamp);
-
-    const hoveredDateStr = hoveredDate.toISOString().split('T')[0];
-
+  const scrollToCorrespondingHeadline = (hoveredDateStr: string) => {
     let targetIndex = -1;
     let closestDiff = Infinity;
 
     for (let i = 0; i < displayHeadlines.length; i++) {
-      // Use published_at for date comparison
       const headlineDate = new Date(displayHeadlines[i].published_at);
       const hoverDate = new Date(hoveredDateStr);
       const diff = Math.abs(headlineDate.getTime() - hoverDate.getTime());
@@ -113,18 +158,6 @@ export default function EventView({ headline, onBack }: EventViewProps) {
 
       if (targetHeadline.published_at !== focusedHeadlineDate) {
         setFocusedHeadlineDate(targetHeadline.published_at);
-
-        const headlineElements = scrollContainerRef.current.children;
-        if (headlineElements[targetIndex]) {
-          const element = headlineElements[targetIndex] as HTMLElement;
-          // Mobile offset: paddingTop (20px) + a bit of buffer
-          const scrollTop = element.offsetTop - 30;
-
-          scrollContainerRef.current.scrollTo({
-            top: scrollTop,
-            behavior: 'smooth',
-          });
-        }
       }
     }
   };
@@ -138,210 +171,143 @@ export default function EventView({ headline, onBack }: EventViewProps) {
     }
   };
 
-  return (
-    <div className="flex-1 flex flex-col h-full max-h-screen overflow-hidden" style={{ padding: '16px' }}>
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-      `}</style>
+  // Handle error state
+  if (error) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center w-full min-h-screen bg-[#181818] p-6">
+        <div className="text-center">
+          <h2 className="text-white text-xl font-semibold mb-2">Unable to Load Market</h2>
+          <p className="text-white/70 text-sm mb-4">{error}</p>
+          <button
+            onClick={onBack}
+            className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-      {/* Header Area */}
-      <div style={{
-        marginBottom: '12px',
-        flexShrink: 0,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0 8px'
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center w-full min-h-screen bg-[#181818]">
+        <div className="text-white/70 text-sm">Loading market data...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 flex flex-col w-full min-h-screen overflow-y-auto bg-[#181818]" style={{ padding: '16px', paddingBottom: '40px' }}>
+      {/* 1. Event Title */}
+      <h1 style={{
+        fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+        fontSize: '24px',
+        fontWeight: 600,
+        color: '#FFFFFF',
+        margin: '0 0 8px 0',
+        lineHeight: '1.2'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            padding: '8px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <ChevronLeftIcon width={24} height={24} />
-        </button>
+        {title}
+      </h1>
 
-        <button
-          onClick={() => setIsFollowing(!isFollowing)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            padding: '8px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          {isFollowing ? (
-            <CheckmarkCircleFillIcon width={24} height={24} />
-          ) : (
-            <PlusCircleIcon width={24} height={24} />
-          )}
-        </button>
-      </div>
-
-      {/* Main Content Tile */}
-      <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
-        <Tile padding="0px"> {/* Remove Tile padding to have full control */}
-          <div className="h-full w-full flex flex-col relative">
-            {/* Chart Section */}
-            <div
-              ref={chartContainerRef}
-              style={{
-                height: '45%',
-                position: 'relative',
-                flexShrink: 0,
-                marginTop: '0px'
-              }}
-            >
-              <ChartMobile
-                data={chartData}
-                title={headline}
-                outcome="Yes"
-                height={containerHeight * 0.45}
-                loading={loading}
-                error={error}
-                titleFontSize="20px"
-                valueFontSize="20px"
-                onHoverPositionChange={(percentage, hoveredDate) => {
-                  if (percentage !== null && hoveredDate) {
-                    const hoveredDateStr = hoveredDate.toISOString().split('T')[0];
-                    scrollToCorrespondingHeadline(percentage);
-                  } else {
-                    handleChartMouseLeave();
-                  }
-                }}
-              />
-            </div>
-
-            {/* Headlines Section */}
-            <div
-              ref={scrollContainerRef}
-              className="overflow-y-auto hide-scrollbar"
-              style={{
-                flex: 1,
-                position: 'relative',
-                paddingLeft: '16px',
-                paddingRight: '16px',
-                paddingTop: '20px', // Reduced top padding
-                paddingBottom: '20px',
-                maskImage: 'linear-gradient(to bottom, transparent 0px, black 20px, black calc(100% - 40px), transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 20px, black calc(100% - 40px), transparent 100%)',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-            >
-              {displayHeadlines.map((headline, index) => {
-                const isFocused = focusedHeadlineDate === headline.published_at;
-
-                return (
-                  <HeadlineItemComponent
-                    key={`headline-${headline.id}`}
-                    headline={headline}
-                    isFocused={isFocused}
-                    isDarkMode={true}
-                    getSentimentColor={getSentimentColor}
-                    isFirst={index === 0}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </Tile>
-      </div>
-    </div>
-  );
-}
-
-// Renamed to avoid conflict with exported interface
-function HeadlineItemComponent({
-  headline,
-  isFocused,
-  isDarkMode,
-  getSentimentColor,
-  isFirst,
-}: {
-  headline: DisplayHeadline;
-  isFocused: boolean;
-  isDarkMode?: boolean;
-  getSentimentColor: (sentiment: HeadlineSentiment | null) => string;
-  isFirst: boolean;
-}) {
-  const springProps = useSpring({
-    backgroundColor: isFocused
-      ? 'rgba(255, 215, 0, 0.2)'
-      : 'rgba(255, 255, 255, 0)',
-    padding: isFocused ? 8 : 0,
-    marginLeft: isFocused ? -8 : 0,
-    marginRight: isFocused ? -8 : 0,
-    borderRadius: isFocused ? 8 : 0,
-    config: { tension: 300, friction: 30 },
-  });
-
-  const dotSpring = useSpring({
-    left: isFocused ? -7 : -15,
-    top: isFocused ? 18 : 10,
-    config: { tension: 300, friction: 30 },
-  });
-
-  const textSpring = useSpring({
-    color: isFocused ? '#FFD700' : '#FFFFFF',
-    fontWeight: isFocused ? 600 : 400,
-    config: { tension: 300, friction: 30 },
-  });
-
-  return (
-    <animated.div
-      data-headline-id={headline.id}
-      data-headline-date={headline.published_at}
-      style={{
-        ...springProps,
-        marginTop: isFirst ? '12px' : '21px',
-        position: 'relative',
-      }}
-    >
-      <animated.div
-        style={{
-          ...dotSpring,
-          position: 'absolute',
-          width: '6px',
-          height: '6px',
-          borderRadius: '50%',
-          backgroundColor: getSentimentColor(headline.sentiment),
-        }}
-      />
-
-      <animated.p
-        className="text-white"
-        style={{
-          ...textSpring,
+      {/* 2. Odds Display */}
+      <div style={{
+        marginBottom: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start'
+      }}>
+        <div style={{
           fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-          fontSize: '16px', // Smaller font for mobile
-          lineHeight: '1.3',
-          margin: 0,
-          overflow: 'hidden',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          textOverflow: 'ellipsis',
+          fontSize: '32px',
+          fontWeight: 700,
+          color: '#FFFFFF',
+        }}>
+          {currentPrice !== null ? (
+            <>
+              <CountingNumber number={currentPrice} decimalPlaces={0} />
+              <span style={{ fontSize: '20px', opacity: 0.7 }}>%</span>
+            </>
+          ) : (
+            <span>--<span style={{ fontSize: '20px', opacity: 0.7 }}>%</span></span>
+          )}
+        </div>
+
+        {/* Date/Time indicator when hovering */}
+        <div style={{
+          height: '20px',
+          fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+          fontSize: '14px',
+          color: '#FFFFFF',
+          opacity: 0.6,
+          marginTop: '4px'
+        }}>
+          {hoveredDate ? (
+            <span>{hoveredDate} {hoveredTime && `• ${hoveredTime}`}</span>
+          ) : (
+            <span>Chance</span>
+          )}
+        </div>
+      </div>
+
+      {/* 3. Chart Line */}
+      <div style={{
+        width: 'calc(100% + 32px)', // Compensate for padding
+        marginBottom: '32px',
+        marginLeft: '-16px', // Pull out to edge
+        maxWidth: '100vw',
+        position: 'relative',
+      }}>
+        <ChartMobile
+          data={chartData}
+          title="" // Hidden
+          outcome="Yes"
+          height={250}
+          loading={loading}
+          error={error}
+          hideOverlay={true}
+          onHoverPositionChange={handleChartHover}
+        />
+      </div>
+
+      {/* 4. News Scroll */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0px'
         }}
       >
-        {headline.title}
-      </animated.p>
-    </animated.div>
+        <h2 style={{
+          fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+          fontSize: '18px',
+          fontWeight: 600,
+          color: '#FFFFFF',
+          marginBottom: '16px',
+          opacity: 0.9
+        }}>
+          Related News
+        </h2>
+
+        {displayHeadlines.map((headline, index) => {
+          const isFocused = focusedHeadlineDate === headline.published_at;
+          const priceChange = calculatePriceChange(headline.published_at);
+
+          return (
+            <EventHeadlineItem
+              key={`headline-${headline.id}`}
+              headline={headline}
+              isFocused={isFocused}
+              isDarkMode={true}
+              getSentimentColor={getSentimentColor}
+              isFirst={index === 0}
+              priceChange={priceChange}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }

@@ -43,12 +43,14 @@ export interface ApiErrorResponse {
 export interface MarketSummary {
   id: string;
   polymarket_market_id: string;
+  yes_token_id?: string;
   question: string;
   status: MarketStatus;
   resolution: MarketResolution;
   end_date: string | null;
   pricing: MarketPricing;
   stats: MarketStats;
+  price_history?: PriceHistoryPoint[];
 }
 
 export interface HeadlineItem {
@@ -109,6 +111,7 @@ export interface MarketResolutionDetails {
 export interface MarketDetail {
   id: string;
   polymarket_market_id: string;
+  yes_token_id?: string;
   slug: string;
   question: string;
   description: string | null;

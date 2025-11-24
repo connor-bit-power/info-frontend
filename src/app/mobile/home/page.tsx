@@ -31,7 +31,7 @@ export default function MobileHome() {
   const router = useRouter();
 
   // Use cached headlines hook
-  const { headlines } = useHeadlines();
+  const { headlines, loading } = useHeadlines();
 
   // Calculate popular tags
   const allTags = headlines.flatMap(h => h.tags || []);
@@ -101,6 +101,7 @@ export default function MobileHome() {
               headlines={filteredHeadlines}
               onHeadlineClick={handleHeadlineClick}
               onScroll={handleScroll}
+              loading={loading}
             />
           </animated.div>
         </>

@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { motion, useSpring } from 'framer-motion';
 
 interface CountingNumberProps {
   number: number;
   decimalPlaces?: number;
+  suffix?: string;
   transition?: {
     stiffness?: number;
     damping?: number;
@@ -15,10 +16,13 @@ interface CountingNumberProps {
 export default function CountingNumber({ 
   number, 
   decimalPlaces = 0,
+  suffix = '',
   transition = { stiffness: 300, damping: 30 }
 }: CountingNumberProps) {
   const spring = useSpring(number, transition);
-  const [displayValue, setDisplayValue] = useState(Math.round(number));
+  const [displayValue, setDisplayValue] = useState(
+    decimalPlaces > 0 ? number.toFixed(decimalPlaces) : Math.round(number)
+  );
   const previousNumber = useRef(number);
 
   useEffect(() => {
@@ -30,12 +34,15 @@ export default function CountingNumber({
 
   useEffect(() => {
     const unsubscribe = spring.on('change', (latest) => {
-      setDisplayValue(Math.round(latest));
+      const formatted = decimalPlaces > 0 
+        ? latest.toFixed(decimalPlaces) 
+        : Math.round(latest);
+      setDisplayValue(formatted);
     });
     
     return () => unsubscribe();
-  }, [spring]);
+  }, [spring, decimalPlaces]);
 
-  return <motion.span>{displayValue}% Chance</motion.span>;
+  return <motion.span>{displayValue}{suffix}</motion.span>;
 }
 

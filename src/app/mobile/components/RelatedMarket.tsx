@@ -1,24 +1,80 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import type { MarketSummary } from '@/types/news-api';
 
 interface RelatedMarketProps {
     market: MarketSummary;
+    showTitle?: boolean;
+    customTitle?: string;
+    publishedAt?: string;
 }
 
-export default function RelatedMarket({ market }: RelatedMarketProps) {
-    const router = useRouter();
+export default function RelatedMarket({ market, showTitle = true, customTitle, publishedAt }: RelatedMarketProps) {
+    const [fetchedChange, setFetchedChange] = useState<number | null>(null);
 
-    const handleClick = () => {
-        // Use slug or polymarket_market_id as the route parameter since the API expects these identifiers
-        const marketIdentifier = market.slug || market.polymarket_market_id || market.id;
-        router.push(`/mobile/market/${marketIdentifier}`);
-    };
+    // Use slug or polymarket_market_id as the route parameter since the API expects these identifiers
+    const marketIdentifier = (market as any).slug || market.polymarket_market_id || market.id;
+    const href = `/mobile/market/${marketIdentifier}`;
+
+    useEffect(() => {
+        const fetchPriceAtPub = async () => {
+            if (!publishedAt || !market.yes_token_id) return;
+
+            try {
+                const pubTimestamp = Math.floor(new Date(publishedAt).getTime() / 1000);
+                // Fetch a small window around the publication time (e.g. +/- 1 hour) to be safe,
+                // or just use the closest point available.
+                // Using Polymarket CLOB API: prices-history?market={token_id}&start={ts}&end={ts}&interval=...
+                // We'll fetch 1h history around the pub time.
+                const start = pubTimestamp - 3600;
+                const end = pubTimestamp + 3600;
+                
+                const response = await fetch(
+                    `https://clob.polymarket.com/prices-history?market=${market.yes_token_id}&start_ts=${start}&end_ts=${end}&interval=1m&fidelity=1`
+                );
+                
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                const history = data.history || [];
+                
+                if (history.length === 0) return;
+
+                // Find the closest point to pubTimestamp
+                let closestPrice = 0;
+                let minDiff = Infinity;
+
+                for (const point of history) {
+                    const t = point.t; // timestamp in seconds
+                    const diff = Math.abs(t - pubTimestamp);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestPrice = Number(point.p); // price
+                    }
+                }
+
+                if (closestPrice > 0) {
+                    const currentPrice = market.pricing.last_price_yes || 0;
+                    const change = ((currentPrice - closestPrice) / closestPrice) * 100;
+                    setFetchedChange(change);
+                }
+            } catch (err) {
+                console.error('Failed to fetch history', err);
+            }
+        };
+
+        // Only fetch if we don't have history already provided or if we want to be precise
+        // The user request implies "make a request", so we prefer the fetch if token ID is available.
+        if (market.yes_token_id && publishedAt) {
+            fetchPriceAtPub();
+        }
+    }, [market.yes_token_id, publishedAt, market.pricing.last_price_yes]);
 
     return (
-        <div
-            onClick={handleClick}
+        <Link
+            href={href}
             style={{
                 backgroundColor: 'rgba(217, 217, 217, 0.10)',
                 borderRadius: '8px',
@@ -29,6 +85,7 @@ export default function RelatedMarket({ market }: RelatedMarketProps) {
                 fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
                 cursor: 'pointer',
                 transition: 'background-color 0.2s ease',
+                textDecoration: 'none', // Ensure no underline from Link
             }}
             onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = 'rgba(217, 217, 217, 0.15)';
@@ -47,16 +104,18 @@ export default function RelatedMarket({ market }: RelatedMarketProps) {
                 }}
             >
                 {/* Question */}
-                <div
-                    style={{
-                        color: 'white',
-                        fontSize: '15px',
-                        fontWeight: 500,
-                        lineHeight: '1.3',
-                    }}
-                >
-                    {market.question}
-                </div>
+                {showTitle && (
+                    <div
+                        style={{
+                            color: 'white',
+                            fontSize: '15px',
+                            fontWeight: 500,
+                            lineHeight: '1.3',
+                        }}
+                    >
+                        {customTitle || market.question}
+                    </div>
+                )}
 
                 {/* Change Since This News */}
                 <div
@@ -66,8 +125,42 @@ export default function RelatedMarket({ market }: RelatedMarketProps) {
                         lineHeight: '1.3',
                     }}
                 >
-                    <span style={{ color: '#34D399' }}>+10%</span>{' '}
-                    <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>since this news</span>
+                    {(() => {
+                        // Use fetched change if available, otherwise fall back to existing logic
+                        let changePercent = fetchedChange ?? 0;
+                        let hasCalculated = fetchedChange !== null;
+
+                        if (!hasCalculated && publishedAt && market.price_history && market.price_history.length > 0) {
+                            const pubDate = new Date(publishedAt).getTime();
+                            let priceAtPub = market.price_history[0].yes_price; 
+
+                            for (let i = 0; i < market.price_history.length; i++) {
+                                const pointTime = new Date(market.price_history[i].timestamp).getTime();
+                                if (pointTime <= pubDate) {
+                                    priceAtPub = market.price_history[i].yes_price;
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            const currentPrice = market.pricing.last_price_yes || 0;
+                            if (priceAtPub > 0) {
+                                changePercent = ((currentPrice - priceAtPub) / priceAtPub) * 100;
+                                hasCalculated = true;
+                            }
+                        }
+
+                        const isPositive = changePercent >= 0;
+                        const color = isPositive ? '#34D399' : '#EF4444'; // Green or Red
+                        const sign = isPositive ? '+' : '';
+
+                        return (
+                            <>
+                                <span style={{ color }}>{sign}{changePercent.toFixed(0)}%</span>{' '}
+                                <span style={{ marginLeft: '2px', color: 'rgba(255, 255, 255, 0.7)' }}> since this news</span>
+                            </>
+                        );
+                    })()}
                 </div>
 
                 {/* Metadata */}
@@ -109,6 +202,6 @@ export default function RelatedMarket({ market }: RelatedMarketProps) {
                     fillOpacity="0.85"
                 />
             </svg>
-        </div>
+        </Link>
     );
 }

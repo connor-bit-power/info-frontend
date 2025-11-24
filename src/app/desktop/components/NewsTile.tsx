@@ -38,7 +38,7 @@ export default function NewsTile({
   isResizing,
 }: NewsTileProps) {
   // Use cached headlines hook
-  const { headlines } = useHeadlines();
+  const { headlines, loading } = useHeadlines();
 
   // Get the headlines to display (newest first)
   const displayHeadlines = headlines;
@@ -101,45 +101,51 @@ export default function NewsTile({
               msOverflowStyle: 'none',
             }}
           >
-            {displayHeadlines.map((headline, index) => (
-              <motion.div
-                key={`headline-${headline.id}`}
-                initial={index === 0 ? { opacity: 0 } : false}
-                animate={{ opacity: 1 }}
-                layout="position"
-                transition={{
-                  opacity: { duration: 0.5 },
-                  layout: {
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30
-                  }
-                }}
-                style={{
-                  marginTop: index === 0 ? '12px' : '21px',
-                  position: 'relative',
-                }}
-              >
-                {/* Category dot removed as it's not in schema */}
-                <p
-                  className={isDarkMode ? 'text-white' : ''}
+            {loading ? (
+              <div className="flex items-center justify-center h-full w-full">
+                <img src="/white.gif" alt="Loading..." className="w-8 h-8 opacity-50" />
+              </div>
+            ) : (
+              displayHeadlines.map((headline, index) => (
+                <motion.div
+                  key={`headline-${headline.id}`}
+                  initial={index === 0 ? { opacity: 0 } : false}
+                  animate={{ opacity: 1 }}
+                  layout="position"
+                  transition={{
+                    opacity: { duration: 0.5 },
+                    layout: {
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30
+                    }
+                  }}
                   style={{
-                    fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                    fontSize: '16px',
-                    fontWeight: 400,
-                    lineHeight: '1.3',
-                    overflow: 'hidden',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    textOverflow: 'ellipsis',
-                    color: isDarkMode ? 'white' : '#181818',
+                    marginTop: index === 0 ? '12px' : '21px',
+                    position: 'relative',
                   }}
                 >
-                  {headline.title}
-                </p>
-              </motion.div>
-            ))}
+                  {/* Category dot removed as it's not in schema */}
+                  <p
+                    className={isDarkMode ? 'text-white' : ''}
+                    style={{
+                      fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                      fontSize: '16px',
+                      fontWeight: 400,
+                      lineHeight: '1.3',
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      textOverflow: 'ellipsis',
+                      color: isDarkMode ? 'white' : '#181818',
+                    }}
+                  >
+                    {headline.title}
+                  </p>
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </Tile>

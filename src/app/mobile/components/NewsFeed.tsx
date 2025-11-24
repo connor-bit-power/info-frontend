@@ -7,9 +7,10 @@ interface NewsFeedProps {
   headlines: HeadlineItem[];
   onHeadlineClick: (headline: HeadlineItem, index: number) => void;
   onScroll?: (scrollProgress: number) => void;
+  loading?: boolean;
 }
 
-export default function NewsFeed({ headlines, onHeadlineClick, onScroll }: NewsFeedProps) {
+export default function NewsFeed({ headlines, onHeadlineClick, onScroll, loading }: NewsFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -64,22 +65,28 @@ export default function NewsFeed({ headlines, onHeadlineClick, onScroll }: NewsF
             display: none;
           }
         `}</style>
-        {headlines.map((headline, index) => (
-          <div
-            key={headline.id}
-            className="text-[#E0E0E0] cursor-pointer hover:opacity-70 transition-opacity"
-            style={{
-              fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-              fontSize: '21px',
-              fontWeight: 'normal',
-              lineHeight: '25px',
-              marginBottom: '21px'
-            }}
-            onClick={() => onHeadlineClick(headline, index)}
-          >
-            {headline.title}
+        {loading ? (
+          <div className="flex items-center justify-center h-full w-full">
+            <img src="/white.gif" alt="Loading..." className="w-8 h-8 opacity-50" />
           </div>
-        ))}
+        ) : (
+          headlines.map((headline, index) => (
+            <div
+              key={headline.id}
+              className="text-[#E0E0E0] cursor-pointer hover:opacity-70 transition-opacity"
+              style={{
+                fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                fontSize: '21px',
+                fontWeight: 'normal',
+                lineHeight: '25px',
+                marginBottom: '21px'
+              }}
+              onClick={() => onHeadlineClick(headline, index)}
+            >
+              {headline.title}
+            </div>
+          ))
+        )}
       </div>
     </>
   );

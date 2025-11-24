@@ -56,15 +56,18 @@ export default function Header({ selectedTab, onTabChange, scrollProgress = 0, t
           }}
         />
       </div>
- {/* Pill Buttons Scroll Container */}
+
+
+      {/* Pill Buttons Scroll Container */}
       <div
-        className="w-full transition-all duration-300 ease-out overflow-hidden"
+        className="w-full transition-all duration-300 ease-out overflow-hidden mt-[-10px]"
         style={{
           opacity: pillOpacity,
           maxHeight: pillOpacity > 0 ? '100px' : '0px',
           pointerEvents: pillOpacity < 0.5 ? 'none' : 'auto',
         }}
       >
+        <h2 className="text-white text-2xl font-medium text-center mb-4">infomarket</h2>
         <div
           ref={scrollContainerRef}
           className="flex gap-3 overflow-x-auto hide-scrollbar"

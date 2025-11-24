@@ -3,7 +3,7 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import PillButton from '../../components/PillButton';
 
-export type ComponentType = 'news' | 'chart' | 'calendar' | 'profile' | 'explorer';
+export type ComponentType = 'news' | 'chart' | 'calendar' | 'profile' | 'explorer' | 'indicies' | 'index';
 
 interface TopNavProps {
   isDarkMode?: boolean;
@@ -48,6 +48,8 @@ const TopNav = forwardRef<TopNavRef, TopNavProps>(({ isDarkMode, setIsDarkMode, 
         return 'Calendar';
       case 'explorer':
         return 'Explorer';
+      case 'indicies':
+        return 'Indicies';
       default:
         return type;
     }

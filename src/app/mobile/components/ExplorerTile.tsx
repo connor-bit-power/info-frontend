@@ -3,7 +3,7 @@
 import Tile from './Tile';
 import MarketTile from './MarketTile';
 import { motion } from 'framer-motion';
-import { useEvents } from '../../../lib/hooks/useEvents';
+import { useState, useEffect } from 'react';
 
 interface ExplorerTileProps {
     isDarkMode?: boolean;
@@ -12,12 +12,24 @@ interface ExplorerTileProps {
 }
 
 export default function ExplorerTile({ isDarkMode = true, className, style }: ExplorerTileProps) {
-    const { events, isLoading } = useEvents({
-        limit: 20,
-        order: 'volume',
-        ascending: false,
-        closed: false,
-    });
+    const [events, setEvents] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchMarkets = async () => {
+            try {
+                const response = await fetch('http://localhost:8082/api/markets/search?limit=20&active=true&closed=false&sortBy=volume&order=desc&minVolume=1000');
+                const data = await response.json();
+                setEvents(data.items || []);
+            } catch (error) {
+                console.error('Failed to fetch markets:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchMarkets();
+    }, []);
 
     // Helper to format volume
     const formatVolume = (vol: number | undefined | null) => {
@@ -54,7 +66,7 @@ export default function ExplorerTile({ isDarkMode = true, className, style }: Ex
                             color: isDarkMode ? 'white' : '#181818',
                             letterSpacing: '-0.02em'
                         }}>
-                            Market Explorer
+                            Markets
                         </h2>
                     </div>
                 </div>
@@ -93,79 +105,47 @@ export default function ExplorerTile({ isDarkMode = true, className, style }: Ex
                                 />
                             ))
                         ) : (
-                            events.map((event) => {
-                                const volume = event.volume || 0;
+                            events.map((market) => {
+                                // Map API market data to MarketTile props
+                                const volume = market.volume || 0;
+                                const title = market.question || market.title || 'Untitled';
+                                const image = market.image || market.icon;
 
                                 // Determine if this is a multi-outcome event
-                                // Multi-outcome events have multiple markets (one per driver/candidate)
-                                const isMultiOutcome = event.markets && event.markets.length > 1;
-
+                                // The API returns markets, so we check outcomes array
                                 let variant: 'yesno' | 'multi' = 'yesno';
                                 let outcomes: { name: string; percent: number }[] = [];
                                 let chance: number | undefined;
 
-                                if (isMultiOutcome) {
-                                    // Multi-outcome: aggregate all markets
-                                    variant = 'multi';
-
-                                    outcomes = event.markets!
-                                        .map(market => {
-                                            // Use groupItemTitle for clean name (e.g., "Max Verstappen" instead of full question)
-                                            const name = market.groupItemTitle || market.question || 'Unknown';
-
-                                            // Get probability from outcomePrices[0] (Yes price)
-                                            let price = 0;
-                                            try {
-                                                const pricesStr = market.outcomePrices;
-                                                if (pricesStr) {
-                                                    const prices = JSON.parse(pricesStr);
-                                                    price = Number(prices[0]) || 0;
-                                                }
-                                            } catch (e) {
-                                                console.error('Error parsing prices for market', market.id, e);
-                                            }
-
-                                            return {
-                                                name,
-                                                price,
-                                                percent: Math.round(price * 100)
-                                            };
-                                        })
-                                        .filter(o => o.price > 0) // Filter out markets with no price data
-                                        .sort((a, b) => b.price - a.price); // Sort by probability descending
-                                } else if (event.markets && event.markets.length === 1) {
-                                    // Single market: check if it's Yes/No or multi-outcome
-                                    const market = event.markets[0];
+                                try {
                                     const outcomesStr = market.outcomes;
                                     const pricesStr = market.outcomePrices;
 
-                                    try {
-                                        const parsedOutcomes = outcomesStr ? JSON.parse(outcomesStr) : [];
-                                        const parsedPrices = pricesStr ? JSON.parse(pricesStr) : [];
+                                    const parsedOutcomes = outcomesStr ? JSON.parse(outcomesStr) : [];
+                                    const parsedPrices = pricesStr ? JSON.parse(pricesStr) : [];
 
-                                        if (parsedOutcomes.length === 2 && parsedOutcomes[0] === 'Yes' && parsedOutcomes[1] === 'No') {
-                                            variant = 'yesno';
-                                            chance = Math.round((Number(parsedPrices[0]) || 0) * 100);
-                                        } else {
-                                            variant = 'multi';
-                                            const combined = parsedOutcomes.map((name: string, idx: number) => ({
-                                                name,
-                                                price: Number(parsedPrices[idx]) || 0
-                                            })).sort((a: any, b: any) => b.price - a.price);
+                                    if (parsedOutcomes.length === 2 && parsedOutcomes[0] === 'Yes' && parsedOutcomes[1] === 'No') {
+                                        variant = 'yesno';
+                                        chance = Math.round((Number(parsedPrices[0]) || 0) * 100);
+                                    } else {
+                                        variant = 'multi';
+                                        const combined = parsedOutcomes.map((name: string, idx: number) => ({
+                                            name,
+                                            price: Number(parsedPrices[idx]) || 0
+                                        })).sort((a: any, b: any) => b.price - a.price);
 
-                                            outcomes = combined.map((c: any) => ({
-                                                name: c.name,
-                                                percent: Math.round(c.price * 100)
-                                            }));
-                                        }
-                                    } catch (e) {
-                                        console.error('Error parsing market data', e);
+                                        outcomes = combined.map((c: any) => ({
+                                            name: c.name,
+                                            percent: Math.round(c.price * 100)
+                                        }));
                                     }
+                                } catch (e) {
+                                    console.error('Error parsing market data', e);
                                 }
 
                                 return (
                                     <motion.div
-                                        key={event.id}
+                                        key={market.id}
                                         style={{
                                             height: '100%',
                                             cursor: 'pointer',
@@ -173,10 +153,10 @@ export default function ExplorerTile({ isDarkMode = true, className, style }: Ex
                                     >
                                         <MarketTile
                                             variant={variant}
-                                            title={event.title || 'Untitled'}
+                                            title={title}
                                             volume={formatVolume(volume)}
-                                            imageColor={getImageColor(event.title || '')}
-                                            imageUrl={event.image || event.icon || undefined}
+                                            imageColor={getImageColor(title)}
+                                            imageUrl={image}
                                             outcomes={outcomes}
                                             chance={chance}
                                             isDarkMode={isDarkMode}
