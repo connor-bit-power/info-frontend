@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
 import CountingNumber from '../app/components/CountingNumber';
 
@@ -35,6 +35,59 @@ interface ChartMobileProps {
 
 type Timeframe = '1D' | '1W' | '1M' | 'ALL';
 
+// Color palette for multi-outcome charts
+const CHART_COLORS = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0'];
+
+// Chart margin configuration
+const CHART_MARGINS = {
+  top: 60,
+  topCompact: 10,
+  right: 0,
+  bottom: 30,
+  left: 0, // Changed to 0 - we'll hide y-axis labels with CSS instead
+};
+
+/**
+ * Calculate Y-axis range with padding for visualization
+ */
+function calculateYRange(values: number[]): { min: number; max: number } {
+  if (values.length === 0) return { min: 0, max: 100 };
+
+  const dataMin = Math.min(...values);
+  const dataMax = Math.max(...values);
+  const range = dataMax - dataMin;
+  const padding = range * 0.1;
+
+  let min = Math.max(0, dataMin - padding);
+  let max = Math.min(100, dataMax + padding);
+
+  // Ensure minimum range of 5% for flat data
+  if (max - min < 5) {
+    const center = (max + min) / 2;
+    min = Math.max(0, center - 2.5);
+    max = Math.min(100, center + 2.5);
+  }
+
+  return { min, max };
+}
+
+/**
+ * Filter data points based on selected timeframe
+ */
+function filterByTimeframe(history: PriceHistoryPoint[], timeframe: Timeframe): PriceHistoryPoint[] {
+  if (timeframe === 'ALL' || history.length === 0) return history;
+
+  const now = Date.now() / 1000;
+  const cutoffs: Record<Exclude<Timeframe, 'ALL'>, number> = {
+    '1D': 24 * 60 * 60,
+    '1W': 7 * 24 * 60 * 60,
+    '1M': 30 * 24 * 60 * 60,
+  };
+
+  const cutoffTime = now - cutoffs[timeframe];
+  return history.filter(point => point.t >= cutoffTime);
+}
+
 export default function ChartMobile({
   data,
   series,
@@ -49,102 +102,220 @@ export default function ChartMobile({
   hideOverlay = false,
 }: ChartMobileProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const [focusedValues, setFocusedValues] = useState<{ [key: string]: number }>({});
-  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
-  const [hoveredTime, setHoveredTime] = useState<string | null>(null);
-  const [hoverXPosition, setHoverXPosition] = useState<number | null>(null);
-  const [hoverYPositions, setHoverYPositions] = useState<{ [key: string]: number }>({});
-  const [containerWidth, setContainerWidth] = useState<number>(0);
-  const [isTouching, setIsTouching] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>('ALL');
-  
-  // Track initial touch position to detect scroll vs chart interaction
+  const [containerWidth, setContainerWidth] = useState<number>(0);
+
+  // Hover state - store actual pixel positions from SVG
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isInteracting, setIsInteracting] = useState(false);
+
+  // Touch tracking refs
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
-  const isScrolling = useRef<boolean>(false);
+  const isScrolling = useRef(false);
 
-  // Determine if we're using single data prop or series prop
-  const seriesData = series || (data ? [{ label: outcome, data }] : []);
+  // Normalize input: convert single data prop to series format
+  const seriesData = useMemo(() => {
+    return series || (data ? [{ label: outcome, data }] : []);
+  }, [series, data, outcome]);
 
-  // Color palette for multi-outcome charts
-  const colors = [
-    '#2196F3', // Blue
-    '#4CAF50', // Green
-    '#FF9800', // Orange
-    '#9C27B0', // Purple
-  ];
-
-  // Filter data based on selected timeframe
-  const filterDataByTimeframe = (history: PriceHistoryPoint[]): PriceHistoryPoint[] => {
-    if (selectedTimeframe === 'ALL' || history.length === 0) {
-      return history;
+  // Process chart data based on timeframe
+  const { xAxisData, datasets, yRange } = useMemo(() => {
+    if (seriesData.length === 0 || !seriesData[0].data?.history) {
+      return { xAxisData: [], datasets: [], yRange: { min: 0, max: 100 } };
     }
 
-    const now = Date.now() / 1000; // Current time in Unix timestamp
-    let cutoffTime = 0;
+    // Use first series to establish x-axis (timestamps should be aligned)
+    const filteredHistory = filterByTimeframe(seriesData[0].data.history, selectedTimeframe);
+    const xAxis = filteredHistory.map(point => new Date(point.t * 1000));
 
-    switch (selectedTimeframe) {
-      case '1D':
-        cutoffTime = now - (24 * 60 * 60); // 1 day
-        break;
-      case '1W':
-        cutoffTime = now - (7 * 24 * 60 * 60); // 1 week
-        break;
-      case '1M':
-        cutoffTime = now - (30 * 24 * 60 * 60); // 30 days
-        break;
-    }
-
-    return history.filter(point => point.t >= cutoffTime);
-  };
-
-  // Transform data for MUI X Charts
-  let xAxisData: Date[] = [];
-  const yAxisDatasets: { label: string; data: number[]; color?: string }[] = [];
-
-  if (seriesData.length > 0 && seriesData[0].data?.history) {
-    const filteredHistory = filterDataByTimeframe(seriesData[0].data.history);
-    xAxisData = filteredHistory.map((point) => new Date(point.t * 1000));
-
-    seriesData.forEach((s, index) => {
-      if (s.data?.history) {
-        const filteredSeriesHistory = filterDataByTimeframe(s.data.history);
-        const yData = filteredSeriesHistory.map((point) => point.p * 100);
-        yAxisDatasets.push({
+    // Process each series
+    const processedDatasets = seriesData
+      .filter(s => s.data?.history)
+      .map((s, index) => {
+        const filtered = filterByTimeframe(s.data!.history, selectedTimeframe);
+        return {
           label: s.label,
-          data: yData,
-          color: s.color || (seriesData.length > 1 ? colors[index % colors.length] : undefined),
-        });
+          data: filtered.map(point => point.p * 100),
+          color: s.color || (seriesData.length > 1 ? CHART_COLORS[index % CHART_COLORS.length] : undefined),
+        };
+      });
+
+    // Calculate Y range from all data points
+    const allValues = processedDatasets.flatMap(d => d.data);
+    const range = calculateYRange(allValues);
+
+    return { xAxisData: xAxis, datasets: processedDatasets, yRange: range };
+  }, [seriesData, selectedTimeframe]);
+
+  // Current display values (hovered or latest)
+  const displayValues = useMemo(() => {
+    const values: Record<string, number> = {};
+    datasets.forEach(dataset => {
+      if (dataset.data.length > 0) {
+        const index = hoverIndex !== null ? hoverIndex : dataset.data.length - 1;
+        values[dataset.label] = dataset.data[index] ?? dataset.data[dataset.data.length - 1];
       }
     });
-  }
+    return values;
+  }, [datasets, hoverIndex]);
 
-  // Calculate dynamic Y-axis range based on data
-  let yMin = 0;
-  let yMax = 100;
-  
-  if (yAxisDatasets.length > 0) {
-    const allValues = yAxisDatasets.flatMap(dataset => dataset.data);
-    if (allValues.length > 0) {
-      const dataMin = Math.min(...allValues);
-      const dataMax = Math.max(...allValues);
-      
-      // Add 5% padding above and below for better visualization
-      const range = dataMax - dataMin;
-      const padding = range * 0.1;
-      
-      yMin = Math.max(0, dataMin - padding);
-      yMax = Math.min(100, dataMax + padding);
-      
-      // Ensure minimum range of 5% for very flat data
-      if (yMax - yMin < 5) {
-        const center = (yMax + yMin) / 2;
-        yMin = Math.max(0, center - 2.5);
-        yMax = Math.min(100, center + 2.5);
+  // Hovered date/time strings
+  const hoveredDateTime = useMemo(() => {
+    if (hoverIndex === null || !xAxisData[hoverIndex]) return null;
+    const date = xAxisData[hoverIndex];
+    return {
+      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      time: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+    };
+  }, [hoverIndex, xAxisData]);
+
+  // Parse the SVG path to extract actual point coordinates
+  const getPathPoints = useCallback((): { x: number; y: number }[] => {
+    if (!chartContainerRef.current) return [];
+
+    const pathElement = chartContainerRef.current.querySelector('.MuiLineElement-root') as SVGPathElement;
+    if (!pathElement) return [];
+
+    const d = pathElement.getAttribute('d');
+    if (!d) return [];
+
+    // Parse path commands - linear paths use M (move) and L (line) commands
+    const points: { x: number; y: number }[] = [];
+    const commands = d.match(/[ML][^ML]*/g);
+
+    if (commands) {
+      for (const cmd of commands) {
+        const coords = cmd.slice(1).trim().split(/[\s,]+/).map(Number);
+        if (coords.length >= 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+          points.push({ x: coords[0], y: coords[1] });
+        }
       }
     }
-  }
 
-  // Track container width for responsive title sizing
+    return points;
+  }, []);
+
+  // Get position for a data index by reading from the actual SVG path
+  const getPointPosition = useCallback((index: number): { x: number; y: number } | null => {
+    const points = getPathPoints();
+    if (index < 0 || index >= points.length) return null;
+    return points[index];
+  }, [getPathPoints]);
+
+  // Convert client X coordinate to data index and get position
+  const getDataIndexFromX = useCallback((clientX: number): { index: number; position: { x: number; y: number } } | null => {
+    if (!chartContainerRef.current || xAxisData.length < 2) return null;
+
+    const rect = chartContainerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+
+    const points = getPathPoints();
+    if (points.length === 0) return null;
+
+    // Find the nearest point by X coordinate
+    let nearestIndex = 0;
+    let nearestDiff = Math.abs(points[0].x - x);
+
+    for (let i = 1; i < points.length; i++) {
+      const diff = Math.abs(points[i].x - x);
+      if (diff < nearestDiff) {
+        nearestDiff = diff;
+        nearestIndex = i;
+      }
+    }
+
+    return { index: nearestIndex, position: points[nearestIndex] };
+  }, [xAxisData.length, getPathPoints]);
+
+  // Update hover state and notify parent
+  const updateHover = useCallback((result: { index: number; position: { x: number; y: number } } | null) => {
+    if (!result) {
+      setHoverIndex(null);
+      setHoverPosition(null);
+      if (onHoverPositionChange) {
+        onHoverPositionChange(null);
+      }
+      return;
+    }
+
+    setHoverIndex(result.index);
+    setHoverPosition(result.position);
+
+    if (onHoverPositionChange && datasets.length > 0 && xAxisData[result.index]) {
+      const percentage = (result.index / Math.max(1, datasets[0].data.length - 1)) * 100;
+      const price = datasets[0].data[result.index];
+      onHoverPositionChange(percentage, xAxisData[result.index], price);
+    }
+  }, [datasets, xAxisData, onHoverPositionChange]);
+
+  // Reset hover state
+  const resetHover = useCallback(() => {
+    setHoverIndex(null);
+    setHoverPosition(null);
+    setIsInteracting(false);
+    if (onHoverPositionChange) {
+      onHoverPositionChange(null);
+    }
+  }, [onHoverPositionChange]);
+
+  // Touch handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 0) return;
+
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    isScrolling.current = false;
+    setIsInteracting(true);
+
+    const result = getDataIndexFromX(touch.clientX);
+    updateHover(result);
+  }, [getDataIndexFromX, updateHover]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 0 || !touchStartPos.current) return;
+
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+
+    // Detect vertical scroll
+    if (!isScrolling.current && deltaY > deltaX && deltaY > 5) {
+      isScrolling.current = true;
+    }
+
+    // Only update hover if not scrolling
+    if (!isScrolling.current) {
+      const result = getDataIndexFromX(touch.clientX);
+      updateHover(result);
+    }
+  }, [getDataIndexFromX, updateHover]);
+
+  const handleTouchEnd = useCallback(() => {
+    touchStartPos.current = null;
+    isScrolling.current = false;
+    resetHover();
+  }, [resetHover]);
+
+  // Mouse handlers
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const result = getDataIndexFromX(e.clientX);
+    updateHover(result);
+  }, [getDataIndexFromX, updateHover]);
+
+  const handleMouseDown = useCallback(() => {
+    setIsInteracting(true);
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    setIsInteracting(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    resetHover();
+  }, [resetHover]);
+
+  // Track container width
   useEffect(() => {
     const updateWidth = () => {
       if (chartContainerRef.current) {
@@ -157,206 +328,10 @@ export default function ChartMobile({
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  // Set initial focused values to latest data points
-  useEffect(() => {
-    if (yAxisDatasets.length > 0) {
-      const initialValues: { [key: string]: number } = {};
-      yAxisDatasets.forEach((dataset) => {
-        if (dataset.data.length > 0) {
-          initialValues[dataset.label] = dataset.data[dataset.data.length - 1];
-        }
-      });
-      setFocusedValues(initialValues);
-    } else {
-      setFocusedValues({});
-    }
-  }, [data, series, outcome, yAxisDatasets.length]);
+  // Loading state
+  if (loading) return null;
 
-  // Handle continuous touch/mouse tracking
-  const updatePosition = (clientX: number) => {
-    if (chartContainerRef.current && xAxisData.length > 0) {
-      const rect = chartContainerRef.current.getBoundingClientRect();
-      const x = clientX - rect.left;
-
-      // Account for the chart's left margin (-50px) and right margin (0px)
-      const leftMargin = -50;
-      const rightMargin = 0;
-      const chartWidth = rect.width;
-      const plotWidth = chartWidth - leftMargin - rightMargin;
-      
-      // Adjust x position to account for left margin
-      const xInPlot = x - leftMargin;
-      
-      // Calculate percentage based on the actual plot area
-      const percentage = Math.max(0, Math.min(100, (xInPlot / plotWidth) * 100));
-
-      // Calculate the corresponding data point index and values
-      const dataIndex = Math.floor((percentage / 100) * (yAxisDatasets[0]?.data.length - 1 || 0));
-      
-      // Calculate the actual X position based on the data index (not the mouse position)
-      // This ensures the line/dot align exactly with the data point
-      const actualPercentage = dataIndex / Math.max(1, (yAxisDatasets[0]?.data.length - 1 || 1));
-      const actualXInPlot = actualPercentage * plotWidth;
-      const actualX = actualXInPlot + leftMargin;
-      setHoverXPosition(actualX);
-      
-      const newFocusedValues: { [key: string]: number } = {};
-      const newYPositions: { [key: string]: number } = {};
-      
-      // Calculate Y positions for dots
-      // Chart height minus margins (top + bottom)
-      const chartHeight = height;
-      const topMargin = hideOverlay ? 10 : 60;
-      const bottomMargin = 10;
-      const plotHeight = chartHeight - topMargin - bottomMargin;
-      
-      // Calculate dynamic Y range for current data
-      const allValues = yAxisDatasets.flatMap(d => d.data);
-      let localYMin = 0;
-      let localYMax = 100;
-      
-      if (allValues.length > 0) {
-        const dataMin = Math.min(...allValues);
-        const dataMax = Math.max(...allValues);
-        const range = dataMax - dataMin;
-        const padding = range * 0.1;
-        
-        localYMin = Math.max(0, dataMin - padding);
-        localYMax = Math.min(100, dataMax + padding);
-        
-        if (localYMax - localYMin < 5) {
-          const center = (localYMax + localYMin) / 2;
-          localYMin = Math.max(0, center - 2.5);
-          localYMax = Math.min(100, center + 2.5);
-        }
-      }
-      
-      const yRange = localYMax - localYMin;
-      
-      yAxisDatasets.forEach((dataset) => {
-        if (dataset.data[dataIndex] !== undefined) {
-          const value = dataset.data[dataIndex];
-          newFocusedValues[dataset.label] = value;
-          
-          // Y position: value is scaled to dynamic range, chart Y goes from top to bottom
-          // So localYMax should be at topMargin, localYMin should be at (topMargin + plotHeight)
-          const yPercent = (value - localYMin) / yRange;
-          const yPos = topMargin + (plotHeight * (1 - yPercent));
-          newYPositions[dataset.label] = yPos;
-        }
-      });
-      
-      setFocusedValues(newFocusedValues);
-      setHoverYPositions(newYPositions);
-
-      // Use the actual data point's date (not interpolated)
-      const hoveredDateObj = xAxisData[dataIndex];
-      const formattedDate = hoveredDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const formattedTime = hoveredDateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-      setHoveredDate(formattedDate);
-      setHoveredTime(formattedTime);
-
-      // Notify parent component with the actual percentage and price value
-      if (onHoverPositionChange) {
-        // Get the actual price value at this data point (same as what's displayed)
-        const hoveredPrice = newFocusedValues[yAxisDatasets[0]?.label];
-        onHoverPositionChange(actualPercentage * 100, hoveredDateObj, hoveredPrice);
-      }
-    }
-  };
-
-  // Touch start handler
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length > 0) {
-      // Record initial touch position
-      touchStartPos.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-      };
-      isScrolling.current = false;
-      setIsTouching(true);
-      updatePosition(e.touches[0].clientX);
-    }
-  };
-
-  // Touch move handler - continuously follows finger
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length > 0 && touchStartPos.current) {
-      const touch = e.touches[0];
-      const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
-      const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
-      
-      // Detect if this is a vertical scroll (not determined yet)
-      if (!isScrolling.current && deltaY > 0) {
-        // If vertical movement is greater than horizontal, it's a scroll
-        if (deltaY > deltaX) {
-          isScrolling.current = true;
-        }
-      }
-      
-      // Only update chart position if not scrolling vertically
-      if (!isScrolling.current) {
-        updatePosition(touch.clientX);
-      }
-    }
-  };
-
-  // Touch end handler
-  const handleTouchEnd = () => {
-    touchStartPos.current = null;
-    isScrolling.current = false;
-    setIsTouching(false);
-    resetToLatest();
-  };
-
-  // Mouse handlers for desktop compatibility
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    setIsTouching(true);
-    updatePosition(e.clientX);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Always update position on mouse move (hover), not just when dragging
-    updatePosition(e.clientX);
-  };
-
-  const handleMouseUp = () => {
-    setIsTouching(false);
-    resetToLatest();
-  };
-
-  const handleMouseLeave = () => {
-    // Always reset on mouse leave
-    setIsTouching(false);
-    resetToLatest();
-  };
-
-  const resetToLatest = () => {
-    setHoveredDate(null);
-    setHoveredTime(null);
-    setHoverXPosition(null);
-    setHoverYPositions({});
-
-    if (onHoverPositionChange) {
-      onHoverPositionChange(null);
-    }
-
-    // Reset to latest values
-    const latestValues: { [key: string]: number } = {};
-    yAxisDatasets.forEach((dataset) => {
-      if (dataset.data.length > 0) {
-        latestValues[dataset.label] = dataset.data[dataset.data.length - 1];
-      }
-    });
-    setFocusedValues(latestValues);
-  };
-
-  // Handle loading state
-  if (loading) {
-    return null;
-  }
-
-  // Handle error state
+  // Error state
   if (error) {
     return (
       <div
@@ -375,8 +350,8 @@ export default function ChartMobile({
     );
   }
 
-  // Handle no data
-  if (seriesData.length === 0 || yAxisDatasets.length === 0) {
+  // No data state
+  if (datasets.length === 0) {
     return (
       <div
         style={{
@@ -393,6 +368,8 @@ export default function ChartMobile({
     );
   }
 
+  const topMargin = hideOverlay ? CHART_MARGINS.topCompact : CHART_MARGINS.top;
+
   return (
     <>
       <style jsx global>{`
@@ -405,6 +382,7 @@ export default function ChartMobile({
           opacity: 0 !important;
         }
       `}</style>
+
       <div style={{ width: '100%', maxWidth: '100%' }}>
         <div
           ref={chartContainerRef}
@@ -417,16 +395,15 @@ export default function ChartMobile({
           onMouseLeave={handleMouseLeave}
           style={{
             borderRadius: '12px',
-            padding: '0px',
             position: 'relative',
-            touchAction: 'pan-y', // Allow vertical scrolling, prevent horizontal pan
-            cursor: isTouching ? 'grabbing' : 'grab',
+            touchAction: 'pan-y',
+            cursor: isInteracting ? 'grabbing' : 'grab',
             width: '100%',
             maxWidth: '100%',
             overflow: 'hidden',
           }}
         >
-          {/* Market title at top - full width */}
+          {/* Title overlay */}
           {!hideOverlay && title && (
             <h1
               className="text-white font-semibold"
@@ -442,17 +419,14 @@ export default function ChartMobile({
                 maxWidth: containerWidth > 0 ? `${containerWidth - 20}px` : '100%',
                 paddingRight: '10px',
                 lineHeight: '1.2',
-                whiteSpace: 'normal',
-                wordBreak: 'normal',
-                overflowWrap: 'normal',
-                pointerEvents: 'none', // Don't interfere with chart interaction
+                pointerEvents: 'none',
               }}
             >
               {title}
             </h1>
           )}
 
-          {/* Odds display - positioned below title */}
+          {/* Values overlay */}
           {!hideOverlay && (
             <div
               style={{
@@ -461,36 +435,33 @@ export default function ChartMobile({
                 left: '10px',
                 zIndex: 10,
                 textAlign: 'left',
-                pointerEvents: 'none', // Don't interfere with chart interaction
+                pointerEvents: 'none',
               }}
             >
-              {yAxisDatasets.map((dataset) => (
+              {datasets.map(dataset => (
                 <div
                   key={dataset.label}
                   style={{
                     fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
                     color: '#FFFFFF',
-                    marginBottom: yAxisDatasets.length > 1 ? '4px' : '0',
+                    marginBottom: datasets.length > 1 ? '4px' : '0',
                   }}
                 >
-                  {yAxisDatasets.length > 1 && (
-                    <div style={{
-                      fontSize: '11px',
-                      opacity: 0.7,
-                      marginBottom: '0px',
-                      lineHeight: '1.1',
-                    }}>
+                  {datasets.length > 1 && (
+                    <div style={{ fontSize: '11px', opacity: 0.7, lineHeight: '1.1' }}>
                       {dataset.label}
                     </div>
                   )}
-                  <div style={{
-                    fontSize: yAxisDatasets.length > 1 ? '18px' : valueFontSize,
-                    fontWeight: 600,
-                    lineHeight: '1.1',
-                  }}>
-                    {focusedValues[dataset.label] !== undefined ? (
+                  <div
+                    style={{
+                      fontSize: datasets.length > 1 ? '18px' : valueFontSize,
+                      fontWeight: 600,
+                      lineHeight: '1.1',
+                    }}
+                  >
+                    {displayValues[dataset.label] !== undefined ? (
                       <>
-                        <CountingNumber number={focusedValues[dataset.label]} decimalPlaces={0} />
+                        <CountingNumber number={displayValues[dataset.label]} decimalPlaces={0} />
                         <span>% Chance</span>
                       </>
                     ) : (
@@ -502,14 +473,14 @@ export default function ChartMobile({
             </div>
           )}
 
-          {/* Custom vertical hover line */}
-          {hoverXPosition !== null && (
+          {/* Hover vertical line - positioned using actual SVG coordinates */}
+          {hoverPosition && (
             <div
               style={{
                 position: 'absolute',
-                left: `${hoverXPosition}px`,
-                top: hideOverlay ? '10px' : '60px',
-                bottom: '10px',
+                left: `${hoverPosition.x}px`,
+                top: `${topMargin}px`,
+                bottom: `${CHART_MARGINS.bottom}px`,
                 width: '1px',
                 backgroundColor: '#FFFFFF',
                 opacity: 0.8,
@@ -519,38 +490,32 @@ export default function ChartMobile({
             />
           )}
 
-          {/* Custom hover dots on chart line(s) */}
-          {hoverXPosition !== null && yAxisDatasets.map((dataset) => {
-            const yPos = hoverYPositions[dataset.label];
-            if (yPos === undefined) return null;
-            
-            return (
-              <div
-                key={`dot-${dataset.label}`}
-                style={{
-                  position: 'absolute',
-                  left: `${hoverXPosition}px`,
-                  top: `${yPos}px`,
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: yAxisDatasets.length === 1 ? '#FFFFFF' : dataset.color,
-                  border: '2px solid #181818',
-                  transform: 'translate(-50%, -50%)',
-                  pointerEvents: 'none',
-                  zIndex: 10,
-                  boxShadow: '0 0 4px rgba(0, 0, 0, 0.3)',
-                }}
-              />
-            );
-          })}
-
-          {/* Custom date and time label at top of hover line */}
-          {hoveredDate && hoverXPosition !== null && (
+          {/* Hover dot - positioned using actual SVG coordinates */}
+          {hoverPosition && (
             <div
               style={{
                 position: 'absolute',
-                left: `${hoverXPosition}px`,
+                left: `${hoverPosition.x}px`,
+                top: `${hoverPosition.y}px`,
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: '#FFFFFF',
+                border: '2px solid #181818',
+                transform: 'translate(-50%, -50%)',
+                pointerEvents: 'none',
+                zIndex: 10,
+                boxShadow: '0 0 4px rgba(0, 0, 0, 0.3)',
+              }}
+            />
+          )}
+
+          {/* Hover date/time label */}
+          {hoveredDateTime && hoverPosition && (
+            <div
+              style={{
+                position: 'absolute',
+                left: `${hoverPosition.x}px`,
                 top: '50px',
                 transform: 'translateX(-50%)',
                 color: '#FFFFFF',
@@ -563,108 +528,82 @@ export default function ChartMobile({
                 lineHeight: '1.3',
               }}
             >
-              <div>{hoveredDate}</div>
-              {hoveredTime && <div style={{ fontSize: '10px', opacity: 0.8 }}>{hoveredTime}</div>}
+              <div>{hoveredDateTime.date}</div>
+              <div style={{ fontSize: '10px', opacity: 0.8 }}>{hoveredDateTime.time}</div>
             </div>
           )}
 
-          {/* Simple white line - no gradient effect */}
+          {/* MUI LineChart */}
           <LineChart
             xAxis={[
               {
                 data: xAxisData,
                 scaleType: 'time',
-                valueFormatter: (date: Date) => {
-                  // Format based on timeframe for better readability
-                  if (selectedTimeframe === '1D') {
-                    return date.toLocaleString('en-US', {
-                      hour: 'numeric',
-                      hour12: true,
-                    });
-                  }
-                  return date.toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                  });
-                },
+                valueFormatter: (date: Date) =>
+                  selectedTimeframe === '1D'
+                    ? date.toLocaleString('en-US', { hour: 'numeric', hour12: true })
+                    : date.toLocaleString('en-US', { month: 'short', day: 'numeric' }),
               },
             ]}
             yAxis={[
               {
-                min: yMin,
-                max: yMax,
+                min: yRange.min,
+                max: yRange.max,
                 disableTicks: true,
                 disableLine: true,
               },
             ]}
-            series={yAxisDatasets.map((dataset) => ({
+            series={datasets.map(dataset => ({
               data: dataset.data,
               label: dataset.label,
-              color: yAxisDatasets.length === 1 ? '#FFFFFF' : dataset.color, // Simple white line for single series
+              color: datasets.length === 1 ? '#FFFFFF' : dataset.color,
               area: false,
               showMark: false,
-              curve: 'catmullRom',
+              curve: 'linear',
             }))}
             height={height}
-            margin={{ top: hideOverlay ? 10 : 60, right: 0, bottom: 30, left: -50 }}
+            margin={{
+              top: topMargin,
+              right: CHART_MARGINS.right,
+              bottom: CHART_MARGINS.bottom,
+              left: CHART_MARGINS.left,
+            }}
             disableAxisListener={true}
+            tooltip={{ trigger: 'none' }}
+            axisHighlight={{ x: 'none', y: 'none' }}
             grid={{ horizontal: false, vertical: false }}
             sx={{
               width: '100%',
               height: '100%',
-              '& .MuiChartsLegend-root': {
-                display: 'none',
-              },
+              '& .MuiChartsLegend-root': { display: 'none' },
               '& .MuiLineElement-root': {
                 strokeWidth: 2.5,
                 strokeLinecap: 'round',
                 strokeLinejoin: 'round',
-                opacity: 0.8, // Slightly transparent white line
+                opacity: 0.8,
               },
               '& .MuiChartsAxis-line': {
                 stroke: 'transparent',
-                strokeWidth: 0,
-                display: 'none',
-              },
-              '& .MuiChartsAxis-bottom .MuiChartsAxis-line': {
-                stroke: 'transparent',
-                strokeWidth: 0,
                 display: 'none',
               },
               '& .MuiChartsAxis-tick': {
                 stroke: 'transparent',
-                strokeWidth: 0,
                 display: 'none',
               },
               '& .MuiChartsAxis-tickLabel': {
-                fill: 'rgba(255, 255, 255, 0.7)',
+                fill: 'rgba(255, 255, 255, 0.7) !important',
                 fontSize: '11px',
                 fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
               },
               '& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel': {
-                fill: 'rgba(255, 255, 255, 0.7)',
+                fill: 'rgba(255, 255, 255, 0.7) !important',
               },
-              '& .MuiChartsAxis-left .MuiChartsAxis-tickLabel': {
-                display: 'none',
+              '& .MuiChartsAxis-bottom text': {
+                fill: 'rgba(255, 255, 255, 0.7) !important',
               },
-              '& .MuiChartsAxisHighlight-root': {
-                stroke: '#FFFFFF',
-                strokeWidth: 1,
-                strokeDasharray: 'none',
-              },
-              '& .MuiChartsTooltip-root': {
-                display: 'none !important',
-                visibility: 'hidden !important',
-                opacity: '0 !important',
-                pointerEvents: 'none !important',
-              },
-              '& .MuiChartsTooltip-paper': {
-                display: 'none !important',
-              },
-              '& .MuiPopper-root': {
-                display: 'none !important',
-              },
-              '& .MuiChartsTooltip-table': {
+              '& .MuiChartsAxis-left': { display: 'none' },
+              '& .MuiChartsAxis-left .MuiChartsAxis-tickLabel': { display: 'none' },
+              '& .MuiChartsTooltip-root, & .MuiChartsTooltip-paper, & .MuiPopper-root': {
                 display: 'none !important',
               },
             }}
@@ -681,7 +620,7 @@ export default function ChartMobile({
             paddingBottom: '8px',
           }}
         >
-          {(['1D', '1W', '1M', 'ALL'] as Timeframe[]).map((timeframe) => (
+          {(['1D', '1W', '1M', 'ALL'] as Timeframe[]).map(timeframe => (
             <button
               key={timeframe}
               onClick={() => setSelectedTimeframe(timeframe)}
@@ -707,4 +646,3 @@ export default function ChartMobile({
     </>
   );
 }
-

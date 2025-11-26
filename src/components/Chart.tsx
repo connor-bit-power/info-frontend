@@ -445,6 +445,8 @@ export default function Chart({
             height={height}
             margin={{ top: hideOverlay ? 10 : 60, right: 0, bottom: 10, left: -50 }}
             disableAxisListener={true}
+            tooltip={{ trigger: 'none' }}
+            axisHighlight={{ x: 'none', y: 'none' }}
             grid={{ horizontal: false, vertical: false }}
             sx={{
               width: '100%',

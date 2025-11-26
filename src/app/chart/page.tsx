@@ -36,7 +36,7 @@ export default function ChartDemoPage() {
         const featuredEvents: Event[] = [];
         for (const slug of featuredSlugs) {
           try {
-            const response = await fetch(`http://localhost:3001/api/events/slug/${slug}`);
+            const response = await fetch(`http://localhost:8082/api/events/slug/${slug}`);
             if (response.ok) {
               const event = await response.json();
               if (event.markets && event.markets.length > 0) {
@@ -49,7 +49,7 @@ export default function ChartDemoPage() {
         }
 
         // Fetch general events
-        const response = await fetch('http://localhost:3001/api/events?limit=100&closed=false');
+        const response = await fetch('http://localhost:8082/api/events?limit=100&closed=false');
         const data = await response.json();
         
         // Filter out crypto up/down events and events without markets

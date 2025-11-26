@@ -75,7 +75,7 @@ export default function ChartTile({
 
       try {
         // Fetch event data from API
-        const eventResponse = await fetch(`http://localhost:3001/api/events/slug/${marketId}`);
+        const eventResponse = await fetch(`http://localhost:8082/api/events/slug/${marketId}`);
         if (!eventResponse.ok) {
           throw new Error('Failed to fetch market data');
         }
