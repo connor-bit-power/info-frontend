@@ -160,6 +160,57 @@ export interface MarketQueryParams {
 }
 
 // ============================================================================
+// ALERTS API TYPES
+// ============================================================================
+
+export type AlertType = "new_market" | "price_movement";
+
+export interface AlertItem {
+  id: string;
+  marketId: string;
+  question: string;
+  type: AlertType;
+  priceFrom: number;
+  priceTo: number;
+  priceChange: number;
+  priceChangePercent: number;
+  volume24hr: number;
+  liquidity: number;
+  detectedAt: string; // ISO8601
+}
+
+export interface AlertsResponse {
+  count: number;
+  items: AlertItem[];
+}
+
+export interface AlertsQueryParams {
+  type?: AlertType;
+  limit?: number;
+  since?: string; // ISO date string
+}
+
+// ============================================================================
+// UNIFIED FEED TYPES
+// ============================================================================
+
+export type FeedItemType = "headline" | "alert_new_market" | "alert_price_movement";
+
+export interface FeedItem extends HeadlineItem {
+  feedType: FeedItemType;
+  // Alert-specific fields (only present when feedType is alert_*)
+  alertData?: {
+    marketId: string;
+    priceFrom: number;
+    priceTo: number;
+    priceChange: number;
+    priceChangePercent: number;
+    volume24hr: number;
+    liquidity: number;
+  };
+}
+
+// ============================================================================
 // WEBSOCKET TYPES
 // ============================================================================
 

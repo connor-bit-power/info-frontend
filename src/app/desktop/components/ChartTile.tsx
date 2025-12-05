@@ -7,6 +7,7 @@ import Tile from './Tile';
 import headlinesData from './ChartHeadlines.json';
 import mockChartData from './ChartMockData.json';
 import type { MarketHeadlineDetail } from '@/types/news-api';
+import { API_CONFIG } from '@/lib/api/config';
 
 interface ChartTileProps {
   id: string;
@@ -75,7 +76,7 @@ export default function ChartTile({
 
       try {
         // Fetch event data from API
-        const eventResponse = await fetch(`http://localhost:8082/api/events/slug/${marketId}`);
+        const eventResponse = await fetch(`${API_CONFIG.baseURL}/api/events/slug/${marketId}`);
         if (!eventResponse.ok) {
           throw new Error('Failed to fetch market data');
         }
@@ -334,7 +335,7 @@ function HeadlineItem({
   });
 
   const textSpring = useSpring({
-    color: isFocused ? '#FFD700' : (isDarkMode ? '#FFFFFF' : '#181818'),
+    color: isFocused ? '#FFD700' : (isDarkMode ? '#FFFFFF' : '#242424'),
     fontWeight: isFocused ? 600 : 400,
     config: { tension: 300, friction: 30 },
   });

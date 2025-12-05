@@ -1,22 +1,45 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import GradientBackground from '../components/GradientBackground';
 import ThemeToggler from '../components/ThemeToggler';
 import Calendar from '../../components/Calendar';
 import CalendarItem from '../desktop/components/CalendarItem';
-import { useActiveEvents } from '../../lib/hooks/useEvents';
-import type { Event } from '../../types/polymarket';
+import { API_CONFIG } from '@/lib/api/config';
 
 export default function CalendarPage() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch active events
-  const { events, isLoading, error } = useActiveEvents({
-    limit: 500,
-  });
+  // Fetch events from Polymarket API (same as Calendar component)
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams({
+          limit: '500',
+          active: 'true',
+          closed: 'false',
+          sortBy: 'volume',
+          order: 'desc',
+        });
+
+        const response = await fetch(`${API_CONFIG.baseURL}/api/markets/search?${params.toString()}`);
+        const data = await response.json();
+        setEvents(data.items || []);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        setEvents([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleToggle = () => {
     setIsDarkMode(!isDarkMode);
@@ -34,8 +57,8 @@ export default function CalendarPage() {
   };
 
   // Group events by their end date (settle date)
-  const eventsByDate = useMemo((): Map<string, Event[]> => {
-    const dateMap = new Map<string, Event[]>();
+  const eventsByDate = useMemo((): Map<string, any[]> => {
+    const dateMap = new Map<string, any[]>();
     
     if (!events || events.length === 0) return dateMap;
 
@@ -46,17 +69,19 @@ export default function CalendarPage() {
     ];
 
     events.forEach((event) => {
-      if (!event.endDate) return;
+      // Use endDate as primary (settlement date)
+      const endDateStr = event.endDate || event.endDateIso;
+      if (!endDateStr) return;
 
       // Skip events matching exclude patterns
-      const eventTitle = event.title || '';
+      const eventTitle = event.question || event.title || '';
       const eventSlug = event.slug || '';
       const shouldExclude = excludePatterns.some(
         pattern => pattern.test(eventTitle) || pattern.test(eventSlug)
       );
       if (shouldExclude) return;
 
-      const eventEndDate = new Date(event.endDate);
+      const eventEndDate = new Date(endDateStr);
       eventEndDate.setHours(0, 0, 0, 0);
 
       const dateKey = formatDateKey(eventEndDate);
@@ -70,14 +95,14 @@ export default function CalendarPage() {
     return dateMap;
   }, [events]);
 
-  const getEventsForDate = (date: Date): Event[] => {
+  const getEventsForDate = (date: Date): any[] => {
     const key = formatDateKey(date);
-    const events = eventsByDate.get(key) || [];
+    const evts = eventsByDate.get(key) || [];
     
     // Sort by liquidity (highest first), with null/undefined values at the end
-    return events.sort((a, b) => {
-      const liquidityA = a.liquidity ?? 0;
-      const liquidityB = b.liquidity ?? 0;
+    return evts.sort((a, b) => {
+      const liquidityA = Number(a.liquidity) || 0;
+      const liquidityB = Number(b.liquidity) || 0;
       return liquidityB - liquidityA;
     });
   };

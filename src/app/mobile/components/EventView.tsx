@@ -5,6 +5,7 @@ import ChartMobile from '../../../components/ChartMobile';
 import CountingNumber from '../../../app/components/CountingNumber';
 import EventHeadlineItem from './EventHeadlineItem';
 import type { MarketHeadlineDetail, HeadlineSentiment, MarketResponse } from '@/types/news-api';
+import { API_CONFIG } from '@/lib/api/config';
 
 interface EventViewProps {
   headline?: string;
@@ -41,7 +42,7 @@ export default function EventView({ headline: initialHeadline, marketId, onBack 
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8082/api/market?marketId=${encodeURIComponent(marketId)}`);
+        const response = await fetch(`${API_CONFIG.baseURL}/api/market?marketId=${encodeURIComponent(marketId)}`);
         if (!response.ok) throw new Error('Failed to fetch market data');
 
         const data: MarketResponse = await response.json();
@@ -174,7 +175,7 @@ export default function EventView({ headline: initialHeadline, marketId, onBack 
   // Handle error state
   if (error) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center w-full min-h-screen bg-[#181818] p-6">
+      <div className="flex-1 flex flex-col items-center justify-center w-full min-h-screen bg-[#242424] p-6">
         <div className="text-center">
           <h2 className="text-white text-xl font-semibold mb-2">Unable to Load Market</h2>
           <p className="text-white/70 text-sm mb-4">{error}</p>
@@ -192,22 +193,23 @@ export default function EventView({ headline: initialHeadline, marketId, onBack 
   // Handle loading state
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center w-full min-h-screen bg-[#181818]">
+      <div className="flex-1 flex flex-col items-center justify-center w-full min-h-screen bg-[#242424]">
         <div className="text-white/70 text-sm">Loading market data...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col w-full min-h-screen overflow-y-auto bg-[#181818]" style={{ padding: '16px', paddingBottom: '40px' }}>
+    <div className="flex-1 flex flex-col w-full min-h-screen overflow-y-auto bg-[#242424]" style={{ padding: '16px', paddingBottom: '40px' }}>
       {/* 1. Event Title */}
       <h1 style={{
         fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
         fontSize: '24px',
         fontWeight: 600,
         color: '#FFFFFF',
-        margin: '0 0 8px 0',
-        lineHeight: '1.2'
+        margin: '0 0 16px 0',
+        lineHeight: '1.2',
+        textAlign: 'center'
       }}>
         {title}
       </h1>
@@ -216,19 +218,23 @@ export default function EventView({ headline: initialHeadline, marketId, onBack 
       <div style={{
         marginBottom: '24px',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start'
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        justifyContent: 'space-between'
       }}>
         <div style={{
           fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-          fontSize: '32px',
+          fontSize: '28px',
           fontWeight: 700,
           color: '#FFFFFF',
+          display: 'flex',
+          alignItems: 'baseline'
         }}>
           {currentPrice !== null ? (
             <>
               <CountingNumber number={currentPrice} decimalPlaces={0} />
-              <span style={{ fontSize: '20px', opacity: 0.7 }}>%</span>
+              <span>%</span>
+              <span style={{ marginLeft: '8px', fontWeight: 500, color: 'rgba(255, 255, 255, 0.5)' }}>Chance</span>
             </>
           ) : (
             <span>--<span style={{ fontSize: '20px', opacity: 0.7 }}>%</span></span>
@@ -237,27 +243,22 @@ export default function EventView({ headline: initialHeadline, marketId, onBack 
 
         {/* Date/Time indicator when hovering */}
         <div style={{
-          height: '20px',
           fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-          fontSize: '14px',
-          color: '#FFFFFF',
-          opacity: 0.6,
-          marginTop: '4px'
+          fontSize: '28px',
+          color: 'rgba(255, 255, 255, 0.5)',
+          fontWeight: 500
         }}>
           {hoveredDate ? (
-            <span>{hoveredDate} {hoveredTime && `• ${hoveredTime}`}</span>
-          ) : (
-            <span>Chance</span>
-          )}
+            <span>{hoveredDate}</span>
+          ) : null}
         </div>
       </div>
 
       {/* 3. Chart Line */}
       <div style={{
-        width: 'calc(100% + 32px)', // Compensate for padding
+        marginLeft: '-36px',
+        width: 'calc(100% + 32px)',
         marginBottom: '32px',
-        marginLeft: '-16px', // Pull out to edge
-        maxWidth: '100vw',
         position: 'relative',
       }}>
         <ChartMobile

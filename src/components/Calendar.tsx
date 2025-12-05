@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useActiveEvents, useEvents } from '../lib/hooks/useEvents';
-import { useTeams, useSportsMetadata } from '../lib/hooks/useSports';
-import type { Event, Market, Team, Tag } from '../types/polymarket';
 import CategoryFilter, { CATEGORIES } from './CategoryFilter';
+import { API_CONFIG } from '@/lib/api/config';
 
 interface CalendarProps {
   view: 'week' | 'month';
@@ -28,6 +26,8 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   });
   const [direction, setDirection] = useState(0); // Track direction of month change
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [events, setEvents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Notify parent when category changes
   useEffect(() => {
@@ -36,305 +36,42 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     }
   }, [selectedCategory, onCategoryChange]);
 
-  // Fetch active events - fetch enough to ensure we have diverse events
-  const { events: generalEvents, isLoading: generalLoading, error: generalError } = useActiveEvents({
-    limit: 500,
-  });
-
-  // Fetch major sports leagues events
-  // Tag IDs from gamma-api.polymarket.com/sports metadata
-  const { events: nflEvents, isLoading: nflLoading } = useEvents({
-    tag_id: 450, // NFL
-    closed: false,
-    limit: 300,
-  });
-
-  const { events: nbaEvents, isLoading: nbaLoading } = useEvents({
-    tag_id: 745, // NBA
-    closed: false,
-    limit: 500,
-  });
-
-  const { events: mlbEvents, isLoading: mlbLoading } = useEvents({
-    tag_id: 3420, // MLB
-    closed: false,
-    limit: 300,
-  });
-
-  const { events: nhlEvents, isLoading: nhlLoading } = useEvents({
-    tag_id: 899, // NHL
-    closed: false,
-    limit: 300,
-  });
-
-  const { events: soccerEvents, isLoading: soccerLoading } = useEvents({
-    tag_id: 100350, // Soccer (general)
-    closed: false,
-    limit: 500,
-  });
-
-  const { events: mmaEvents, isLoading: mmaLoading } = useEvents({
-    tag_id: 279, // UFC
-    closed: false,
-    limit: 200,
-  });
-
-  const { events: cfbEvents, isLoading: cfbLoading } = useEvents({
-    tag_id: 100351, // College Football
-    closed: false,
-    limit: 300,
-  });
-
-  // Fetch non-sports category events
-  const { events: politicsEvents } = useEvents({
-    tag_id: 2, // Politics
-    closed: false,
-    limit: 500,
-  });
-
-  const { events: cryptoEvents } = useEvents({
-    tag_id: 21, // Crypto
-    closed: false,
-    limit: 300,
-  });
-
-  const { events: businessEvents } = useEvents({
-    tag_id: 107, // Business
-    closed: false,
-    limit: 300,
-  });
-
-  const { events: earningsEvents } = useEvents({
-    tag_id: 1013, // Earnings
-    closed: false,
-    limit: 300,
-  });
-
-  const { events: cultureEvents } = useEvents({
-    tag_id: 596, // Culture
-    closed: false,
-    limit: 300,
-  });
-
-  const { events: scienceEvents } = useEvents({
-    tag_id: 74, // Science
-    closed: false,
-    limit: 200,
-  });
-
-  const { events: newsEvents } = useEvents({
-    tag_id: 198, // News
-    closed: false,
-    limit: 300,
-  });
-
-  // Combine all events from all sources
-  const allEvents = useMemo(() => {
-    return [
-      ...(generalEvents || []),
-      ...(nflEvents || []),
-      ...(cfbEvents || []),
-      ...(nbaEvents || []),
-      ...(mlbEvents || []),
-      ...(nhlEvents || []),
-      ...(soccerEvents || []),
-      ...(mmaEvents || []),
-      ...(politicsEvents || []),
-      ...(cryptoEvents || []),
-      ...(businessEvents || []),
-      ...(earningsEvents || []),
-      ...(cultureEvents || []),
-      ...(scienceEvents || []),
-      ...(newsEvents || []),
-    ];
-  }, [generalEvents, nflEvents, cfbEvents, nbaEvents, mlbEvents, nhlEvents, soccerEvents, mmaEvents, politicsEvents, cryptoEvents, businessEvents, earningsEvents, cultureEvents, scienceEvents, newsEvents]);
-
-  // Filter events based on selected category
-  const events = useMemo(() => {
-    console.log('🔍 ========== FILTERING START ==========');
-    console.log('🔍 Selected category:', selectedCategory);
-    console.log('🔍 Total allEvents:', allEvents.length);
-
-    if (selectedCategory === 'all') {
-      console.log('🔍 Returning all events (no filter)');
-      return allEvents;
-    }
-
-    // Map category to event sources
-    let filtered: Event[] = [];
-
-    switch (selectedCategory) {
-      case 'nfl':
-        filtered = [...(nflEvents || [])];
-        console.log('🔍 NFL filter: returning', filtered.length, 'events');
-        break;
-      case 'cfb':
-        filtered = [...(cfbEvents || [])];
-        console.log('🔍 CFB filter: returning', filtered.length, 'events');
-        break;
-      case 'nba':
-        filtered = [...(nbaEvents || [])];
-        console.log('🔍 NBA filter: returning', filtered.length, 'events');
-        break;
-      case 'mlb':
-        filtered = [...(mlbEvents || [])];
-        console.log('🔍 MLB filter: returning', filtered.length, 'events');
-        break;
-      case 'nhl':
-        filtered = [...(nhlEvents || [])];
-        console.log('🔍 NHL filter: returning', filtered.length, 'events');
-        break;
-      case 'soccer':
-        filtered = [...(soccerEvents || [])];
-        console.log('🔍 Soccer filter: returning', filtered.length, 'events');
-        break;
-      case 'mma':
-        filtered = [...(mmaEvents || [])];
-        console.log('🔍 MMA filter: returning', filtered.length, 'events');
-        break;
-      case 'esports':
-        filtered = [...(generalEvents || [])].filter(event =>
-          (event.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '64')
-        );
-        console.log('🔍 Esports filter: returning', filtered.length, 'events');
-        break;
-      case 'sports':
-        // All sports combined
-        filtered = [
-          ...(nflEvents || []),
-          ...(cfbEvents || []),
-          ...(nbaEvents || []),
-          ...(mlbEvents || []),
-          ...(nhlEvents || []),
-          ...(soccerEvents || []),
-          ...(mmaEvents || []),
-        ];
-        console.log('🔍 Sports filter (all): returning', filtered.length, 'events');
-        console.log('🔍 Breakdown: NFL:', nflEvents?.length, 'CFB:', cfbEvents?.length, 'NBA:', nbaEvents?.length, 'MLB:', mlbEvents?.length, 'NHL:', nhlEvents?.length, 'Soccer:', soccerEvents?.length, 'MMA:', mmaEvents?.length);
-        break;
-      case 'politics':
-        filtered = [...(politicsEvents || [])];
-        console.log('🔍 Politics filter: returning', filtered.length, 'events');
-        break;
-      case 'crypto':
-        filtered = [...(cryptoEvents || [])];
-        console.log('🔍 Crypto filter: returning', filtered.length, 'events');
-        break;
-      case 'business':
-        filtered = [...(businessEvents || [])];
-        console.log('🔍 Business filter: returning', filtered.length, 'events');
-        break;
-      case 'earnings':
-        filtered = [...(earningsEvents || [])];
-        console.log('🔍 Earnings filter: returning', filtered.length, 'events');
-        break;
-      case 'culture':
-        filtered = [...(cultureEvents || [])];
-        console.log('🔍 Culture filter: returning', filtered.length, 'events');
-        break;
-      case 'science':
-        filtered = [...(scienceEvents || [])];
-        console.log('🔍 Science filter: returning', filtered.length, 'events');
-        break;
-      case 'news':
-        filtered = [...(newsEvents || [])];
-        console.log('🔍 News filter: returning', filtered.length, 'events');
-        break;
-      case 'finance':
-      case 'economy':
-      case 'entertainment':
-        // For categories without dedicated fetches, filter from all events by tag
-        console.log('🔍 Multi-tag category selected:', selectedCategory);
-        const categoryDef = CATEGORIES.find(c => c.id === selectedCategory);
-        if (categoryDef && categoryDef.tagIds && categoryDef.tagIds.length > 0) {
-          console.log('🔍 Filtering by tag IDs:', categoryDef.tagIds);
-          filtered = allEvents.filter(event => {
-            const eventTags = (event.tags as Tag[] | undefined) || [];
-            return eventTags.some(tag => categoryDef.tagIds?.includes(parseInt(tag.id)));
-          });
-          console.log('🔍 Events with matching tags:', filtered.length);
-        }
-        break;
-      default:
-        // Fallback: filter out sports events for unknown categories
-        console.log('🔍 Unknown category, filtering out sports events');
-        filtered = (generalEvents || []).filter(event => {
-          const isSports = event.markets?.some(m => m.gameStartTime);
-          return !isSports;
-        });
-        console.log('🔍 After filtering out sports:', filtered.length, 'events');
-        break;
-    }
-
-    console.log('🔍 Final filtered count:', filtered.length);
-    console.log('🔍 ========== FILTERING END ==========');
-
-    return filtered;
-  }, [allEvents, selectedCategory, generalEvents, nflEvents, cfbEvents, nbaEvents, mlbEvents, nhlEvents, soccerEvents, mmaEvents, politicsEvents, cryptoEvents, businessEvents, earningsEvents, cultureEvents, scienceEvents, newsEvents]);
-
-  const isLoading = generalLoading || nflLoading || cfbLoading || nbaLoading || mlbLoading || nhlLoading || soccerLoading || mmaLoading;
-  const error = generalError;
-
-  // Fetch teams data for sports events
-  const { teams, getTeamById } = useTeams({
-    limit: 1000,
-  });
-
-  // Debug: Check for sports events
+  // Fetch events from Polymarket API
   useEffect(() => {
-    console.log('📅 Calendar - General events:', generalEvents?.length || 0);
-    console.log('📅 Calendar - NFL events:', nflEvents?.length || 0);
-    console.log('📅 Calendar - CFB events:', cfbEvents?.length || 0);
-    console.log('📅 Calendar - NBA events:', nbaEvents?.length || 0);
-    console.log('📅 Calendar - MLB events:', mlbEvents?.length || 0);
-    console.log('📅 Calendar - NHL events:', nhlEvents?.length || 0);
-    console.log('📅 Calendar - Soccer events:', soccerEvents?.length || 0);
-    console.log('📅 Calendar - MMA events:', mmaEvents?.length || 0);
-    console.log('📅 Calendar - Total combined events:', allEvents.length);
-    console.log('📅 Calendar - Selected category:', selectedCategory);
-    console.log('📅 Calendar - Filtered events:', events.length);
-
-    if (events && events.length > 0) {
-      const sportsEvents = events.filter(e =>
-        e.markets && e.markets.some(m => m.gameStartTime)
-      );
-      console.log('📅 Calendar - Sports events with gameStartTime:', sportsEvents.length);
-
-      // Check for NFL/NBA specifically
-      const nflSportsEvents = sportsEvents.filter(e =>
-        (e.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '450')
-      );
-      const nbaSportsEvents = sportsEvents.filter(e =>
-        (e.tags as Tag[] | undefined)?.some((t: Tag) => t.id === '745')
-      );
-
-      console.log('📅 Calendar - NFL sports events:', nflSportsEvents.length);
-      console.log('📅 Calendar - NBA sports events:', nbaSportsEvents.length);
-
-      if (nflSportsEvents.length > 0) {
-        const sample = nflSportsEvents[0];
-        const gameTime = sample.markets?.find(m => m.gameStartTime)?.gameStartTime;
-        console.log('📅 Calendar - Sample NFL event:', {
-          title: sample.title,
-          gameStartTime: gameTime,
-          gameStartParsed: gameTime ? new Date(gameTime) : null,
-          endDate: sample.endDate,
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams({
+          limit: '500',
+          active: 'true',
+          closed: 'false',
+          sortBy: 'volume',
+          order: 'desc',
         });
-      }
 
-      if (nbaSportsEvents.length > 0) {
-        const sample = nbaSportsEvents[0];
-        const gameTime = sample.markets?.find(m => m.gameStartTime)?.gameStartTime;
-        console.log('📅 Calendar - Sample NBA event:', {
-          title: sample.title,
-          gameStartTime: gameTime,
-          gameStartParsed: gameTime ? new Date(gameTime) : null,
-          endDate: sample.endDate,
-        });
-      }
-    }
-  }, [generalEvents, nflEvents, cfbEvents, nbaEvents, mlbEvents, nhlEvents, soccerEvents, mmaEvents, allEvents, selectedCategory, events]);
+        if (selectedCategory !== 'all') {
+          const categoryDef = CATEGORIES.find(c => c.id === selectedCategory);
+          if (categoryDef) {
+            // Use label as tag for search, or fallback to category name mapping
+            // The API accepts 'tags' which can be multiple
+            // For simplicity, we'll use the label as the tag
+            params.append('tags', categoryDef.label);
+          }
+        }
 
+        const response = await fetch(`${API_CONFIG.baseURL}/api/markets/search?${params.toString()}`);
+        const data = await response.json();
+        setEvents(data.items || []);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        setEvents([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [selectedCategory]);
 
   const handleDateClick = (date: Date) => {
     // Normalize the date to midnight to ensure consistent matching
@@ -361,33 +98,41 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
   };
 
   // Helper function to check if event is a sports game
-  const isSportsEvent = useCallback((event: Event): boolean => {
-    if (!event.markets || event.markets.length === 0) return false;
-    // Sports events have gameStartTime (team IDs are often not present)
-    return event.markets.some(
-      (market: Market) => market.gameStartTime
-    );
+  const isSportsEvent = useCallback((event: any): boolean => {
+    // Check tags or category if available
+    if (event.tags && Array.isArray(event.tags)) {
+      const sportsTags = ['Sports', 'NFL', 'NBA', 'MLB', 'NHL', 'Soccer', 'UFC', 'MMA'];
+      if (event.tags.some((t: string) => sportsTags.some(st => t.toLowerCase() === st.toLowerCase()))) {
+        return true;
+      }
+    }
+    
+    // Check title for "vs" pattern
+    const title = event.question || event.title || '';
+    return /(.+?)\s+(?:vs\.?|@)\s+(.+)/i.test(title);
   }, []);
 
   // Helper function to get the display date for an event
-  const getEventDisplayDate = useCallback((event: Event): Date | null => {
-    // For sports events, use gameStartTime from any market that has it
-    if (event.markets) {
-      const marketWithGameTime = event.markets.find(m => m.gameStartTime);
-      if (marketWithGameTime?.gameStartTime) {
-        return new Date(marketWithGameTime.gameStartTime);
-      }
-    }
-    // For non-sports events, use endDate (settle date)
+  const getEventDisplayDate = useCallback((event: any): Date | null => {
+    // Use endDate or endDateIso as the primary date (Settlement Date)
     if (event.endDate) {
       return new Date(event.endDate);
     }
+    if (event.endDateIso) {
+        return new Date(event.endDateIso);
+    }
+    
+    // Fallback to startDate if available
+    if (event.events && event.events.length > 0 && event.events[0].startDate) {
+        return new Date(event.events[0].startDate);
+    }
+    
     return null;
   }, []);
 
-  // Group events by their display date (gameStartTime for sports, endDate for others)
-  const eventsByDate = useMemo((): Map<string, Event[]> => {
-    const dateMap = new Map<string, Event[]>();
+  // Group events by their display date
+  const eventsByDate = useMemo((): Map<string, any[]> => {
+    const dateMap = new Map<string, any[]>();
 
     if (!events || events.length === 0) return dateMap;
 
@@ -399,7 +144,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
 
     events.forEach((event) => {
       // Skip events matching exclude patterns
-      const eventTitle = event.title || '';
+      const eventTitle = event.question || event.title || '';
       const eventSlug = event.slug || '';
       const shouldExclude = excludePatterns.some(
         pattern => pattern.test(eventTitle) || pattern.test(eventSlug)
@@ -407,6 +152,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
       if (shouldExclude) return;
 
       const displayDate = getEventDisplayDate(event);
+      
       if (!displayDate) return;
 
       displayDate.setHours(0, 0, 0, 0);
@@ -418,63 +164,30 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
       dateMap.get(dateKey)!.push(event);
     });
 
-    // Debug: Log what dates have events
-    const datesWithSports = Array.from(dateMap.entries())
-      .filter(([_, evts]) => evts.some(e => isSportsEvent(e)))
-      .slice(0, 5);
-
-    if (datesWithSports.length > 0) {
-      console.log('📅 Calendar - Dates with sports events (first 5):',
-        datesWithSports.map(([date, evts]) => ({
-          date,
-          count: evts.filter(e => isSportsEvent(e)).length,
-          events: evts.filter(e => isSportsEvent(e)).map(e => e.title).slice(0, 2),
-        }))
-      );
-    }
-
     return dateMap;
   }, [events, getEventDisplayDate, isSportsEvent]);
 
-  const getEventsForDate = (date: Date): Event[] => {
+  const getEventsForDate = (date: Date): any[] => {
     const key = formatDateKey(date);
     const events = eventsByDate.get(key) || [];
 
     // Sort by liquidity (highest first), with null/undefined values at the end
     return events.sort((a, b) => {
-      const liquidityA = a.liquidity ?? 0;
-      const liquidityB = b.liquidity ?? 0;
+      const liquidityA = Number(a.liquidity) || 0;
+      const liquidityB = Number(b.liquidity) || 0;
       return liquidityB - liquidityA;
     });
   };
 
   // Helper function to get team info for sports events
-  const getTeamsForEvent = useCallback((event: Event): {
-    teamA: Team | undefined;
-    teamB: Team | undefined;
+  const getTeamsForEvent = useCallback((event: any): {
+    teamA: undefined;
+    teamB: undefined;
     teamAName: string;
     teamBName: string;
   } => {
-    // First try to get teams from team IDs (if they exist - rare)
-    if (event.markets && event.markets.length > 0) {
-      const market = event.markets[0];
-      const teamAID = market.teamAID ? parseInt(market.teamAID) : undefined;
-      const teamBID = market.teamBID ? parseInt(market.teamBID) : undefined;
-
-      if (teamAID && teamBID) {
-        const teamA = getTeamById(teamAID);
-        const teamB = getTeamById(teamBID);
-        return {
-          teamA,
-          teamB,
-          teamAName: teamA?.abbreviation || teamA?.name || 'Team A',
-          teamBName: teamB?.abbreviation || teamB?.name || 'Team B',
-        };
-      }
-    }
-
-    // Otherwise, parse team names from the title
-    const title = event.title || '';
+    // Parse team names from the title
+    const title = event.question || event.title || '';
 
     // Common patterns: "Team A vs. Team B", "Team A vs Team B", "Team A @ Team B"
     const vsPattern = /(.+?)\s+(?:vs\.?|@)\s+(.+)/i;
@@ -498,10 +211,10 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
       teamAName: 'Team A',
       teamBName: 'Team B',
     };
-  }, [getTeamById]);
+  }, []);
 
   // Helper function to format event display text
-  const getEventDisplayText = useCallback((event: Event): string => {
+  const getEventDisplayText = useCallback((event: any): string => {
     const { teamAName, teamBName } = getTeamsForEvent(event);
 
     // For sports events, show team names
@@ -510,7 +223,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
     }
 
     // For non-sports events, show the title
-    return event.title || 'Untitled Event';
+    return event.question || event.title || 'Untitled Event';
   }, [getTeamsForEvent, isSportsEvent]);
 
   const getMonthName = (date: Date) => {
@@ -610,17 +323,17 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
             <button
               onClick={() => navigateMonth('prev')}
               className="text-xl font-semibold transition-opacity hover:opacity-70"
-              style={{ color: isDarkMode ? 'white' : '#181818' }}
+              style={{ color: isDarkMode ? 'white' : '#242424' }}
             >
               ‹
             </button>
-            <h2 className="text-xl font-semibold" style={{ color: isDarkMode ? 'white' : '#181818' }}>
+            <h2 className="text-xl font-semibold" style={{ color: isDarkMode ? 'white' : '#242424' }}>
               {getMonthName(currentDate)}
             </h2>
             <button
               onClick={() => navigateMonth('next')}
               className="text-xl font-semibold transition-opacity hover:opacity-70"
-              style={{ color: isDarkMode ? 'white' : '#181818' }}
+              style={{ color: isDarkMode ? 'white' : '#242424' }}
             >
               ›
             </button>
@@ -704,7 +417,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
                         >
                           <div
                             className="text-xs font-medium mb-1 shrink-0"
-                            style={{ color: isToday ? '#2E5CFF' : (isDarkMode ? 'white' : '#181818') }}
+                            style={{ color: isToday ? '#2E5CFF' : (isDarkMode ? 'white' : '#242424') }}
                           >
                             {dayStr}
                           </div>
@@ -715,7 +428,7 @@ export default function Calendar({ view, isDarkMode = true, onDateSelect, onCate
                               className="shrink-0 text-xs font-semibold px-2 py-1 rounded-full text-center"
                               style={{
                                 backgroundColor: isDarkMode ? 'rgba(46, 92, 255, 0.4)' : 'rgba(46, 92, 255, 0.3)',
-                                color: isDarkMode ? 'white' : '#181818',
+                                color: isDarkMode ? 'white' : '#242424',
                               }}
                               title={events.map(e => getEventDisplayText(e)).join('\n')}
                             >

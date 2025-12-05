@@ -5,7 +5,7 @@
 
 export const API_CONFIG = {
   // Base URL for the info-api backend
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://info-api-kyfw.onrender.com',
   
   // Default timeout for requests (in milliseconds)
   timeout: 30000,

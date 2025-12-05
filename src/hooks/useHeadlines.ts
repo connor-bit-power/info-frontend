@@ -1,19 +1,73 @@
 import { useState, useEffect } from 'react';
-import type { HeadlineItem } from '@/types/news-api';
+import type { HeadlineItem, AlertItem, FeedItem, FeedItemType } from '@/types/news-api';
+import { API_CONFIG } from '@/lib/api/config';
 
-const CACHE_KEY = 'headlines_cache';
+const CACHE_KEY = 'feed_cache_v2'; // Updated to clear old emoji cache
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 interface CacheData {
-    headlines: HeadlineItem[];
+    headlines: FeedItem[];
     timestamp: number;
 }
 
 // Global in-memory cache to prevent flicker on navigation
 let memoryCache: CacheData | null = null;
 
+/**
+ * Convert an AlertItem to a FeedItem (headline-like format)
+ */
+function alertToFeedItem(alert: AlertItem): FeedItem {
+    const isNewMarket = alert.type === 'new_market';
+    const feedType: FeedItemType = isNewMarket ? 'alert_new_market' : 'alert_price_movement';
+    
+    // Format the title based on alert type
+    let title: string;
+    if (isNewMarket) {
+        title = `🆕 New Market: ${alert.question}`;
+    } else {
+        // Price movement - show direction and percentage (no emoji)
+        const changePercent = Math.abs(alert.priceChangePercent);
+        title = `${changePercent}% move: ${alert.question}`;
+    }
+
+    return {
+        id: alert.id,
+        title,
+        slug: alert.marketId,
+        url: '',
+        source: 'Market Alert',
+        published_at: alert.detectedAt,
+        created_at: alert.detectedAt,
+        updated_at: alert.detectedAt,
+        summary: null,
+        lead: null,
+        tags: [],
+        markets: [],
+        feedType,
+        alertData: {
+            marketId: alert.marketId,
+            priceFrom: alert.priceFrom,
+            priceTo: alert.priceTo,
+            priceChange: alert.priceChange,
+            priceChangePercent: alert.priceChangePercent,
+            volume24hr: alert.volume24hr,
+            liquidity: alert.liquidity,
+        },
+    };
+}
+
+/**
+ * Convert a HeadlineItem to a FeedItem
+ */
+function headlineToFeedItem(headline: HeadlineItem): FeedItem {
+    return {
+        ...headline,
+        feedType: 'headline',
+    };
+}
+
 export function useHeadlines() {
-    const [headlines, setHeadlines] = useState<HeadlineItem[]>(() => {
+    const [headlines, setHeadlines] = useState<FeedItem[]>(() => {
         // Initialize from memory cache if available and valid
         if (memoryCache && Date.now() - memoryCache.timestamp < CACHE_DURATION) {
             return memoryCache.headlines;
@@ -24,7 +78,7 @@ export function useHeadlines() {
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
-        const fetchHeadlines = async () => {
+        const fetchFeed = async () => {
             try {
                 const now = Date.now();
 
@@ -44,36 +98,55 @@ export function useHeadlines() {
                         memoryCache = { headlines: cachedHeadlines, timestamp };
                         setHeadlines(cachedHeadlines);
                         setLoading(false);
-                        // We can still fetch in background if needed, but for now let's trust cache
                         return;
                     }
                 }
 
-                // Fetch from API if cache missing or expired
-                const response = await fetch('http://localhost:8082/api/headlines');
-                if (!response.ok) {
+                // Fetch headlines and alerts in parallel
+                const [headlinesRes, alertsRes] = await Promise.all([
+                    fetch(`${API_CONFIG.baseURL}/api/headlines`),
+                    fetch(`${API_CONFIG.baseURL}/api/alerts?limit=50`),
+                ]);
+
+                if (!headlinesRes.ok) {
                     throw new Error('Failed to fetch headlines');
                 }
-                const data = await response.json();
+
+                const headlinesData = await headlinesRes.json();
+                
+                // Convert headlines to feed items
+                const headlineFeedItems: FeedItem[] = (headlinesData.headlines || []).map(headlineToFeedItem);
+
+                // Convert alerts to feed items (if alerts fetch succeeded)
+                let alertFeedItems: FeedItem[] = [];
+                if (alertsRes.ok) {
+                    const alertsData = await alertsRes.json();
+                    alertFeedItems = (alertsData.items || []).map(alertToFeedItem);
+                }
+
+                // Merge and sort by date (newest first)
+                const allItems = [...headlineFeedItems, ...alertFeedItems].sort((a, b) => {
+                    return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+                });
 
                 // Update state and caches
                 const newCache = {
-                    headlines: data.headlines,
+                    headlines: allItems,
                     timestamp: Date.now()
                 };
 
                 memoryCache = newCache;
-                setHeadlines(data.headlines);
+                setHeadlines(allItems);
                 localStorage.setItem(CACHE_KEY, JSON.stringify(newCache));
             } catch (err) {
-                console.error('Error fetching headlines:', err);
+                console.error('Error fetching feed:', err);
                 setError(err instanceof Error ? err : new Error('Unknown error'));
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchHeadlines();
+        fetchFeed();
     }, []);
 
     return { headlines, loading, error };

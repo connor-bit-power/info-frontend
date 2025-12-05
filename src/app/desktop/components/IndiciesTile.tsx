@@ -81,7 +81,7 @@ export default function IndiciesTile({
                                 fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
                                 fontSize: '24px',
                                 fontWeight: 600,
-                                color: isDarkMode ? 'white' : '#181818',
+                                color: isDarkMode ? 'white' : '#242424',
                             }}
                         >
                             Indicies
@@ -131,7 +131,7 @@ export default function IndiciesTile({
                                             fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
                                             fontSize: '18px',
                                             fontWeight: 600,
-                                            color: isDarkMode ? 'white' : '#181818',
+                                            color: isDarkMode ? 'white' : '#242424',
                                             marginBottom: '4px',
                                         }}
                                     >
@@ -183,7 +183,7 @@ export default function IndiciesTile({
                                         <div
                                             className="absolute inset-0 flex items-center justify-center font-bold"
                                             style={{
-                                                color: isDarkMode ? 'white' : '#181818',
+                                                color: isDarkMode ? 'white' : '#242424',
                                                 fontSize: '14px', // Increased from text-xs (12px)
                                             }}
                                         >
@@ -194,7 +194,7 @@ export default function IndiciesTile({
                                     {/* Chevron */}
                                     <ChevronRightIcon
                                         size="sm"
-                                        className={isDarkMode ? 'text-white' : 'text-[#181818]'}
+                                        className={isDarkMode ? 'text-white' : 'text-[#242424]'}
                                     />
                                 </div>
                             </motion.div>

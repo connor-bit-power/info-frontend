@@ -435,7 +435,7 @@ function HeadlineItem({
     });
 
     const textSpring = useSpring({
-        color: isFocused ? '#FFD700' : (isDarkMode ? '#FFFFFF' : '#181818'),
+        color: isFocused ? '#FFD700' : (isDarkMode ? '#FFFFFF' : '#242424'),
         fontWeight: isFocused ? 600 : 400,
         config: { tension: 300, friction: 30 },
     });

@@ -75,12 +75,12 @@ export default function NewsTile({
               style={{
                 fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
                 fontSize: '24px',
-                color: isDarkMode ? 'white' : '#181818',
+                color: isDarkMode ? 'white' : '#242424',
               }}
             >
               Latest News
             </h1>
-            <InfoCircleIcon size="md" className={`${isDarkMode ? 'text-white' : 'text-[#181818]'} opacity-85`} />
+            <InfoCircleIcon size="md" className={`${isDarkMode ? 'text-white' : 'text-[#242424]'} opacity-85`} />
           </div>
 
           {/* Headlines list - Scrollable */}
@@ -125,24 +125,41 @@ export default function NewsTile({
                     position: 'relative',
                   }}
                 >
-                  {/* Category dot removed as it's not in schema */}
-                  <p
-                    className={isDarkMode ? 'text-white' : ''}
-                    style={{
-                      fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                      fontSize: '16px',
-                      fontWeight: 400,
-                      lineHeight: '1.3',
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      textOverflow: 'ellipsis',
-                      color: isDarkMode ? 'white' : '#181818',
-                    }}
-                  >
-                    {headline.title}
-                  </p>
+                  <div className="flex flex-row items-start gap-3">
+                    <div
+                      style={{
+                        minWidth: '6px',
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        backgroundColor: ['#FF3B30', '#FFCC00', '#007AFF'][
+                          Math.abs(
+                            headline.id.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)
+                          ) % 3
+                        ],
+                        marginTop: '7px',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <p
+                      className={isDarkMode ? 'text-white' : ''}
+                      style={{
+                        fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                        fontSize: '16px',
+                        fontWeight: 400,
+                        lineHeight: '1.3',
+                        overflow: 'hidden',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        textOverflow: 'ellipsis',
+                        color: isDarkMode ? 'white' : '#242424',
+                        flex: 1,
+                      }}
+                    >
+                      {headline.title}
+                    </p>
+                  </div>
                 </motion.div>
               ))
             )}

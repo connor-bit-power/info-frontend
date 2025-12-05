@@ -1,11 +1,11 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import type { HeadlineItem } from '@/types/news-api';
+import type { FeedItem } from '@/types/news-api';
 
 interface NewsFeedProps {
-  headlines: HeadlineItem[];
-  onHeadlineClick: (headline: HeadlineItem, index: number) => void;
+  headlines: FeedItem[];
+  onHeadlineClick: (headline: FeedItem, index: number) => void;
   onScroll?: (scrollProgress: number) => void;
   loading?: boolean;
 }
@@ -32,13 +32,13 @@ export default function NewsFeed({ headlines, onHeadlineClick, onScroll, loading
 
   return (
     <>
-      {/* Top gradient mask overlay - only visible when header is fully compacted */}
+      {/* Top gradient mask overlay - fades in as user scrolls */}
       <div
         className="absolute top-0 left-0 right-0 pointer-events-none transition-opacity duration-300"
         style={{
           height: '120px',
-          background: 'linear-gradient(to bottom, #181818 0%, transparent 100%)',
-          opacity: scrollProgress >= 1 ? 1 : 0,
+          background: 'linear-gradient(to bottom, #242424 0%, transparent 100%)',
+          opacity: scrollProgress >= 0.3 ? 1 : 0,
           zIndex: 10,
         }}
       />
@@ -70,22 +70,52 @@ export default function NewsFeed({ headlines, onHeadlineClick, onScroll, loading
             <img src="/white.gif" alt="Loading..." className="w-8 h-8 opacity-50" />
           </div>
         ) : (
-          headlines.map((headline, index) => (
-            <div
-              key={headline.id}
-              className="text-[#E0E0E0] cursor-pointer hover:opacity-70 transition-opacity"
-              style={{
-                fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
-                fontSize: '21px',
-                fontWeight: 'normal',
-                lineHeight: '25px',
-                marginBottom: '21px'
-              }}
-              onClick={() => onHeadlineClick(headline, index)}
-            >
-              {headline.title}
-            </div>
-          ))
+          headlines.map((headline, index) => {
+            // Determine dot color based on feed type
+            const getDotColor = () => {
+              if (headline.feedType === 'alert_price_movement') {
+                // Green for up, red for down
+                return headline.alertData && headline.alertData.priceTo > headline.alertData.priceFrom
+                  ? '#34C759' // Green
+                  : '#FF3B30'; // Red
+              }
+              if (headline.feedType === 'alert_new_market') {
+                return '#007AFF'; // Blue for new markets
+              }
+              // Orange for regular news headlines
+              return '#FF9500';
+            };
+
+            return (
+              <div
+                key={headline.id}
+                className="text-[#E0E0E0] cursor-pointer hover:opacity-70 transition-opacity flex flex-row items-start gap-3"
+                style={{
+                  fontFamily: 'SF Pro Rounded, system-ui, -apple-system, sans-serif',
+                  fontSize: '21px',
+                  fontWeight: 'normal',
+                  lineHeight: '25px',
+                  marginBottom: '21px'
+                }}
+                onClick={() => onHeadlineClick(headline, index)}
+              >
+                <div
+                  style={{
+                    minWidth: '6px',
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: getDotColor(),
+                    marginTop: '10px',
+                    flexShrink: 0,
+                  }}
+                />
+                <span className="flex-1">
+                  {headline.title}
+                </span>
+              </div>
+            );
+          })
         )}
       </div>
     </>

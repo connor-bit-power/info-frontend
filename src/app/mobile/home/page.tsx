@@ -2,30 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSpring, animated } from '@react-spring/web';
 import { useHeadlines } from '@/hooks/useHeadlines';
 
 import Header from '../components/Header';
 import NewsFeed from '../components/NewsFeed';
 import EventView from '../components/EventView';
+import Modal from '../components/Modal';
+import { InfoCircleIcon } from '@/app/components/icons/InfoCircleIcon';
 
-import type { HeadlineItem } from '@/types/news-api';
+import type { FeedItem } from '@/types/news-api';
 
 export default function MobileHome() {
-  const [selectedTab, setSelectedTab] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('selectedTab') || 'Latest';
-    }
-    return 'Latest';
-  });
-
-  const handleTabChange = (tab: string) => {
-    setSelectedTab(tab);
-    localStorage.setItem('selectedTab', tab);
-  };
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-  const [selectedHeadline, setSelectedHeadline] = useState<HeadlineItem | null>(null);
+  const [selectedHeadline, setSelectedHeadline] = useState<FeedItem | null>(null);
+  const [selectedAlertMarketId, setSelectedAlertMarketId] = useState<string | null>(null);
   const [isEventViewOpen, setIsEventViewOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [scrollProgress, setScrollProgress] = useState<number>(0);
 
   const router = useRouter();
@@ -33,40 +24,24 @@ export default function MobileHome() {
   // Use cached headlines hook
   const { headlines, loading } = useHeadlines();
 
-  // Calculate popular tags
-  const allTags = headlines.flatMap(h => h.tags || []);
-  const tagCounts = allTags.reduce((acc, tag) => {
-    acc[tag] = (acc[tag] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const sortedTags = Object.entries(tagCounts)
-    .sort(([, a]: [string, number], [, b]: [string, number]) => b - a)
-    .slice(0, 7)
-    .map(([tag]) => tag);
-
-  const tabs = ['Latest', ...sortedTags];
-
-  // Filter headlines
-  const filteredHeadlines = selectedTab === 'Latest'
-    ? headlines
-    : headlines.filter(h => h.tags?.includes(selectedTab));
-
-  // Animation for feed changes
-  const [springs, api] = useSpring(() => ({
-    from: { opacity: 0, transform: 'translateY(10px)' },
-    to: { opacity: 1, transform: 'translateY(0px)' },
-    config: { tension: 300, friction: 20 },
-  }), [selectedTab]); // Re-run when selectedTab changes
-
-  const handleHeadlineClick = (headline: HeadlineItem, index: number) => {
-    localStorage.setItem('selectedHeadline', JSON.stringify(headline));
-    router.push('/mobile/related');
+  const handleHeadlineClick = (headline: FeedItem, index: number) => {
+    // Check if this is an alert (has alertData)
+    if (headline.feedType !== 'headline' && headline.alertData) {
+      // For alerts, open EventView with the market
+      setSelectedAlertMarketId(headline.alertData.marketId);
+      setSelectedHeadline(headline);
+      setIsEventViewOpen(true);
+    } else {
+      // For regular headlines, navigate to related page
+      localStorage.setItem('selectedHeadline', JSON.stringify(headline));
+      router.push('/mobile/related');
+    }
   };
 
   const handleBackToFeed = () => {
     setIsEventViewOpen(false);
     setSelectedHeadline(null);
+    setSelectedAlertMarketId(null);
   };
 
   const handleScroll = (progress: number) => {
@@ -76,7 +51,7 @@ export default function MobileHome() {
   return (
     <div
       className="h-screen w-screen overflow-hidden fixed top-0 left-0 flex flex-col"
-      style={{ overscrollBehavior: 'none', backgroundColor: '#181818' }}
+      style={{ overscrollBehavior: 'none', backgroundColor: '#242424' }}
     >
 
       {/* Conditional rendering based on view */}
@@ -84,36 +59,48 @@ export default function MobileHome() {
         <>
           {/* Header - stacked on top */}
           <div className="relative z-10 shrink-0">
-            <Header
-              selectedTab={selectedTab}
-              onTabChange={handleTabChange}
-              scrollProgress={scrollProgress}
-              tabs={tabs}
-            />
+            <Header scrollProgress={scrollProgress} />
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="absolute top-6 right-4 p-2 text-white/50 hover:text-white transition-colors z-50"
+            >
+              <InfoCircleIcon size="md" />
+            </button>
           </div>
 
           {/* News Feed - fills remaining space */}
-          <animated.div
-            className="relative z-10 flex-1 flex flex-col min-h-0"
-            style={springs}
-          >
+          <div className="relative z-10 flex-1 flex flex-col min-h-0">
             <NewsFeed
-              headlines={filteredHeadlines}
+              headlines={headlines}
               onHeadlineClick={handleHeadlineClick}
               onScroll={handleScroll}
               loading={loading}
             />
-          </animated.div>
+          </div>
         </>
       ) : (
         /* Event View - full screen */
         <div className="relative z-10 flex-1 flex flex-col min-h-0">
           <EventView
             headline={selectedHeadline?.title || ''}
+            marketId={selectedAlertMarketId || undefined}
             onBack={handleBackToFeed}
           />
         </div>
       )}
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="How it works"
+      >
+        <p className="pb-2">
+          Our AI agents scan the world's information to bring you the most important stories, verified and summarized for clarity.
+        </p>
+        <p>
+          We analyze thousands of sources in real-time to provide you with accurate, unbiased updates on what matters most.
+        </p>
+      </Modal>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Chart from '../../components/Chart';
 import type { Event, Market } from '../../types/polymarket';
+import { API_CONFIG } from '@/lib/api/config';
 
 interface PriceHistoryData {
   history: Array<{ t: number; p: number }>;
@@ -36,7 +37,7 @@ export default function ChartDemoPage() {
         const featuredEvents: Event[] = [];
         for (const slug of featuredSlugs) {
           try {
-            const response = await fetch(`http://localhost:8082/api/events/slug/${slug}`);
+            const response = await fetch(`${API_CONFIG.baseURL}/api/events/slug/${slug}`);
             if (response.ok) {
               const event = await response.json();
               if (event.markets && event.markets.length > 0) {
@@ -49,7 +50,7 @@ export default function ChartDemoPage() {
         }
 
         // Fetch general events
-        const response = await fetch('http://localhost:8082/api/events?limit=100&closed=false');
+        const response = await fetch(`${API_CONFIG.baseURL}/api/events?limit=100&closed=false`);
         const data = await response.json();
         
         // Filter out crypto up/down events and events without markets

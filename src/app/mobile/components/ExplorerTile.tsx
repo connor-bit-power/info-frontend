@@ -4,6 +4,7 @@ import Tile from './Tile';
 import MarketTile from './MarketTile';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { API_CONFIG } from '@/lib/api/config';
 
 interface ExplorerTileProps {
     isDarkMode?: boolean;
@@ -18,7 +19,7 @@ export default function ExplorerTile({ isDarkMode = true, className, style }: Ex
     useEffect(() => {
         const fetchMarkets = async () => {
             try {
-                const response = await fetch('http://localhost:8082/api/markets/search?limit=20&active=true&closed=false&sortBy=volume&order=desc&minVolume=1000');
+                const response = await fetch(`${API_CONFIG.baseURL}/api/markets/search?limit=20&active=true&closed=false&sortBy=volume&order=desc&minVolume=1000`);
                 const data = await response.json();
                 setEvents(data.items || []);
             } catch (error) {
